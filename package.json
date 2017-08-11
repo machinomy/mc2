@@ -1,0 +1,32 @@
+{
+  "name": "machinomy-contracts",
+  "version": "1.0.0",
+  "description": "Machinomy contracts managed by Truffle",
+  "main": "truffle.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "truffle test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/machinomy/machinomy-contracts.git"
+  },
+  "author": "Sergey Ukustov <sergey.ukustov@machinomy.com",
+  "contributors": [
+    "David Wolever <david@wolever.net>"
+  ],
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/machinomy/machinomy-contracts/issues"
+  },
+  "homepage": "https://github.com/machinomy/machinomy-contracts#readme",
+  "devDependencies": {
+    "ethereumjs-testrpc": "^4.0.1",
+    "truffle": "^3.2.93"
+  },
+  "dependencies": {
+    "zeppelin-solidity": "^1.2.0"
+  }
+}
