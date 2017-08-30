@@ -1,0 +1,8 @@
+.vscode/
+datadir
+node_modules/
+.env
+yarn-error.log
+build/
+**/*.d.ts
+**/*.js.map
