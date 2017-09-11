@@ -27,6 +27,12 @@
     "truffle": "^3.2.93"
   },
   "dependencies": {
+    "@types/chai": "^4.0.4",
+    "@types/mocha": "^2.2.42",
+    "buffer": "^5.0.7",
+    "chai": "^4.1.2",
+    "ethereumjs-util": "^5.1.2",
+    "machinomy": "https://github.com/machinomy/machinomy#master",
     "zeppelin-solidity": "^1.2.0"
   }
 }

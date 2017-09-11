@@ -58,12 +58,10 @@ contract Broker is Destructible {
         DidDeposit(channelId, msg.value);
     }
 
-    /* Receiver settles channel */
-    function claim(bytes32 channelId, uint256 payment, uint8 sigV, bytes32 sigR, bytes32 sigS) public {
-        if (!canClaim(msg.sender, channelId, payment, sigV, sigR, sigS))
-            return;
+    function claim(bytes32 channelId, uint256 payment, bytes32 h, uint8 v, bytes32 r, bytes32 s) public {
+        if (!canClaim(channelId, h, v, r, s)) return;
 
-        settle(channelId, payment);
+        this.settle(channelId, payment);
     }
 
     /* Sender starts settling */
@@ -123,21 +121,10 @@ contract Broker is Destructible {
             channel.sender == sender;
     }
 
-    function canClaim(address sender, bytes32 channelId, uint256 payment, uint8 sigV, bytes32 sigR, bytes32 sigS) private constant returns(bool) {
-        var channel = channels[channelId];
-        if (!(channel.state == ChannelState.Open || channel.state == ChannelState.Settling))
-            return false;
-
-        // Only the channel's recipient can make an immediate claim
-        if (sender != channel.receiver)
-            return false;
-
-        return isStateUpdateSigValid(
-            sender,
-            chainId, address(this), channelId,
-            payment,
-            sigV, sigR, sigS
-        );
+    function canClaim(bytes32 channelId, bytes32 h, uint8 v, bytes32 r, bytes32 s) constant returns(bool) {
+      var channel = channels[channelId];
+      return (channel.state == ChannelState.Open || channel.state == ChannelState.Settling) &&
+          channel.sender == ecrecover(h, v, r, s);
     }
 
     function isStateUpdateSigValid(
