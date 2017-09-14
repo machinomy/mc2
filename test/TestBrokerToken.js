@@ -75,7 +75,6 @@ contract("BrokerToken", accounts => {
      await instanceERC20example.approve(instanceBrokerToken.address, startChannelValue, { from: sender })
      const res = await instanceBrokerToken.createChannel(instanceERC20example.address, receiver, 100, 1, startChannelValue, { from: sender });
      const channelId = res.logs[0].args.channelId
-     console.log(channelId)
 
      const startReciverBalance = (await instanceERC20example.balanceOf(receiver)).toNumber()
 
