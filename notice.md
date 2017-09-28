@@ -1,0 +1,1 @@
+generate machinomy channel id by sha3(reciver + sender + contractAddress)

@@ -13,7 +13,7 @@ BrokerTokenContract.setProvider(provider)
 BrokerContract.setProvider(provider)
 
 let buildERC20Contract = (address: string) => {
-  Object.assign(ERC20Json, { networks: {'1506328416520': {address}}} )
+  Object.assign(ERC20Json, { networks: {'228': {address}}} )
   const ERC20Contract = truffleContract(ERC20Json)
   ERC20Contract.setProvider(provider)
   return ERC20Contract
