@@ -65,9 +65,9 @@ export default {
       "events": {},
       "links": {},
       "address": "0x67ad362c9054ecac4e84b9e45ba3267527b6c829",
-      "updated_at": 1506615898505
+      "updated_at": 1506698027497
     }
   },
   "schema_version": "0.0.5",
-  "updated_at": 1506615898505
+  "updated_at": 1506698027497
 }

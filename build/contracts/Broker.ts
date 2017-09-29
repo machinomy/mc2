@@ -602,9 +602,9 @@ export default {
       },
       "links": {},
       "address": "0xece88c65fb4d46a9f7eebeedc2bfd8d62d0796ae",
-      "updated_at": 1506615898380
+      "updated_at": 1506698027386
     }
   },
   "schema_version": "0.0.5",
-  "updated_at": 1506615898380
+  "updated_at": 1506698027386
 }

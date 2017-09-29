@@ -632,10 +632,10 @@ exports.default = {
             },
             "links": {},
             "address": "0x8782a714fa24e789c8eb3aa1d17e774a74ebff67",
-            "updated_at": 1506615898385
+            "updated_at": 1506698027394
         }
     },
     "schema_version": "0.0.5",
-    "updated_at": 1506615898385
+    "updated_at": 1506698027394
 };
 //# sourceMappingURL=BrokerToken.js.map

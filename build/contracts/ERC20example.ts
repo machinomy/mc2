@@ -345,9 +345,9 @@ export default {
       },
       "links": {},
       "address": "0x8ad5c3cd38676d630b060a09baa40b0a3cb0b4b5",
-      "updated_at": 1506615898505
+      "updated_at": 1506698027497
     }
   },
   "schema_version": "0.0.5",
-  "updated_at": 1506615898505
+  "updated_at": 1506698027497
 }
