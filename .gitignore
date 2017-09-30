@@ -5,6 +5,8 @@ node_modules/
 yarn-error.log
 
 **/*.js.map
+**/*.d.ts
+
 build/contracts/*.js
 types/*.js
 index.js
