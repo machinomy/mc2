@@ -32,7 +32,7 @@ declare const _default: {
     })[];
     "unlinked_binary": string;
     "networks": {
-        "228": {
+        "999": {
             "events": {
                 "0x2168a0a10cb12f43941acf9cdef54ba002be7269f2b8b38d4ee9e54eb48a4662": {
                     "anonymous": boolean;

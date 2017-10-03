@@ -1,5 +1,4 @@
 var fs = require('fs')
-const filename = './build/contracts/SafeMath.json'
 const path = './build/contracts/'
 fs.readdirSync(path).forEach(function (filename) {
   let data = fs.readFileSync(path + filename, 'utf8')
@@ -11,5 +10,4 @@ fs.readdirSync(path).forEach(function (filename) {
   newFilename.push('ts')
   newFilename = newFilename.join('.')
   fs.writeFileSync(path + newFilename, linesExceptFirst);
-  fs.unlinkSync(path + filename)
 });
