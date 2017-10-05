@@ -172,5 +172,5 @@ export default {
   "unlinked_binary": "0x",
   "networks": {},
   "schema_version": "0.0.5",
-  "updated_at": 1507021128997
+  "updated_at": 1507209586740
 }
