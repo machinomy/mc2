@@ -7,13 +7,13 @@ const truffleContract = require('truffle-contract')
 import { Broker, BrokerToken } from './types/index'
 
 export interface TruffleContract<A> {
-  deployed(): Promise<A>
+  deployed (): Promise<A>
 }
 
 export let buildERC20Contract = (address: string, web3: Web3): Promise<any> => {
   return new Promise((resolve, reject) => {
     web3.version.getNetwork((error, result) => {
-      if(error) {
+      if (error) {
         return reject(error)
       }
       let networks: any = {}
@@ -37,7 +37,3 @@ export let buildBrokerTokenContract = (web3: Web3): TruffleContract<BrokerToken.
   BrokerTokenContract.setProvider(web3.currentProvider)
   return BrokerTokenContract
 }
-
-
-
-
