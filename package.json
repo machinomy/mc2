@@ -12,7 +12,8 @@
     "json_to_ts": "node json_to_ts.js",
     "build": "truffle migrate; yarn json_to_ts; tsc;",
     "build_ropsten": "truffle migrate --network ropsten; yarn json_to_ts; tsc;",
-    "deploy": "ansible-playbook -i deploy/hosts deploy/deploy.yml"
+    "deploy": "ansible-playbook -i deploy/hosts deploy/deploy.yml",
+    "lint": "tslint -t stylish --type-check -p '.' -e './build/**/*.ts'"
   },
   "repository": {
     "type": "git",
@@ -29,7 +30,10 @@
   "homepage": "https://github.com/machinomy/machinomy-contracts#readme",
   "devDependencies": {
     "ethereumjs-testrpc": "^4.1.3",
-    "truffle": "^3.2.93"
+    "truffle": "^3.2.93",
+    "tslint": "^5.7.0",
+    "tslint-config-standard": "^6.0.1",
+    "typescript": "^2.5.3"
   },
   "dependencies": {
     "@types/bignumber.js": "^4.0.3",
