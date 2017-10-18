@@ -4,7 +4,8 @@ import BrokerTokenJson from './build/contracts/BrokerToken'
 import BrokerJson from './build/contracts/Broker'
 import ERC20Json from './build/contracts/ERC20'
 const truffleContract = require('truffle-contract')
-import { Broker, BrokerToken } from './types/index'
+import { Broker } from './types/Broker'
+import { BrokerToken } from './types/BrokerToken'
 
 export interface TruffleContract<A> {
   deployed (): Promise<A>

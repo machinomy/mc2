@@ -2,9 +2,9 @@ export namespace BrokerToken {
   export interface Contract {
     address: string
     createChannel (address: string, receiver: string, duration: number, settlementPeriod: number, value: number, options: any): any
-    startSettle (channelId: string, payment: String, options: any): any
+    startSettle (channelId: string, payment: String, options: any): Promise<void>
     claim (address: string, channelId: string, value: number, h: string, v: number, r: string, s: string, options: any): any
-    finishSettle (address: string, channelId: string, options: any): any
+    finishSettle (address: string, channelId: string, options: any): Promise<void>
     deposit (address: string, channelId: string, value: number, options: any): any
 
     canClaim (channelId: string, h: string, v: number, r: string, s: string): any
