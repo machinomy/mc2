@@ -1,7 +1,7 @@
-var util = require('ethereumjs-util')
+const util = require('ethereumjs-util')
 import Web3 = require('web3')
-var abi = require('ethereumjs-abi')
-var BN = require('bn.js')
+const abi = require('ethereumjs-abi')
+const BN = require('bn.js')
 import BigNumber from 'bignumber.js'
 
 export interface Signature {
@@ -9,11 +9,11 @@ export interface Signature {
   r: Buffer
   s: Buffer
 }
-  
+
 export function soliditySHA3 (channelId: string, value: number, contractAddress: string, chainId: string): string {
   return abi.soliditySHA3(
-    [ "bytes32", "uint256", "address", "uint32"],
-    [ channelId.toString(), new BigNumber(value).toString(), new BN(contractAddress, 16), chainId]
+    ['bytes32', 'uint256', 'address', 'uint32'],
+    [channelId.toString(), new BigNumber(value).toString(), new BN(contractAddress, 16), chainId]
   ).toString('hex')
 }
 
