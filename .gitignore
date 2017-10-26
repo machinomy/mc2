@@ -8,5 +8,8 @@ yarn-error.log
 **/*.d.ts
 
 build/contracts/*.js
+helpers/*.js
 types/*.js
 index.js
+
+.DS_Store

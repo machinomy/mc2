@@ -1,9 +1,9 @@
 var Broker = artifacts.require("./Broker.sol");
-var BrokerToken = artifacts.require("./BrokerToken.sol")
+var TokenBroker = artifacts.require("./TokenBroker.sol")
 var ERC20example = artifacts.require("./ERC20example.sol");
 
 module.exports = async function(deployer) {
-  deployer.deploy(Broker);
-  deployer.deploy(BrokerToken);
+  deployer.deploy(Broker, deployer.network_id);
+  deployer.deploy(TokenBroker, deployer.network_id);
   deployer.deploy(ERC20example);  
 };

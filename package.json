@@ -10,10 +10,11 @@
   "scripts": {
     "test": "truffle test",
     "json_to_ts": "node json_to_ts.js",
-    "build": "truffle migrate; yarn json_to_ts; tsc;",
-    "build_ropsten": "truffle migrate --network ropsten; yarn json_to_ts; tsc;",
-    "deploy": "ansible-playbook -i deploy/hosts deploy/deploy.yml",
-    "lint": "tslint -t stylish --type-check -p '.' -e './build/**/*.ts'"
+    "migrate": "truffle migrate",
+    "migrate_ropsten": "truffle migrate --network ropsten",
+    "build": "yarn json_to_ts && tsc",
+    "lint": "tslint -t stylish --type-check -p '.' -e './build/**/*.ts'",
+    "prepublish": "yarn lint && yarn build"
   },
   "repository": {
     "type": "git",
@@ -38,8 +39,10 @@
   "dependencies": {
     "@types/bignumber.js": "^4.0.3",
     "@types/node": "^8.0.28",
+    "bignumber.js": "^4.1.0",
     "buffer": "^5.0.7",
     "chai": "^4.1.2",
+    "ethereumjs-abi": "https://github.com/ethereumjs/ethereumjs-abi",
     "ethereumjs-util": "^5.1.2",
     "truffle-contract": "^3.0.0",
     "web3": "^0.20.1",

@@ -1,13 +1,14 @@
 // Specifically request an abstraction for MetaCoin
 var Web3 = require("web3");
 var web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"))
-var BrokerToken = artifacts.require("BrokerToken")
+var BrokerToken = artifacts.require("TokenBroker")
 var ERC20example = artifacts.require("ERC20example")
 var expect = require("chai").expect
 var helpers = require("../helpers/sign")
-var ethHash = helpers.ethHash
+var soliditySHA3 = helpers.soliditySHA3
 var digest = helpers.digest
 var sign = helpers.sign
+var getNetwork = require('../helpers/web3').getNetwork
 
 contract("BrokerToken", accounts => {
   var instanceBrokerToken;
@@ -55,17 +56,17 @@ contract("BrokerToken", accounts => {
      await instanceERC20example.approve(instanceBrokerToken.address, startChannelValue, { from: sender })
      const res = await instanceBrokerToken.createChannel(instanceERC20example.address, receiver, 100, 1, startChannelValue, { from: sender });
      const channelId = res.logs[0].args.channelId
-
-     const paymentDigest = digest(channelId, startChannelValue);
+     const chainId = await getNetwork(web3)
+     const paymentDigest = soliditySHA3(channelId, startChannelValue, instanceBrokerToken.address, chainId)
+    
      const signature = await sign(web3, sender, paymentDigest);
      const v = signature.v;
      const r = "0x" + signature.r.toString("hex");
      const s = "0x" + signature.s.toString("hex");
-     const h = ethHash(channelId.toString() + startChannelValue.toString());
 
      const startReciverBalance = (await instanceERC20example.balanceOf(receiver)).toNumber()
 
-     await instanceBrokerToken.claim(instanceERC20example.address, channelId, startChannelValue, h, Number(v), r, s, {from: receiver});
+     await instanceBrokerToken.claim(instanceERC20example.address, channelId, startChannelValue, Number(v), r, s, {from: receiver});
      const newReciverBalance = (await instanceERC20example.balanceOf(receiver)).toNumber()
 
      expect(newReciverBalance).to.equal(startReciverBalance + startChannelValue);

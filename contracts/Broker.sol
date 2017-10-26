@@ -58,8 +58,8 @@ contract Broker is Destructible {
         DidDeposit(channelId, msg.value);
     }
 
-    function claim(bytes32 channelId, uint256 payment, bytes32 h, uint8 v, bytes32 r, bytes32 s) public {
-        if (!canClaim(channelId, h, v, r, s)) return;
+    function claim(bytes32 channelId, uint256 payment, uint8 v, bytes32 r, bytes32 s) public {
+        if (!canClaim(channelId, payment, v, r, s)) return;
 
         this.settle(channelId, payment);
     }
@@ -121,10 +121,13 @@ contract Broker is Destructible {
             channel.sender == sender;
     }
 
-    function canClaim(bytes32 channelId, bytes32 h, uint8 v, bytes32 r, bytes32 s) constant returns(bool) {
+    function canClaim(bytes32 channelId, uint256 value, uint8 v, bytes32 r, bytes32 s) constant returns(bool) {
       var channel = channels[channelId];
+      bytes memory prefix = "\x19Ethereum Signed Message:\n32";
+      bytes32 hh = sha3(channelId, value, address(this), chainId);
+      bytes32 prefixedHash = sha3(prefix, hh);
       return (channel.state == ChannelState.Open || channel.state == ChannelState.Settling) &&
-          channel.sender == ecrecover(h, v, r, s);
+          channel.sender == ecrecover(prefixedHash, v, r, s);
     }
 
     function isStateUpdateSigValid(

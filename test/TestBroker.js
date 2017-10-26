@@ -4,11 +4,12 @@ var Web3 = require('web3')
 var Buffer = require('buffer').Buffer
 var helpers = require('../helpers/sign')
 var ethHash = helpers.ethHash
-var digest = helpers.digest
+var soliditySHA3 = helpers.soliditySHA3
 var sign = helpers.sign
 var web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'))
 var Broker = artifacts.require("Broker");
 var expect = require("chai").expect;
+var getNetwork = require('../helpers/web3').getNetwork
 
 contract('Broker', (accounts) => {
   var instance
@@ -48,13 +49,13 @@ contract('Broker', (accounts) => {
     const event = await createChannel(instance, sender, receiver)
     const channelId = event.args.channelId
     const value = 1
-    const paymentDigest = digest(channelId, value)
+    const chainId = await getNetwork(web3)
+    const paymentDigest = soliditySHA3(channelId, value, instance.address, chainId)
     const signature = await sign(web3, sender, paymentDigest)
     const v = signature.v
     const r = "0x" + signature.r.toString("hex")
     const s = "0x" + signature.s.toString("hex")
-    const h = ethHash(channelId.toString() + value.toString())
-    const evt = await instance.claim(channelId, value, h ,Number(v), r, s, {from: receiver})
+    const evt = await instance.claim(channelId, value, Number(v), r, s, {from: receiver})
 
     expect(evt.logs[0].event).to.equal("DidSettle")
     expect(evt.logs[0].args.payment.toString()).to.equal(value.toString());

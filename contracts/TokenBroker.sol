@@ -4,7 +4,7 @@ pragma solidity ^0.4.11;
 import 'zeppelin-solidity/contracts/lifecycle/Destructible.sol';
 import 'zeppelin-solidity/contracts/token/StandardToken.sol';
 
-contract BrokerToken is Destructible {
+contract TokenBroker is Destructible {
   enum ChannelState { Open, Settling, Settled }
   struct PaymentChannel {
     address sender;
@@ -26,7 +26,7 @@ contract BrokerToken is Destructible {
   event DidStartSettle(bytes32 indexed channelId, uint256 payment);
   event DidSettle(bytes32 indexed channelId, uint256 payment, uint256 oddValue);
 
-  function BrokerToken(uint32 _chainId) {
+  function TokenBroker(uint32 _chainId) {
     chainId = _chainId;
     id = 0;
   }
@@ -58,8 +58,8 @@ contract BrokerToken is Destructible {
     DidDeposit(channelId, value);
   }
 
-  function claim(address erc20Contract, bytes32 channelId, uint256 payment, bytes32 h, uint8 v, bytes32 r, bytes32 s) public {
-    if (!canClaim(channelId, h, v, r, s)) {
+  function claim(address erc20Contract, bytes32 channelId, uint256 payment, uint8 v, bytes32 r, bytes32 s) public {
+    if (!canClaim(channelId, payment, v, r, s)) {
       return;
     }
 
@@ -126,10 +126,13 @@ contract BrokerToken is Destructible {
       channel.sender == sender;
   }
 
-  function canClaim(bytes32 channelId, bytes32 h, uint8 v, bytes32 r, bytes32 s) constant returns(bool) {
+  function canClaim(bytes32 channelId, uint256 value, uint8 v, bytes32 r, bytes32 s) constant returns(bool) {
     var channel = channels[channelId];
+    bytes memory prefix = "\x19Ethereum Signed Message:\n32";
+    bytes32 hh = sha3(channelId, value, address(this), chainId);
+    bytes32 prefixedHash = sha3(prefix, hh);
     return (channel.state == ChannelState.Open || channel.state == ChannelState.Settling) &&
-      channel.sender == ecrecover(h, v, r, s);
+      channel.sender == ecrecover(prefixedHash, v, r, s);
   }
 
   function isStateUpdateSigValid(
