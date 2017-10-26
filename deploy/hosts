@@ -1,2 +1,0 @@
-[webservers]
-staging.machinomy.com  ansible_connection=ssh ansible_user=ubuntu
