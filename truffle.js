@@ -9,8 +9,9 @@ module.exports = {
       host: "localhost",
       port: 8545,
       network_id: 3,
-      from: '0x20aac3cd557ec4b91c1545e39cd0495f6aecd5a7',
-      password: process.env.PASSWORD
+      from: '0x5D20CFdC322827519bDfC362Add9A98d65922e2C',
+      password: process.env.PASSWORD,
+      gas: 1700000
     }
   }
 };
