@@ -33,6 +33,7 @@
   },
   "author": "Sergey Ukustov <sergey.ukustov@machinomy.com",
   "contributors": [
+    "Alexandr Burtovoy <alexandr.burtovoy@machinomy.com>",
     "David Wolever <david@wolever.net>"
   ],
   "license": "Apache-2.0",
