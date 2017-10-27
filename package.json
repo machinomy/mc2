@@ -1,9 +1,20 @@
 {
-  "name": "machinomy-contracts",
-  "version": "0.0.1-alpha.3",
+  "name": "@machinomy/contracts",
+  "version": "1.0.1",
   "description": "Machinomy contracts managed by Truffle",
   "main": "index.js",
   "types": "index.d.ts",
+  "files": [
+    "build/",
+    "contracts/",
+    "helpers/",
+    "migrations/",
+    "test/",
+    "types/",
+    "index.d.ts",
+    "index.js",
+    "index.js.map"
+  ],
   "directories": {
     "test": "test"
   },
@@ -14,7 +25,7 @@
     "migrate_ropsten": "truffle migrate --network ropsten",
     "build": "yarn json_to_ts && tsc",
     "lint": "tslint -t stylish --type-check -p '.' -e './build/**/*.ts'",
-    "prepublish": "yarn lint && yarn build"
+    "prepare": "yarn lint && yarn build"
   },
   "repository": {
     "type": "git",
