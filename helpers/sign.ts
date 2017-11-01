@@ -11,7 +11,7 @@ export interface Signature {
 }
 
 export function soliditySHA3 (channelId: string, value: BigNumber, contractAddress: string, chainId: string): string {
-  return abi.soliditySHA3(
+  return '0x' + abi.soliditySHA3(
     ['bytes32', 'uint256', 'address', 'uint32'],
     [channelId.toString(), new BigNumber(value).toString(), new BN(contractAddress, 16), chainId]
   ).toString('hex')
