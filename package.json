@@ -1,6 +1,6 @@
 {
   "name": "@machinomy/contracts",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "description": "Machinomy contracts managed by Truffle",
   "main": "index.js",
   "types": "index.d.ts",
