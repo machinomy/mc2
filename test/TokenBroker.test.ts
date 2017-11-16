@@ -56,7 +56,7 @@ contract('TokenBroker', async accounts => {
     expect(newBalance).to.deep.equal(startBalance.plus(startChannelValue))
   })
 
-  it('claimed by reciver', async () => {
+  it('claimed by receiver', async () => {
     let { broker, token } = await setup()
 
     await token.approve(broker.address, startChannelValue, { from: sender })
