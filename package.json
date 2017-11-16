@@ -19,7 +19,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "run-with-testrpc --networkId 999 --mnemonic 'testtest' --unlock 0 'truffle test'",
+    "test": "run-with-testrpc --networkId 999 --mnemonic 'testtest' --unlock 0 'truffle test ./test/*.test.js'",
     "truffle:migrate": "truffle migrate",
     "truffle:migrate:ropsten": "truffle migrate --network ropsten",
     "build": "tsc",
