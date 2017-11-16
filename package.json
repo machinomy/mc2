@@ -42,7 +42,9 @@
   "devDependencies": {
     "@types/bignumber.js": "^4.0.3",
     "@types/chai": "^4.0.5",
+    "@types/chai-as-promised": "^7.1.0",
     "@types/node": "^8.0.28",
+    "chai-as-promised": "^7.1.1",
     "run-with-testrpc": "^0.2.1",
     "truffle": "^3.2.93",
     "tslint": "^5.7.0",

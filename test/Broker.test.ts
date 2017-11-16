@@ -1,9 +1,12 @@
 import Web3 = require('web3')
 import chai = require('chai')
+import asPromised = require('chai-as-promised')
 import Broker from '../src/Broker'
 import BigNumber from 'bignumber.js'
 import {getNetwork} from './support'
 import {sign, soliditySHA3} from '../src/index'
+
+chai.use(asPromised)
 
 const expect = chai.expect
 
@@ -23,7 +26,7 @@ contract('Broker', accounts => {
     return log.logs[0]
   }
 
-  it('creates channel', async () => {
+  it('create channel', async () => {
     let instance = await Broker.deployed(web3.currentProvider)
     let event = await createChannel(instance)
 
@@ -31,7 +34,7 @@ contract('Broker', accounts => {
     expect(event.args.channelId).to.be.a('string');
   })
 
-  it('makes deposit', async () => {
+  it('deposit', async () => {
     let instance = await Broker.deployed(web3.currentProvider)
     const event = await createChannel(instance)
 
@@ -46,7 +49,7 @@ contract('Broker', accounts => {
     expect(endBalance).to.deep.equal(startBalance.plus(delta))
   })
 
-  it('claimed by reciver', async () => {
+  it('claim by receiver', async () => {
     let instance = await Broker.deployed(web3.currentProvider)
     const event = await createChannel(instance)
 
@@ -64,10 +67,8 @@ contract('Broker', accounts => {
     expect(evt.logs[0].args.payment.toString()).to.equal(value.toString());
   })
 
-  it('closed by sender', async () => {
+  it('close by sender', async () => {
     let instance = await Broker.deployed(web3.currentProvider)
-
-    const startBalance = await web3.eth.getBalance(instance.address)
 
     const didCreateEvent = await createChannel(instance)
     const channelId = didCreateEvent.args.channelId
@@ -76,12 +77,10 @@ contract('Broker', accounts => {
     const startSettleResult = await instance.startSettle(channelId, value, { from: sender })
     expect(startSettleResult.logs[0].event).to.equal('DidStartSettle')
 
-    // TODO This is a clear bug
-    const finishSettleResult = await instance.finishSettle(channelId, { from: sender })
-    expect(finishSettleResult.logs[0].event).to.equal('DidSettle')
+    const canFinishSettle = await instance.canFinishSettle(sender, channelId)
+    expect(canFinishSettle).to.be.false
 
-    const balance = await web3.eth.getBalance(instance.address)
-    expect(balance).to.deep.equal(startBalance)
+    expect(instance.finishSettle(channelId, { from: sender })).be.rejected
   })
 })
 

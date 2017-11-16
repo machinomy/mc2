@@ -59,7 +59,7 @@ contract Broker is Destructible {
     }
 
     function claim(bytes32 channelId, uint256 payment, uint8 v, bytes32 r, bytes32 s) public {
-        if (!canClaim(channelId, payment, v, r, s)) return;
+        require(canClaim(channelId, payment, v, r, s));
 
         this.settle(channelId, payment);
     }
@@ -67,6 +67,7 @@ contract Broker is Destructible {
     /* Sender starts settling */
     function startSettle(bytes32 channelId, uint256 payment) public {
         require(canStartSettle(msg.sender, channelId));
+
         var channel = channels[channelId];
         channel.state = ChannelState.Settling;
         channel.until = now + channel.settlementPeriod;
@@ -95,20 +96,20 @@ contract Broker is Destructible {
     function settle(bytes32 channelId, uint256 payment) {
       var channel = channels[channelId];
       uint256 paid = payment;
-      uint256 oddMoney = 0;
+      uint256 change = 0;
 
       if (payment > channel.value) {
         paid = channel.value;
         require(channel.receiver.send(paid));
       } else {
         require(channel.receiver.send(paid));
-        oddMoney = channel.value - paid;
-        require(channel.sender.send(oddMoney));
+        change = channel.value - paid;
+        require(channel.sender.send(change));
         channel.value = 0;
       }
 
       channels[channelId].state = ChannelState.Settled;
-      DidSettle(channelId, payment, oddMoney);
+      DidSettle(channelId, payment, change);
     }
 
     /******** CAN CHECKS ********/
@@ -154,7 +155,7 @@ contract Broker is Destructible {
         var channel = channels[channelId];
         return channel.state == ChannelState.Settling &&
             (sender == channel.sender || sender == owner) &&
-            channel.until >= now;
+            channel.until <= now;
     }
 
     /******** READERS ********/
