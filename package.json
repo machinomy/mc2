@@ -19,7 +19,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "truffle test",
+    "test": "run-with-testrpc --networkId 999 --mnemonic 'testtest' --unlock 0 'truffle test'",
     "json_to_ts": "node json_to_ts.js",
     "migrate": "truffle migrate",
     "migrate_ropsten": "truffle migrate --network ropsten",
@@ -44,7 +44,7 @@
   "devDependencies": {
     "@types/bignumber.js": "^4.0.3",
     "@types/node": "^8.0.28",
-    "ethereumjs-testrpc": "^4.1.3",
+    "run-with-testrpc": "^0.2.1",
     "truffle": "^3.2.93",
     "tslint": "^5.7.0",
     "tslint-config-standard": "^6.0.1",
