@@ -1,13 +1,14 @@
 import Web3 = require('web3')
 
-import TokenBrokerJson from './build/contracts/TokenBroker'
-import BrokerJson from './build/contracts/Broker'
-import ERC20Json from './build/contracts/ERC20'
 const truffleContract = require('truffle-contract')
 import { Broker } from './types/Broker'
 import { TokenBroker } from './types/TokenBroker'
 import { sign, soliditySHA3 } from './helpers/sign'
 export { sign, soliditySHA3 }
+
+const TokenBrokerJson = require('./build/contracts/TokenBroker.json')
+const BrokerJson = require('./build/contracts/Broker.json')
+const ERC20Json = require('./build/contracts/ERC20.json')
 
 export interface TruffleContract<A> {
   deployed (): Promise<A>
