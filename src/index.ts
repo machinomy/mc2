@@ -1,14 +1,40 @@
-import Web3 = require('web3')
-
 const truffleContract = require('truffle-contract')
 import { Broker } from './Broker'
 import { TokenBroker } from './TokenBroker'
-import { sign, soliditySHA3 } from './sign'
-export { sign, soliditySHA3 }
+const util = require('ethereumjs-util')
+import Web3 = require('web3')
+const abi = require('ethereumjs-abi')
+const BN = require('bn.js')
+import BigNumber from 'bignumber.js'
 
 const TokenBrokerJson = require('../build/contracts/TokenBroker.json')
 const BrokerJson = require('../build/contracts/Broker.json')
 const ERC20Json = require('../build/contracts/ERC20.json')
+
+export interface Signature {
+  v: number
+  r: Buffer
+  s: Buffer
+}
+
+export function sign (web3: Web3, sender: string, digest: string): Promise<Signature> {
+  return new Promise<Signature>((resolve, reject) => {
+    web3.eth.sign(sender, digest, (error, signature) => {
+      if (error) {
+        reject(error)
+      } else {
+        resolve(util.fromRpcSig(signature))
+      }
+    })
+  })
+}
+
+export function soliditySHA3 (channelId: string, value: BigNumber, contractAddress: string, chainId: number): string {
+  return '0x' + abi.soliditySHA3(
+    ['bytes32', 'uint256', 'address', 'uint32'],
+    [channelId.toString(), new BigNumber(value).toString(), new BN(contractAddress, 16), chainId]
+  ).toString('hex')
+}
 
 export let buildERC20Contract = (address: string, web3: Web3): Promise<any> => {
   return new Promise((resolve, reject) => {
