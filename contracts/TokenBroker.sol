@@ -159,7 +159,7 @@ contract TokenBroker is Destructible {
     var channel = channels[channelId];
     return channel.state == ChannelState.Settling &&
       (sender == channel.sender || sender == owner) &&
-      channel.until >= now;
+      channel.until <= now;
   }
 
   /******** READERS ********/

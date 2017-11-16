@@ -62,16 +62,16 @@ contract('TokenBroker', async accounts => {
     await token.approve(broker.address, startChannelValue, { from: sender })
     const res = await broker.createChannel(token.address, receiver, 100, 1, startChannelValue, { from: sender, gas: 200000 });
     const channelId = res.logs[0].args.channelId
+
     const chainId = await getNetwork(web3)
     const paymentDigest = soliditySHA3(channelId, startChannelValue, broker.address, chainId)
-
-    const signature = await sign(web3, sender, paymentDigest);
-    const v = signature.v;
-    const r = '0x' + signature.r.toString('hex');
-    const s = '0x' + signature.s.toString('hex');
+    const signature = await sign(web3, sender, paymentDigest)
+    const v = signature.v
+    const r = '0x' + signature.r.toString('hex')
+    const s = '0x' + signature.s.toString('hex')
 
     const startReceiverBalance = await token.balanceOf(receiver)
-    await broker.claim(token.address, channelId, startChannelValue, Number(v), r, s, {from: receiver, gas: 200000});
+    await broker.claim(token.address, channelId, startChannelValue, Number(v), r, s, {from: receiver, gas: 200000})
     const newReceiverBalance = await token.balanceOf(receiver)
 
     expect(newReceiverBalance).to.deep.equal(startReceiverBalance.plus(startChannelValue))
@@ -87,11 +87,36 @@ contract('TokenBroker', async accounts => {
     const startBalance = await token.balanceOf(receiver)
 
     await broker.startSettle(channelId, startChannelValue, {from: sender})
-    await broker.finishSettle(token.address, channelId, {from: sender})
 
-    const finishBalaance = await token.balanceOf(receiver)
-    expect(finishBalaance).to.deep.equal(startBalance.plus(startChannelValue))
+    expect(async () => {
+      await broker.finishSettle(token.address, channelId, { from: sender })
+    }).to.throw
+
+    const finishBalance = await token.balanceOf(receiver)
+    expect(finishBalance).to.deep.equal(startBalance)
+  })
+
+  it(`closed by sender, then by receiver`, async () => {
+    let { broker, token } = await setup()
+
+    await token.approve(broker.address, startChannelValue, { from: sender })
+    const res = await broker.createChannel(token.address, receiver, 100, 1, startChannelValue, { from: sender, gas: 200000 });
+    const channelId = res.logs[0].args.channelId
+
+    await broker.startSettle(channelId, startChannelValue, {from: sender})
+
+    const chainId = await getNetwork(web3)
+    const paymentDigest = soliditySHA3(channelId, startChannelValue, broker.address, chainId)
+    const signature = await sign(web3, sender, paymentDigest)
+    const v = signature.v
+    const r = '0x' + signature.r.toString('hex')
+    const s = '0x' + signature.s.toString('hex')
+
+    const balanceBefore = await token.balanceOf(receiver)
+    await broker.claim(token.address, channelId, startChannelValue, Number(v), r, s, {from: receiver, gas: 200000})
+    const balanceAfter = await token.balanceOf(receiver)
+
+    expect(balanceAfter).to.deep.equal(balanceBefore.plus(startChannelValue))
   })
 
 })
-
