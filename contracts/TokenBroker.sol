@@ -33,7 +33,7 @@ contract TokenBroker is Destructible {
 
   /* Create payment channel */
   function createChannel(address erc20Contract, address receiver, uint duration, uint settlementPeriod, uint256 value) public returns(bytes32) {
-    var channelId = sha3(id++);
+    var channelId = sha3(now + id++);
     var sender = msg.sender;
     var c = StandardToken(erc20Contract);
     require(c.transferFrom(sender, address(this), value));

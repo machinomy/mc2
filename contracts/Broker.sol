@@ -37,7 +37,7 @@ contract Broker is Destructible {
 
     /* Create payment channel */
     function createChannel(address receiver, uint duration, uint settlementPeriod) public payable returns(bytes32) {
-        var channelId = sha3(block.number + id++);
+        var channelId = sha3(now + id++);
         var sender = msg.sender;
         var value = msg.value;
         channels[channelId] =
