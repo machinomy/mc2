@@ -19,9 +19,10 @@
     "test": "test"
   },
   "scripts": {
-    "test": "run-with-testrpc --networkId 999 --mnemonic 'testtest' --unlock 0 'truffle test ./test/*.test.js'",
+    "truffle:test": "run-with-testrpc --networkId 999 --mnemonic 'testtest' --unlock 0 'truffle test ./test/*.test.js'",
     "truffle:migrate": "truffle migrate",
     "truffle:migrate:ropsten": "truffle migrate --network ropsten",
+    "test": "yarn run build && yarn run truffle:test",
     "build": "tsc",
     "lint": "tslint -t stylish --type-check -p '.' -e './build/**/*.ts'",
     "prepare": "yarn lint && yarn build"

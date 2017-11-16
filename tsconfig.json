@@ -56,6 +56,7 @@
     "node_modules/*/index.d.ts",
     "src/globals.d.ts",
     "src/**/*.ts",
+    "test/**/*.ts",
     "build/contracts/Broker.ts",
     "types/*/index.d.ts"
   ]
