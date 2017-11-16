@@ -8,7 +8,7 @@ var helpers = require("../src/index")
 var soliditySHA3 = helpers.soliditySHA3
 var digest = helpers.digest
 var sign = helpers.sign
-var getNetwork = require('../src/web3').getNetwork
+var getNetwork = require('../src/index').getNetwork
 
 contract("TokenBroker", accounts => {
   var instanceTokenBroker;

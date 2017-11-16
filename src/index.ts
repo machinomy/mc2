@@ -52,6 +52,18 @@ export let buildERC20Contract = (address: string, web3: Web3): Promise<any> => {
   })
 }
 
+export function getNetwork (web3: Web3): Promise<number> {
+  return new Promise((resolve, reject) => {
+    web3.version.getNetwork((error, result) => {
+      if (error) {
+        reject(error)
+      } else {
+        resolve(parseInt(result, 10))
+      }
+    })
+  })
+}
+
 export let buildBrokerContract = (web3: Web3): TruffleContract<Broker.Contract> => {
   const contract = truffleContract(BrokerJson)
   contract.setProvider(web3.currentProvider)

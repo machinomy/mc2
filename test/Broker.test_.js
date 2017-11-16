@@ -9,7 +9,7 @@ var sign = helpers.sign
 var web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'))
 var Broker = artifacts.require("Broker");
 var expect = require("chai").expect;
-var getNetwork = require('../src/web3').getNetwork
+var getNetwork = require('../src/index').getNetwork
 
 contract('Broker', (accounts) => {
   var instance
