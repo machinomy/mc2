@@ -6,7 +6,7 @@ export function getNetwork (web3: Web3): Promise<number> {
       if (error) {
         reject(error)
       } else {
-        resolve(parseInt(result))
+        resolve(parseInt(result, 10))
       }
     })
   })
