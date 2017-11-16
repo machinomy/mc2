@@ -49,6 +49,7 @@
     "node_modules/*/index.d.ts",
     "src/globals.d.ts",
     "src/**/*.ts",
-    "test/**/*.ts"
+    "test/**/*.ts",
+    "types/**/*.d.ts"
   ]
 }

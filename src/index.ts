@@ -6,6 +6,7 @@ import Web3 = require('web3')
 const abi = require('ethereumjs-abi')
 const BN = require('bn.js')
 import BigNumber from 'bignumber.js'
+import { TruffleContract } from 'truffle-contract'
 
 const TokenBrokerJson = require('../build/contracts/TokenBroker.json')
 const BrokerJson = require('../build/contracts/Broker.json')
