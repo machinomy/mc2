@@ -32,11 +32,12 @@ export function sign (web3: Web3, sender: string, digest: string): Promise<Signa
   })
 }
 
-export function soliditySHA3 (channelId: string, value: BigNumber, contractAddress: string, chainId: number): string {
-  return '0x' + abi.soliditySHA3(
+export function paymentDigest (channelId: string, value: BigNumber, contractAddress: string, chainId: number): string {
+  let digest = abi.soliditySHA3(
     ['bytes32', 'uint256', 'address', 'uint32'],
     [channelId.toString(), new BigNumber(value).toString(), new BN(contractAddress, 16), chainId]
-  ).toString('hex')
+  )
+  return util.bufferToHex(digest)
 }
 
 export let buildERC20Contract = (address: string, web3: Web3): Promise<any> => {
@@ -51,18 +52,6 @@ export let buildERC20Contract = (address: string, web3: Web3): Promise<any> => {
       const ERC20Contract = truffleContract(ERC20Json)
       ERC20Contract.setProvider(web3.currentProvider)
       resolve(ERC20Contract)
-    })
-  })
-}
-
-export function getNetwork (web3: Web3): Promise<number> {
-  return new Promise((resolve, reject) => {
-    web3.version.getNetwork((error, result) => {
-      if (error) {
-        reject(error)
-      } else {
-        resolve(parseInt(result, 10))
-      }
     })
   })
 }

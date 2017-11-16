@@ -4,7 +4,7 @@ import asPromised = require('chai-as-promised')
 import Broker from '../src/Broker'
 import BigNumber from 'bignumber.js'
 import {getNetwork} from './support'
-import {sign, soliditySHA3} from '../src/index'
+import {sign, paymentDigest} from '../src/index'
 
 chai.use(asPromised)
 
@@ -56,8 +56,8 @@ contract('Broker', accounts => {
     const channelId = event.args.channelId
     const value = new BigNumber(1)
     const chainId = await getNetwork(web3)
-    const paymentDigest = soliditySHA3(channelId, value, instance.address, chainId)
-    const signature = await sign(web3, sender, paymentDigest)
+    const digest = paymentDigest(channelId, value, instance.address, chainId)
+    const signature = await sign(web3, sender, digest)
     const v = signature.v
     const r = '0x' + signature.r.toString('hex')
     const s = '0x' + signature.s.toString('hex')
@@ -93,8 +93,8 @@ contract('Broker', accounts => {
     const value = new BigNumber(1)
 
     const chainId = await getNetwork(web3)
-    const paymentDigest = soliditySHA3(channelId, value, instance.address, chainId)
-    const signature = await sign(web3, sender, paymentDigest)
+    const digest = paymentDigest(channelId, value, instance.address, chainId)
+    const signature = await sign(web3, sender, digest)
     const v = signature.v
     const r = '0x' + signature.r.toString('hex')
     const s = '0x' + signature.s.toString('hex')
