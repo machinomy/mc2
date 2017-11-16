@@ -48,8 +48,8 @@
   },
   "files": [
     "src/index.ts",
-    "helpers/sign.ts",
-    "helpers/web3.ts"
+    "src/sign.ts",
+    "src/web3.ts"
   ],
   "include": [
     "node_modules/*/index.d.ts",

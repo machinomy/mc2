@@ -3,7 +3,7 @@ import Web3 = require('web3')
 const truffleContract = require('truffle-contract')
 import { Broker } from './Broker'
 import { TokenBroker } from './TokenBroker'
-import { sign, soliditySHA3 } from '../helpers/sign'
+import { sign, soliditySHA3 } from './sign'
 export { sign, soliditySHA3 }
 
 const TokenBrokerJson = require('../build/contracts/TokenBroker.json')

@@ -2,14 +2,14 @@
 var TestRPC = require('ethereumjs-testrpc')
 var Web3 = require('web3')
 var Buffer = require('buffer').Buffer
-var helpers = require('../helpers/sign')
+var helpers = require('../src/sign')
 var ethHash = helpers.ethHash
 var soliditySHA3 = helpers.soliditySHA3
 var sign = helpers.sign
 var web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'))
 var Broker = artifacts.require("Broker");
 var expect = require("chai").expect;
-var getNetwork = require('../helpers/web3').getNetwork
+var getNetwork = require('../src/web3').getNetwork
 
 contract('Broker', (accounts) => {
   var instance
@@ -41,7 +41,7 @@ contract('Broker', (accounts) => {
     const logDeposit = await instance.deposit(channelId, {from: accounts[0], value: web3.toWei(1, "ether")})
     const balance = Number(web3.fromWei((await web3.eth.getBalance(instance.address).toNumber())))
 
-    expect(logDeposit.logs[0].event).to.equal("DidDeposit")    
+    expect(logDeposit.logs[0].event).to.equal("DidDeposit")
     expect(balance).to.equal(startBalance + 2);
   })
 
@@ -60,16 +60,16 @@ contract('Broker', (accounts) => {
     expect(evt.logs[0].event).to.equal("DidSettle")
     expect(evt.logs[0].args.payment.toString()).to.equal(value.toString());
   })
-  
+
   it("closed by sender", async () => {
     const startBalance = Number(web3.fromWei((await web3.eth.getBalance(instance.address).toNumber())))
     const event = await createChannel(instance, sender, receiver)
     const channelId = event.args.channelId
     const value = 1
     const evt = await instance.startSettle(channelId, value)
-    
+
     expect(evt.logs[0].event).to.equal("DidStartSettle")
-    
+
     const evt1 = await instance.finishSettle(channelId)
     expect(evt1.logs[0].event).to.equal("DidSettle")
 

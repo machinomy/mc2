@@ -4,11 +4,11 @@ var web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"))
 var TokenBroker = artifacts.require("TokenBroker")
 var ERC20example = artifacts.require("ERC20example")
 var expect = require("chai").expect
-var helpers = require("../helpers/sign")
+var helpers = require("../src/sign")
 var soliditySHA3 = helpers.soliditySHA3
 var digest = helpers.digest
 var sign = helpers.sign
-var getNetwork = require('../helpers/web3').getNetwork
+var getNetwork = require('../src/web3').getNetwork
 
 contract("TokenBroker", accounts => {
   var instanceTokenBroker;
@@ -44,7 +44,7 @@ contract("TokenBroker", accounts => {
     const res = await instanceTokenBroker.createChannel(instanceERC20example.address, receiver, 100, 1, startChannelValue, { from: sender });
     const channelId = res.logs[0].args.channelId
     let startBalance = (await instanceERC20example.balanceOf(instanceTokenBroker.address)).toNumber()
-    
+
     await instanceERC20example.approve(instanceTokenBroker.address, startChannelValue, { from: sender })
     await instanceTokenBroker.deposit(instanceERC20example.address, channelId, startChannelValue, { from: sender });
 
@@ -58,7 +58,7 @@ contract("TokenBroker", accounts => {
      const channelId = res.logs[0].args.channelId
      const chainId = await getNetwork(web3)
      const paymentDigest = soliditySHA3(channelId, startChannelValue, instanceTokenBroker.address, chainId)
-    
+
      const signature = await sign(web3, sender, paymentDigest);
      const v = signature.v;
      const r = "0x" + signature.r.toString("hex");
