@@ -84,5 +84,28 @@ contract('Broker', accounts => {
       await instance.finishSettle(channelId, { from: sender })
     }).to.throw
   })
+
+  it('close by sender, then by receiver', async () => {
+    let instance = await Broker.deployed(web3.currentProvider)
+
+    const didCreateEvent = await createChannel(instance)
+    const channelId = didCreateEvent.args.channelId
+    const value = new BigNumber(1)
+
+    const chainId = await getNetwork(web3)
+    const paymentDigest = soliditySHA3(channelId, value, instance.address, chainId)
+    const signature = await sign(web3, sender, paymentDigest)
+    const v = signature.v
+    const r = '0x' + signature.r.toString('hex')
+    const s = '0x' + signature.s.toString('hex')
+
+
+    const canFinishSettle = await instance.canFinishSettle(receiver, channelId)
+    expect(canFinishSettle).to.be.false
+
+    const claimResult = await instance.claim(channelId, value, Number(v), r, s, {from: receiver})
+    expect(claimResult.logs[0].event).to.equal('DidSettle')
+    expect(claimResult.logs[0].args.payment.toString()).to.equal(value.toString());
+  })
 })
 
