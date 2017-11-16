@@ -1,26 +1,35 @@
+import Web3 = require('web3')
 import BigNumber from 'bignumber.js'
-import {TruffleContract} from 'truffle-contract'
-const contract = require('truffle-contract')
+import contract = require('truffle-contract')
+import {TransactionResult} from "truffle-contract";
 
 const TokenBrokerJson = require('../build/contracts/TokenBroker.json')
 
-export namespace TokenBroker {
+namespace TokenBroker {
   export interface Contract {
     address: string
-    createChannel (address: string, receiver: string, duration: number, settlementPeriod: number, value: number, options: any): any
-    startSettle (channelId: string, payment: String, options: any): Promise<void>
-    claim (address: string, channelId: string, value: BigNumber, v: number, r: string, s: string, options: any): any
-    finishSettle (address: string, channelId: string, options: any): Promise<void>
-    deposit (address: string, channelId: string, value: BigNumber, options: any): any
+    createChannel (address: string, receiver: string, duration: number, settlementPeriod: number, value: BigNumber, options?: Web3.TxData): Promise<TransactionResult>
+    startSettle (channelId: string, payment: BigNumber, options?: Web3.TxData): Promise<TransactionResult>
+    claim (address: string, channelId: string, value: BigNumber, v: number, r: string, s: string, options?: Web3.TxData): Promise<TransactionResult>
+    finishSettle (address: string, channelId: string, options?: Web3.TxData): Promise<TransactionResult>
+    deposit (address: string, channelId: string, value: BigNumber, options?: Web3.TxData): Promise<TransactionResult>
 
-    canClaim (channelId: string, value: BigNumber, v: number, r: string, s: string): any
-    canStartSettle (account: string, channelId: string): any
-    canFinishSettle (sender: string, channelId: string): any
-    canDeposit (sender: string, channelId: string): any
+    canClaim (channelId: string, value: BigNumber, v: number, r: string, s: string): Promise<boolean>
+    canStartSettle (account: string, channelId: string): Promise<boolean>
+    canFinishSettle (sender: string, channelId: string): Promise<boolean>
+    canDeposit (sender: string, channelId: string): Promise<boolean>
 
-    getState (channelId: string): any
-    getUntil (channelId: string, callback: (error: any | null, until?: number) => void): void
+    getState (channelId: string): Promise<number>
+    getUntil (channelId: string): Promise<number>
+  }
+
+  export function deployed(provider?: Web3.Provider): Promise<TokenBroker.Contract> {
+    let instance = contract<TokenBroker.Contract>(TokenBrokerJson)
+    if (provider) {
+      instance.setProvider(provider)
+    }
+    return instance.deployed()
   }
 }
 
-export default contract(TokenBrokerJson) as TruffleContract<TokenBroker.Contract>
+export default TokenBroker
