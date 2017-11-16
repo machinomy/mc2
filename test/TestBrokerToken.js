@@ -1,7 +1,7 @@
 // Specifically request an abstraction for MetaCoin
 var Web3 = require("web3");
 var web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"))
-var BrokerToken = artifacts.require("TokenBroker")
+var TokenBroker = artifacts.require("TokenBroker")
 var ERC20example = artifacts.require("ERC20example")
 var expect = require("chai").expect
 var helpers = require("../helpers/sign")
@@ -10,8 +10,8 @@ var digest = helpers.digest
 var sign = helpers.sign
 var getNetwork = require('../helpers/web3').getNetwork
 
-contract("BrokerToken", accounts => {
-  var instanceBrokerToken;
+contract("TokenBroker", accounts => {
+  var instanceTokenBroker;
   var instanceERC20example;
   var sender;
   var receiver;
@@ -19,7 +19,7 @@ contract("BrokerToken", accounts => {
   const startChannelValue = 2;
 
   beforeEach(async () => {
-    instanceBrokerToken = await BrokerToken.deployed();
+    instanceTokenBroker = await TokenBroker.deployed();
     instanceERC20example = await ERC20example.deployed();
     owner = accounts[0];
     sender = accounts[1];
@@ -30,34 +30,34 @@ contract("BrokerToken", accounts => {
   });
 
   it("creates channel", async () => {
-    let startBalance = (await instanceERC20example.balanceOf(instanceBrokerToken.address)).toNumber()
+    let startBalance = (await instanceERC20example.balanceOf(instanceTokenBroker.address)).toNumber()
 
-    await instanceERC20example.approve(instanceBrokerToken.address, startChannelValue, {from: sender})
-    await instanceBrokerToken.createChannel(instanceERC20example.address, receiver, 100, 1, startChannelValue, {from: sender});
+    await instanceERC20example.approve(instanceTokenBroker.address, startChannelValue, {from: sender})
+    await instanceTokenBroker.createChannel(instanceERC20example.address, receiver, 100, 1, startChannelValue, {from: sender});
 
-    let newBalance = (await instanceERC20example.balanceOf(instanceBrokerToken.address)).toNumber()
+    let newBalance = (await instanceERC20example.balanceOf(instanceTokenBroker.address)).toNumber()
     expect(newBalance).to.equal(startBalance + startChannelValue);
   });
 
   it("makes deposit", async () => {
-    await instanceERC20example.approve(instanceBrokerToken.address, startChannelValue, { from: sender })
-    const res = await instanceBrokerToken.createChannel(instanceERC20example.address, receiver, 100, 1, startChannelValue, { from: sender });
+    await instanceERC20example.approve(instanceTokenBroker.address, startChannelValue, { from: sender })
+    const res = await instanceTokenBroker.createChannel(instanceERC20example.address, receiver, 100, 1, startChannelValue, { from: sender });
     const channelId = res.logs[0].args.channelId
-    let startBalance = (await instanceERC20example.balanceOf(instanceBrokerToken.address)).toNumber()
+    let startBalance = (await instanceERC20example.balanceOf(instanceTokenBroker.address)).toNumber()
     
-    await instanceERC20example.approve(instanceBrokerToken.address, startChannelValue, { from: sender })
-    await instanceBrokerToken.deposit(instanceERC20example.address, channelId, startChannelValue, { from: sender });
+    await instanceERC20example.approve(instanceTokenBroker.address, startChannelValue, { from: sender })
+    await instanceTokenBroker.deposit(instanceERC20example.address, channelId, startChannelValue, { from: sender });
 
-    let newBalance = (await instanceERC20example.balanceOf(instanceBrokerToken.address)).toNumber()
+    let newBalance = (await instanceERC20example.balanceOf(instanceTokenBroker.address)).toNumber()
     expect(newBalance).to.equal(startBalance + startChannelValue);
   });
 
    it("claimed by reciver", async () => {
-     await instanceERC20example.approve(instanceBrokerToken.address, startChannelValue, { from: sender })
-     const res = await instanceBrokerToken.createChannel(instanceERC20example.address, receiver, 100, 1, startChannelValue, { from: sender });
+     await instanceERC20example.approve(instanceTokenBroker.address, startChannelValue, { from: sender })
+     const res = await instanceTokenBroker.createChannel(instanceERC20example.address, receiver, 100, 1, startChannelValue, { from: sender });
      const channelId = res.logs[0].args.channelId
      const chainId = await getNetwork(web3)
-     const paymentDigest = soliditySHA3(channelId, startChannelValue, instanceBrokerToken.address, chainId)
+     const paymentDigest = soliditySHA3(channelId, startChannelValue, instanceTokenBroker.address, chainId)
     
      const signature = await sign(web3, sender, paymentDigest);
      const v = signature.v;
@@ -66,21 +66,21 @@ contract("BrokerToken", accounts => {
 
      const startReciverBalance = (await instanceERC20example.balanceOf(receiver)).toNumber()
 
-     await instanceBrokerToken.claim(instanceERC20example.address, channelId, startChannelValue, Number(v), r, s, {from: receiver});
+     await instanceTokenBroker.claim(instanceERC20example.address, channelId, startChannelValue, Number(v), r, s, {from: receiver});
      const newReciverBalance = (await instanceERC20example.balanceOf(receiver)).toNumber()
 
      expect(newReciverBalance).to.equal(startReciverBalance + startChannelValue);
    });
 
    it("closed by sender", async () => {
-     await instanceERC20example.approve(instanceBrokerToken.address, startChannelValue, { from: sender })
-     const res = await instanceBrokerToken.createChannel(instanceERC20example.address, receiver, 100, 1, startChannelValue, { from: sender });
+     await instanceERC20example.approve(instanceTokenBroker.address, startChannelValue, { from: sender })
+     const res = await instanceTokenBroker.createChannel(instanceERC20example.address, receiver, 100, 1, startChannelValue, { from: sender });
      const channelId = res.logs[0].args.channelId
 
      const startReciverBalance = (await instanceERC20example.balanceOf(receiver)).toNumber()
 
-     await instanceBrokerToken.startSettle(channelId, startChannelValue, {from: sender})
-     await instanceBrokerToken.finishSettle(instanceERC20example.address, channelId, {from: sender})
+     await instanceTokenBroker.startSettle(channelId, startChannelValue, {from: sender})
+     await instanceTokenBroker.finishSettle(instanceERC20example.address, channelId, {from: sender})
 
      const newReciverBalance = (await instanceERC20example.balanceOf(receiver)).toNumber()
      expect(newReciverBalance).to.equal(startReciverBalance + startChannelValue);

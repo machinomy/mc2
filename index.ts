@@ -1,11 +1,11 @@
 import Web3 = require('web3')
 
-import BrokerTokenJson from './build/contracts/TokenBroker'
+import TokenBrokerJson from './build/contracts/TokenBroker'
 import BrokerJson from './build/contracts/Broker'
 import ERC20Json from './build/contracts/ERC20'
 const truffleContract = require('truffle-contract')
 import { Broker } from './types/Broker'
-import { BrokerToken } from './types/BrokerToken'
+import { TokenBroker } from './types/TokenBroker'
 import { sign, soliditySHA3 } from './helpers/sign'
 export { sign, soliditySHA3 }
 
@@ -30,13 +30,13 @@ export let buildERC20Contract = (address: string, web3: Web3): Promise<any> => {
 }
 
 export let buildBrokerContract = (web3: Web3): TruffleContract<Broker.Contract> => {
-  const BrokerContract = truffleContract(BrokerJson)
-  BrokerContract.setProvider(web3.currentProvider)
-  return BrokerContract
+  const contract = truffleContract(BrokerJson)
+  contract.setProvider(web3.currentProvider)
+  return contract
 }
 
-export let buildBrokerTokenContract = (web3: Web3): TruffleContract<BrokerToken.Contract> => {
-  const BrokerTokenContract = truffleContract(BrokerTokenJson)
-  BrokerTokenContract.setProvider(web3.currentProvider)
-  return BrokerTokenContract
+export let buildTokenBrokerContract = (web3: Web3): TruffleContract<TokenBroker.Contract> => {
+  const contract = truffleContract(TokenBrokerJson)
+  contract.setProvider(web3.currentProvider)
+  return contract
 }

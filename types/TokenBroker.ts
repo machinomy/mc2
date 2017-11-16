@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js'
 
-export namespace BrokerToken {
+export namespace TokenBroker {
   export interface Contract {
     address: string
     createChannel (address: string, receiver: string, duration: number, settlementPeriod: number, value: number, options: any): any
