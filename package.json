@@ -21,8 +21,8 @@
   "scripts": {
     "test": "run-with-testrpc --networkId 999 --mnemonic 'testtest' --unlock 0 'truffle test'",
     "json_to_ts": "node json_to_ts.js",
-    "migrate": "truffle migrate",
-    "migrate_ropsten": "truffle migrate --network ropsten",
+    "truffle:migrate": "truffle migrate",
+    "truffle:migrate:ropsten": "truffle migrate --network ropsten",
     "build": "yarn json_to_ts && tsc",
     "lint": "tslint -t stylish --type-check -p '.' -e './build/**/*.ts'",
     "prepare": "yarn lint && yarn build"
