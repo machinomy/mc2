@@ -2,8 +2,8 @@
   "name": "@machinomy/contracts",
   "version": "2.0.2",
   "description": "Machinomy contracts managed by Truffle",
-  "main": "index.js",
-  "types": "index.d.ts",
+  "main": "src/index.js",
+  "types": "src/index.d.ts",
   "files": [
     "build/",
     "contracts/",
@@ -11,9 +11,7 @@
     "migrations/",
     "test/",
     "types/",
-    "index.d.ts",
-    "index.js",
-    "index.js.map"
+    "src/"
   ],
   "directories": {
     "test": "test"

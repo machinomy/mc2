@@ -10,6 +10,7 @@ yarn-error.log
 build/contracts/*.js
 helpers/*.js
 types/*.js
+test/*.js
 index.js
 
 .DS_Store
