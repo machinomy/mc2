@@ -37,7 +37,7 @@ contract TokenBroker is Destructible {
     var sender = msg.sender;
     var c = StandardToken(erc20Contract);
     require(c.transferFrom(sender, address(this), value));
-  
+
     channels[channelId] = PaymentChannel(sender, receiver, value, settlementPeriod, ChannelState.Open, block.timestamp + duration, 0);
     DidCreateChannel(channelId, sender, receiver, value, settlementPeriod, block.timestamp + duration);
 
@@ -52,9 +52,9 @@ contract TokenBroker is Destructible {
     var channel = channels[channelId];
     var c = StandardToken(erc20Contract);
     require(c.transferFrom(channel.sender, address(this), value));
-  
+
     channel.value += value;
-    
+
     DidDeposit(channelId, value);
   }
 
@@ -100,14 +100,14 @@ contract TokenBroker is Destructible {
     uint256 paid = payment;
     uint256 oddMoney = 0;
     var c = StandardToken(erc20Contract);
-  
+
     if (payment > channel.value) {
       paid = channel.value;
       require(c.transfer(channel.receiver, paid));
     } else {
       require(c.transfer(channel.receiver, paid));
       oddMoney = channel.value - paid;
-      
+
       require(c.transfer(channel.sender, oddMoney));
       channel.value = 0;
     }

@@ -80,7 +80,9 @@ contract('Broker', accounts => {
     const canFinishSettle = await instance.canFinishSettle(sender, channelId)
     expect(canFinishSettle).to.be.false
 
-    expect(instance.finishSettle(channelId, { from: sender })).be.rejected
+    expect(async () => {
+      await instance.finishSettle(channelId, { from: sender })
+    }).to.throw
   })
 })
 
