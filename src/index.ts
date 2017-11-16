@@ -10,10 +10,6 @@ const TokenBrokerJson = require('../build/contracts/TokenBroker.json')
 const BrokerJson = require('../build/contracts/Broker.json')
 const ERC20Json = require('../build/contracts/ERC20.json')
 
-export interface TruffleContract<A> {
-  deployed (): Promise<A>
-}
-
 export let buildERC20Contract = (address: string, web3: Web3): Promise<any> => {
   return new Promise((resolve, reject) => {
     web3.version.getNetwork((error, result) => {
