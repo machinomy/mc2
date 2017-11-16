@@ -1,5 +1,87 @@
-contract('Broker', async accounts => {
-  const sender = accounts[0]
-  const receiver = accounts[1]
+import Web3 = require('web3')
+import chai = require('chai')
+import Broker from '../src/Broker'
+import BigNumber from 'bignumber.js'
+import {getNetwork} from './support'
+import {sign, soliditySHA3} from '../src/index'
+
+const expect = chai.expect
+
+const web3 = (global as any).web3 as Web3
+
+contract('Broker', accounts => {
+  let sender = accounts[0]
+  let receiver = accounts[1]
+
+  const createChannel = async (instance: Broker.Contract) => {
+    let options = {
+      from: sender,
+      value: web3.toWei(1, 'ether'),
+      gas: 200000
+    }
+    const log = await instance.createChannel(receiver, 100, 1, options)
+    return log.logs[0]
+  }
+
+  it('creates channel', async () => {
+    let instance = await Broker.deployed(web3.currentProvider)
+    let event = await createChannel(instance)
+
+    expect(event.event).to.equal('DidCreateChannel')
+    expect(event.args.channelId).to.be.a('string');
+  })
+
+  it('makes deposit', async () => {
+    let instance = await Broker.deployed(web3.currentProvider)
+    const event = await createChannel(instance)
+
+    let startBalance = await web3.eth.getBalance(instance.address)
+    let delta = web3.toWei(1, 'ether')
+    const channelId = event.args.channelId
+    const logDeposit = await instance.deposit(channelId, {from: accounts[0], value: delta})
+
+    const endBalance = await web3.eth.getBalance(instance.address)
+
+    expect(logDeposit.logs[0].event).to.equal('DidDeposit')
+    expect(endBalance).to.deep.equal(startBalance.plus(delta))
+  })
+
+  it('claimed by reciver', async () => {
+    let instance = await Broker.deployed(web3.currentProvider)
+    const event = await createChannel(instance)
+
+    const channelId = event.args.channelId
+    const value = new BigNumber(1)
+    const chainId = await getNetwork(web3)
+    const paymentDigest = soliditySHA3(channelId, value, instance.address, chainId)
+    const signature = await sign(web3, sender, paymentDigest)
+    const v = signature.v
+    const r = '0x' + signature.r.toString('hex')
+    const s = '0x' + signature.s.toString('hex')
+    const evt = await instance.claim(channelId, value, Number(v), r, s, {from: receiver})
+
+    expect(evt.logs[0].event).to.equal('DidSettle')
+    expect(evt.logs[0].args.payment.toString()).to.equal(value.toString());
+  })
+
+  it('closed by sender', async () => {
+    let instance = await Broker.deployed(web3.currentProvider)
+
+    const startBalance = await web3.eth.getBalance(instance.address)
+
+    const didCreateEvent = await createChannel(instance)
+    const channelId = didCreateEvent.args.channelId
+    const value = new BigNumber(1)
+
+    const startSettleResult = await instance.startSettle(channelId, value, { from: sender })
+    expect(startSettleResult.logs[0].event).to.equal('DidStartSettle')
+
+    // TODO This is a clear bug
+    const finishSettleResult = await instance.finishSettle(channelId, { from: sender })
+    expect(finishSettleResult.logs[0].event).to.equal('DidSettle')
+
+    const balance = await web3.eth.getBalance(instance.address)
+    expect(balance).to.deep.equal(startBalance)
+  })
 })
 

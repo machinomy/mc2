@@ -41,6 +41,7 @@
   "homepage": "https://github.com/machinomy/machinomy-contracts#readme",
   "devDependencies": {
     "@types/bignumber.js": "^4.0.3",
+    "@types/chai": "^4.0.5",
     "@types/node": "^8.0.28",
     "run-with-testrpc": "^0.2.1",
     "truffle": "^3.2.93",

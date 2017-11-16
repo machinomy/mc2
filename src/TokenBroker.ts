@@ -1,4 +1,8 @@
 import BigNumber from 'bignumber.js'
+import {TruffleContract} from 'truffle-contract'
+const contract = require('truffle-contract')
+
+const TokenBrokerJson = require('../build/contracts/TokenBroker.json')
 
 export namespace TokenBroker {
   export interface Contract {
@@ -18,3 +22,5 @@ export namespace TokenBroker {
     getUntil (channelId: string, callback: (error: any | null, until?: number) => void): void
   }
 }
+
+export default contract(TokenBrokerJson) as TruffleContract<TokenBroker.Contract>

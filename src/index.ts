@@ -1,16 +1,18 @@
 const truffleContract = require('truffle-contract')
-import { Broker } from './Broker'
-import { TokenBroker } from './TokenBroker'
 const util = require('ethereumjs-util')
 import Web3 = require('web3')
 const abi = require('ethereumjs-abi')
 const BN = require('bn.js')
 import BigNumber from 'bignumber.js'
-import { TruffleContract } from 'truffle-contract'
+import Broker from './Broker'
+import TokenBroker from './TokenBroker'
 
-const TokenBrokerJson = require('../build/contracts/TokenBroker.json')
-const BrokerJson = require('../build/contracts/Broker.json')
 const ERC20Json = require('../build/contracts/ERC20.json')
+
+export {
+  Broker,
+  TokenBroker
+}
 
 export interface Signature {
   v: number
@@ -63,16 +65,4 @@ export function getNetwork (web3: Web3): Promise<number> {
       }
     })
   })
-}
-
-export let buildBrokerContract = (web3: Web3): TruffleContract<Broker.Contract> => {
-  const contract = truffleContract(BrokerJson)
-  contract.setProvider(web3.currentProvider)
-  return contract
-}
-
-export let buildTokenBrokerContract = (web3: Web3): TruffleContract<TokenBroker.Contract> => {
-  const contract = truffleContract(TokenBrokerJson)
-  contract.setProvider(web3.currentProvider)
-  return contract
 }
