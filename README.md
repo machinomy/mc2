@@ -8,7 +8,7 @@ $ yarn add @machinomy/contracts
 ## Workflow
 Use [testrpc](https://github.com/ethereumjs/testrpc) for fast development. Start testrpc by command:
 ```
-$ testrpc -i 999 -m "testtest"
+$ testrpc --networkid 999 --mnemonic "testtest"
 ```
 
 Then deploy contracts to the tesrpc network:
