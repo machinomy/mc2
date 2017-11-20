@@ -1,6 +1,6 @@
-# Machinomy [![Build Status][travis-img]][travis]
-[travis]: https://travis-ci.org/machinomy/machinomy
-[travis-img]: https://img.shields.io/travis/machinomy/machinomy.svg
+# Machinomy contracts [![Build Status][travis-img]][travis]
+[travis]: https://travis-ci.org/machinomy/machinomy-contracts
+[travis-img]: https://img.shields.io/travis/machinomy/machinomy-contracts.svg
 
 Machinomy contracts is TS interface for Ethereum contracts managed by [Truffle](https://github.com/trufflesuite/truffle) used by [Machinomy](https://github.com/machinomy/machinomy).
 
@@ -17,7 +17,7 @@ $ testrpc --networkid 999 --mnemonic "testtest"
 
 Then deploy contracts to the tesrpc network:
 ```
-$ yarn migrate
+$ yarn truffle:migrate
 ```
 
 Truffle generates json files by default. You need to compile the json files to ts files. Run:
@@ -29,6 +29,6 @@ Now package is ready to use by Machinony.
 ## Deployment
 To deploy the package to the Ropsten network you need to run local geth instance and then run commands:
 ```
-$ yarn migrate_ropsten
+$ yarn truffle:migrate:ropsten
 $ yarn build
 ```
