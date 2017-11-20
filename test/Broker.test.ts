@@ -3,8 +3,8 @@ import chai = require('chai')
 import asPromised = require('chai-as-promised')
 import Broker from '../src/Broker'
 import BigNumber from 'bignumber.js'
-import {getNetwork} from './support'
-import {sign, paymentDigest} from '../src/index'
+import { getNetwork } from './support'
+import { sign, paymentDigest } from '../src/index'
 
 chai.use(asPromised)
 
@@ -31,19 +31,19 @@ contract('Broker', accounts => {
     let event = await createChannel(instance)
 
     expect(event.event).to.equal('DidCreateChannel')
-    expect(event.args.channelId).to.be.a('string');
+    expect(event.args.channelId).to.be.a('string')
   })
 
   it('deposit', async () => {
     let instance = await Broker.deployed(web3.currentProvider)
     const event = await createChannel(instance)
 
-    let startBalance = await web3.eth.getBalance(instance.address)
+    let startBalance = web3.eth.getBalance(instance.address)
     let delta = web3.toWei(1, 'ether')
     const channelId = event.args.channelId
     const logDeposit = await instance.deposit(channelId, {from: accounts[0], value: delta})
 
-    const endBalance = await web3.eth.getBalance(instance.address)
+    const endBalance = web3.eth.getBalance(instance.address)
 
     expect(logDeposit.logs[0].event).to.equal('DidDeposit')
     expect(endBalance).to.deep.equal(startBalance.plus(delta))
@@ -64,7 +64,7 @@ contract('Broker', accounts => {
     const evt = await instance.claim(channelId, value, Number(v), r, s, {from: receiver})
 
     expect(evt.logs[0].event).to.equal('DidSettle')
-    expect(evt.logs[0].args.payment.toString()).to.equal(value.toString());
+    expect(evt.logs[0].args.payment.toString()).to.equal(value.toString())
   })
 
   it('close by sender', async () => {
@@ -78,10 +78,9 @@ contract('Broker', accounts => {
     expect(startSettleResult.logs[0].event).to.equal('DidStartSettle')
 
     const canFinishSettle = await instance.canFinishSettle(sender, channelId)
-    expect(canFinishSettle).to.be.false
-
+    expect(canFinishSettle).to.equal(false)
     expect(async () => {
-      await instance.finishSettle(channelId, { from: sender })
+      await instance.finishSettle(channelId, { from: sender }) // tslint:disable-line
     }).to.throw
   })
 
@@ -99,13 +98,11 @@ contract('Broker', accounts => {
     const r = '0x' + signature.r.toString('hex')
     const s = '0x' + signature.s.toString('hex')
 
-
     const canFinishSettle = await instance.canFinishSettle(receiver, channelId)
-    expect(canFinishSettle).to.be.false
+    expect(canFinishSettle).to.equal(false)
 
     const claimResult = await instance.claim(channelId, value, Number(v), r, s, {from: receiver})
     expect(claimResult.logs[0].event).to.equal('DidSettle')
-    expect(claimResult.logs[0].args.payment.toString()).to.equal(value.toString());
+    expect(claimResult.logs[0].args.payment.toString()).to.equal(value.toString())
   })
 })
-

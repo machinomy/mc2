@@ -1,5 +1,5 @@
 import Web3 = require('web3')
-import {TransactionResult} from 'truffle-contract'
+import { TransactionResult } from 'truffle-contract'
 import BigNumber from 'bignumber.js'
 const contract = require('truffle-contract')
 
@@ -23,8 +23,8 @@ export namespace ERC20Example {
 
     mint (receiver: string, amount: BigNumber|number, opts?: Web3.TxData): Promise<TransactionResult>
     balanceOf (address: string): Promise<BigNumber>
-    approve(address: string, startChannelValue: BigNumber, opts?: Web3.TxData): Promise<TransactionResult>
-    deposit(address: string, channelId: string, startChannelValue: BigNumber, opts?: Web3.TxData): Promise<TransactionResult>
+    approve (address: string, startChannelValue: BigNumber, opts?: Web3.TxData): Promise<TransactionResult>
+    deposit (address: string, channelId: string, startChannelValue: BigNumber, opts?: Web3.TxData): Promise<TransactionResult>
   }
 
   export const deploy = function (provider?: Web3.Provider, opts?: Web3.TxData): Promise<Contract> {
@@ -35,7 +35,7 @@ export namespace ERC20Example {
     return instance.new(opts)
   }
 
-  export function deployed(provider?: Web3.Provider): Promise<Contract> {
+  export function deployed (provider?: Web3.Provider): Promise<Contract> {
     let instance = contract(Json)
     if (provider) {
       instance.setProvider(provider)

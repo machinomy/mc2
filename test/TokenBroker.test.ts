@@ -2,8 +2,8 @@ import Web3 = require('web3')
 import chai = require('chai')
 import TokenBroker from '../src/TokenBroker'
 import BigNumber from 'bignumber.js'
-import {ERC20Example, getNetwork} from './support'
-import {sign, paymentDigest} from "../src/index";
+import { ERC20Example, getNetwork } from './support'
+import { sign, paymentDigest } from '../src/index'
 
 const expect = chai.expect
 
@@ -34,23 +34,23 @@ contract('TokenBroker', async accounts => {
     let startBalance = await token.balanceOf(broker.address)
 
     await token.approve(broker.address, startChannelValue, {from: sender})
-    await broker.createChannel(token.address, receiver, 100, 1, startChannelValue, {from: sender, gas: 200000});
+    await broker.createChannel(token.address, receiver, 100, 1, startChannelValue, { from: sender, gas: 200000 })
 
     let newBalance = await token.balanceOf(broker.address)
     expect(newBalance).to.deep.equal(startBalance.plus(startChannelValue))
   })
 
-  it("makes deposit", async () => {
+  it('makes deposit', async () => {
     let { broker, token } = await setup()
 
     await token.approve(broker.address, startChannelValue, { from: sender })
-    const res = await broker.createChannel(token.address, receiver, 100, 1, startChannelValue, { from: sender, gas: 220000 });
+    const res = await broker.createChannel(token.address, receiver, 100, 1, startChannelValue, { from: sender, gas: 220000 })
 
     const channelId = res.logs[0].args.channelId
     let startBalance = await token.balanceOf(broker.address)
 
     await token.approve(broker.address, startChannelValue, { from: sender })
-    await broker.deposit(token.address, channelId, startChannelValue, { from: sender });
+    await broker.deposit(token.address, channelId, startChannelValue, { from: sender })
 
     let newBalance = await token.balanceOf(broker.address)
     expect(newBalance).to.deep.equal(startBalance.plus(startChannelValue))
@@ -60,7 +60,7 @@ contract('TokenBroker', async accounts => {
     let { broker, token } = await setup()
 
     await token.approve(broker.address, startChannelValue, { from: sender })
-    const res = await broker.createChannel(token.address, receiver, 100, 1, startChannelValue, { from: sender, gas: 200000 });
+    const res = await broker.createChannel(token.address, receiver, 100, 1, startChannelValue, { from: sender, gas: 200000 })
     const channelId = res.logs[0].args.channelId
 
     const chainId = await getNetwork(web3)
@@ -81,7 +81,7 @@ contract('TokenBroker', async accounts => {
     let { broker, token } = await setup()
 
     await token.approve(broker.address, startChannelValue, { from: sender })
-    const res = await broker.createChannel(token.address, receiver, 100, 1, startChannelValue, { from: sender, gas: 200000 });
+    const res = await broker.createChannel(token.address, receiver, 100, 1, startChannelValue, { from: sender, gas: 200000 })
     const channelId = res.logs[0].args.channelId
 
     const startBalance = await token.balanceOf(receiver)
@@ -89,7 +89,7 @@ contract('TokenBroker', async accounts => {
     await broker.startSettle(channelId, startChannelValue, {from: sender})
 
     expect(async () => {
-      await broker.finishSettle(token.address, channelId, { from: sender })
+      await broker.finishSettle(token.address, channelId, { from: sender }) // tslint:disable-line
     }).to.throw
 
     const finishBalance = await token.balanceOf(receiver)
@@ -100,7 +100,7 @@ contract('TokenBroker', async accounts => {
     let { broker, token } = await setup()
 
     await token.approve(broker.address, startChannelValue, { from: sender })
-    const res = await broker.createChannel(token.address, receiver, 100, 1, startChannelValue, { from: sender, gas: 200000 });
+    const res = await broker.createChannel(token.address, receiver, 100, 1, startChannelValue, { from: sender, gas: 200000 })
     const channelId = res.logs[0].args.channelId
 
     await broker.startSettle(channelId, startChannelValue, {from: sender})
