@@ -1,6 +1,6 @@
-# Machinomy [![Build Status][travis-img]][travis]
+# Machinomy contracts [![Build Status][travis-img]][travis]
 [travis]: https://travis-ci.org/machinomy/machinomy-contracts
-[travis-img]: https://img.shields.io/travis/machinomy/machinomy.svg
+[travis-img]: https://img.shields.io/travis/machinomy/machinomy-contracts.svg
 
 Machinomy contracts is TS interface for Ethereum contracts managed by [Truffle](https://github.com/trufflesuite/truffle) used by [Machinomy](https://github.com/machinomy/machinomy).
 
