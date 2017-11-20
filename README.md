@@ -17,7 +17,7 @@ $ testrpc --networkid 999 --mnemonic "testtest"
 
 Then deploy contracts to the tesrpc network:
 ```
-$ yarn migrate
+$ yarn truffle:migrate
 ```
 
 Truffle generates json files by default. You need to compile the json files to ts files. Run:
@@ -29,6 +29,6 @@ Now package is ready to use by Machinony.
 ## Deployment
 To deploy the package to the Ropsten network you need to run local geth instance and then run commands:
 ```
-$ yarn migrate_ropsten
+$ yarn truffle:migrate:ropsten
 $ yarn build
 ```
