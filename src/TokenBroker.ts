@@ -10,9 +10,9 @@ namespace TokenBroker {
     address: string
     createChannel (address: string, receiver: string, duration: number, settlementPeriod: number, value: BigNumber, options?: Web3.TxData): Promise<TransactionResult>
     startSettle (channelId: string, payment: BigNumber, options?: Web3.TxData): Promise<TransactionResult>
-    claim (address: string, channelId: string, value: BigNumber, v: number, r: string, s: string, options?: Web3.TxData): Promise<TransactionResult>
-    finishSettle (address: string, channelId: string, options?: Web3.TxData): Promise<TransactionResult>
-    deposit (address: string, channelId: string, value: BigNumber, options?: Web3.TxData): Promise<TransactionResult>
+    claim (channelId: string, value: BigNumber, v: number, r: string, s: string, options?: Web3.TxData): Promise<TransactionResult>
+    finishSettle (channelId: string, options?: Web3.TxData): Promise<TransactionResult>
+    deposit (channelId: string, value: BigNumber, options?: Web3.TxData): Promise<TransactionResult>
 
     canClaim (channelId: string, value: BigNumber, v: number, r: string, s: string): Promise<boolean>
     canStartSettle (account: string, channelId: string): Promise<boolean>

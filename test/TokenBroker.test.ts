@@ -34,7 +34,7 @@ contract('TokenBroker', async accounts => {
     let startBalance = await token.balanceOf(broker.address)
 
     await token.approve(broker.address, startChannelValue, {from: sender})
-    await broker.createChannel(token.address, receiver, 100, 1, startChannelValue, { from: sender, gas: 200000 })
+    await broker.createChannel(token.address, receiver, 100, 1, startChannelValue, { from: sender, gas: 210000 })
 
     let newBalance = await token.balanceOf(broker.address)
     expect(newBalance).to.deep.equal(startBalance.plus(startChannelValue))
@@ -44,13 +44,13 @@ contract('TokenBroker', async accounts => {
     let { broker, token } = await setup()
 
     await token.approve(broker.address, startChannelValue, { from: sender })
-    const res = await broker.createChannel(token.address, receiver, 100, 1, startChannelValue, { from: sender, gas: 220000 })
+    const res = await broker.createChannel(token.address, receiver, 100, 1, startChannelValue, { from: sender, gas: 210000 })
 
     const channelId = res.logs[0].args.channelId
     let startBalance = await token.balanceOf(broker.address)
 
     await token.approve(broker.address, startChannelValue, { from: sender })
-    await broker.deposit(token.address, channelId, startChannelValue, { from: sender })
+    await broker.deposit(channelId, startChannelValue, { from: sender })
 
     let newBalance = await token.balanceOf(broker.address)
     expect(newBalance).to.deep.equal(startBalance.plus(startChannelValue))
@@ -60,7 +60,7 @@ contract('TokenBroker', async accounts => {
     let { broker, token } = await setup()
 
     await token.approve(broker.address, startChannelValue, { from: sender })
-    const res = await broker.createChannel(token.address, receiver, 100, 1, startChannelValue, { from: sender, gas: 200000 })
+    const res = await broker.createChannel(token.address, receiver, 100, 1, startChannelValue, { from: sender, gas: 210000 })
     const channelId = res.logs[0].args.channelId
 
     const chainId = await getNetwork(web3)
@@ -71,7 +71,7 @@ contract('TokenBroker', async accounts => {
     const s = '0x' + signature.s.toString('hex')
 
     const startReceiverBalance = await token.balanceOf(receiver)
-    await broker.claim(token.address, channelId, startChannelValue, Number(v), r, s, {from: receiver, gas: 200000})
+    await broker.claim(channelId, startChannelValue, Number(v), r, s, {from: receiver, gas: 200000})
     const newReceiverBalance = await token.balanceOf(receiver)
 
     expect(newReceiverBalance).to.deep.equal(startReceiverBalance.plus(startChannelValue))
@@ -81,7 +81,7 @@ contract('TokenBroker', async accounts => {
     let { broker, token } = await setup()
 
     await token.approve(broker.address, startChannelValue, { from: sender })
-    const res = await broker.createChannel(token.address, receiver, 100, 1, startChannelValue, { from: sender, gas: 200000 })
+    const res = await broker.createChannel(token.address, receiver, 100, 1, startChannelValue, { from: sender, gas: 210000 })
     const channelId = res.logs[0].args.channelId
 
     const startBalance = await token.balanceOf(receiver)
@@ -89,7 +89,7 @@ contract('TokenBroker', async accounts => {
     await broker.startSettle(channelId, startChannelValue, {from: sender})
 
     expect(async () => {
-      await broker.finishSettle(token.address, channelId, { from: sender }) // tslint:disable-line
+      await broker.finishSettle(channelId, { from: sender }) // tslint:disable-line
     }).to.throw
 
     const finishBalance = await token.balanceOf(receiver)
@@ -100,7 +100,7 @@ contract('TokenBroker', async accounts => {
     let { broker, token } = await setup()
 
     await token.approve(broker.address, startChannelValue, { from: sender })
-    const res = await broker.createChannel(token.address, receiver, 100, 1, startChannelValue, { from: sender, gas: 200000 })
+    const res = await broker.createChannel(token.address, receiver, 100, 1, startChannelValue, { from: sender, gas: 210000 })
     const channelId = res.logs[0].args.channelId
 
     await broker.startSettle(channelId, startChannelValue, {from: sender})
@@ -113,7 +113,7 @@ contract('TokenBroker', async accounts => {
     const s = '0x' + signature.s.toString('hex')
 
     const balanceBefore = await token.balanceOf(receiver)
-    await broker.claim(token.address, channelId, startChannelValue, Number(v), r, s, {from: receiver, gas: 200000})
+    await broker.claim(channelId, startChannelValue, Number(v), r, s, {from: receiver, gas: 90000})
     const balanceAfter = await token.balanceOf(receiver)
 
     expect(balanceAfter).to.deep.equal(balanceBefore.plus(startChannelValue))
