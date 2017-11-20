@@ -1,7 +1,7 @@
 import Web3 = require('web3')
 import BigNumber from 'bignumber.js'
 import contract = require('truffle-contract')
-import {TransactionResult} from "truffle-contract";
+import { TransactionResult } from 'truffle-contract'
 
 const TokenBrokerJson = require('../build/contracts/TokenBroker.json')
 
@@ -23,8 +23,8 @@ namespace TokenBroker {
     getUntil (channelId: string): Promise<number>
   }
 
-  export function deployed(provider?: Web3.Provider): Promise<TokenBroker.Contract> {
-    let instance = contract<TokenBroker.Contract>(TokenBrokerJson)
+  export function deployed (provider?: Web3.Provider): Promise<Contract> {
+    let instance = contract<Contract>(TokenBrokerJson)
     if (provider) {
       instance.setProvider(provider)
     }
