@@ -9,6 +9,7 @@ contract TokenBroker is Destructible {
   struct PaymentChannel {
     address sender;
     address receiver;
+    address erc20Contract;
     uint256 value;
     uint settlementPeriod;
     ChannelState state;
@@ -38,7 +39,7 @@ contract TokenBroker is Destructible {
     var c = StandardToken(erc20Contract);
     require(c.transferFrom(sender, address(this), value));
 
-    channels[channelId] = PaymentChannel(sender, receiver, value, settlementPeriod, ChannelState.Open, block.timestamp + duration, 0);
+    channels[channelId] = PaymentChannel(sender, receiver, erc20Contract, value, settlementPeriod, ChannelState.Open, block.timestamp + duration, 0);
     DidCreateChannel(channelId, sender, receiver, value, settlementPeriod, block.timestamp + duration);
 
     return channelId;
@@ -46,11 +47,11 @@ contract TokenBroker is Destructible {
 
   /* Add funds to the channel */
   // function deposit(bytes32 channelId, uint256 value) public {
-  function deposit(address erc20Contract, bytes32 channelId, uint value) public {
+  function deposit(bytes32 channelId, uint value) public {
     require(canDeposit(msg.sender, channelId));
 
     var channel = channels[channelId];
-    var c = StandardToken(erc20Contract);
+    var c = StandardToken(channel.erc20Contract);
     require(c.transferFrom(channel.sender, address(this), value));
 
     channel.value += value;
@@ -58,12 +59,12 @@ contract TokenBroker is Destructible {
     DidDeposit(channelId, value);
   }
 
-  function claim(address erc20Contract, bytes32 channelId, uint256 payment, uint8 v, bytes32 r, bytes32 s) public {
+  function claim(bytes32 channelId, uint256 payment, uint8 v, bytes32 r, bytes32 s) public {
     if (!canClaim(channelId, payment, v, r, s)) {
       return;
     }
 
-    settle(erc20Contract, channelId, payment);
+    settle(channelId, payment);
   }
 
   /* Sender starts settling */
@@ -78,9 +79,9 @@ contract TokenBroker is Destructible {
   }
 
   /* Sender settles the channel, if receiver have not done that */
-  function finishSettle(address erc20Contract, bytes32 channelId) public {
+  function finishSettle(bytes32 channelId) public {
     require(canFinishSettle(msg.sender, channelId));
-    settle(erc20Contract, channelId, channels[channelId].payment);
+    settle(channelId, channels[channelId].payment);
   }
 
   function close(bytes32 channelId) {
@@ -95,11 +96,11 @@ contract TokenBroker is Destructible {
 
   /******** BEHIND THE SCENES ********/
 
-  function settle(address erc20Contract, bytes32 channelId, uint256 payment) {
+  function settle(bytes32 channelId, uint256 payment) {
     var channel = channels[channelId];
     uint256 paid = payment;
     uint256 oddMoney = 0;
-    var c = StandardToken(erc20Contract);
+    var c = StandardToken(channel.erc20Contract);
 
     if (payment > channel.value) {
       paid = channel.value;
