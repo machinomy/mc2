@@ -16,7 +16,7 @@ export function getNetwork (web3: Web3): Promise<number> {
 }
 
 export namespace ERC20Example {
-  const Json = require('../build/contracts/ERC20Example.json')
+  const Json = require('../build/contracts/ERC20example.json')
 
   export interface Contract {
     address: string
