@@ -81,7 +81,7 @@ contract Broker is Destructible {
       settle(channelId, channels[channelId].payment);
     }
 
-    function close(bytes32 channelId) {
+    function close(bytes32 channelId) public {
         var channel = channels[channelId];
         if (channel.state == ChannelState.Settled && (msg.sender == owner || msg.sender == channel.sender || msg.sender == channel.receiver)) {
             if (channel.value > 0) {
