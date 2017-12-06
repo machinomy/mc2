@@ -2,7 +2,7 @@
 
 Broker contract manages uni-directional payment channels. A payment channel lifecycle is depicted below:
 
-![channel-states](channel-states.svg)
+![Channel States](https://cdn.rawgit.com/machinomy/machinomy-contracts/683e17f1/doc/channel-states.svg)
 
 **No Channel → Open:**
 
