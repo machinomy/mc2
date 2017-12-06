@@ -67,7 +67,7 @@ contract('Broker', accounts => {
     expect(evt.logs[0].args.payment.toString()).to.equal(value.toString())
   })
 
-  it('close by sender', async () => {
+  it('settle by sender', async () => {
     let instance = await Broker.deployed(web3.currentProvider)
 
     const didCreateEvent = await createChannel(instance)
@@ -84,7 +84,7 @@ contract('Broker', accounts => {
     }).to.throw
   })
 
-  it('close by sender, then by receiver', async () => {
+  it('settle by sender, then by receiver', async () => {
     let instance = await Broker.deployed(web3.currentProvider)
 
     const didCreateEvent = await createChannel(instance)
