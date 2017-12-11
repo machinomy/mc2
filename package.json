@@ -40,6 +40,7 @@
   },
   "homepage": "https://github.com/machinomy/machinomy-contracts#readme",
   "devDependencies": {
+    "@machinomy/types-truffle-contract": "https://github.com/machinomy/types-truffle-contract",
     "@types/bignumber.js": "^4.0.3",
     "@types/chai": "^4.0.5",
     "@types/chai-as-promised": "^7.1.0",
@@ -59,7 +60,6 @@
     "ethereumjs-util": "^5.1.2",
     "truffle-contract": "^3.0.0",
     "web3": "^0.20.1",
-    "web3-typescript-typings": "https://github.com/machinomy/web3-typescript-typings",
     "zeppelin-solidity": "^1.2.0"
   }
 }

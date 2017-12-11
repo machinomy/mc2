@@ -46,7 +46,7 @@
     "emitDecoratorMetadata": true /* Enables experimental support for emitting type metadata for decorators. */
   },
   "include": [
-    "node_modules/*/index.d.ts",
+    "node_modules/**/*/index.d.ts",
     "src/globals.d.ts",
     "src/**/*.ts",
     "test/**/*.ts",
