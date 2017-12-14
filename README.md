@@ -33,14 +33,15 @@ $ yarn truffle:migrate:ropsten
 $ yarn build
 ```
 
-# Ether
+### Contract verification
 
+To display contract source code on etherscan you need to verify it:
+1. [ropsten](https://ropsten.etherscan.io/verifyContract)
+2. [kovan](https://kovan.etherscan.io/verifyContract)
 
-https://kovan.etherscan.io/verifyContract
+Use [truffle-flattener](https://github.com/alcuadrado/truffle-flattener) to get flattened solidity contract code.
 
-Use [truffle-flattener](https://github.com/alcuadrado/truffle-flattener) 
-
-Constructor Arguments (ABI-encoded and is the last bytes of the Contract Creation Code above)
+Code example for constructor arguments encoding into ABI:
 
 ```js
 var abi = require('ethereumjs-abi')
