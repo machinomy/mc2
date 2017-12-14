@@ -32,3 +32,20 @@ To deploy the package to the Ropsten network you need to run local geth instance
 $ yarn truffle:migrate:ropsten
 $ yarn build
 ```
+
+# Ether
+
+
+https://kovan.etherscan.io/verifyContract
+
+Use [truffle-flattener](https://github.com/alcuadrado/truffle-flattener) 
+
+Constructor Arguments (ABI-encoded and is the last bytes of the Contract Creation Code above)
+
+```js
+var abi = require('ethereumjs-abi')
+var parameterTypes = ["uint32"];
+var parameterValues = [42]
+var encoded = abi.rawEncode(parameterTypes, parameterValues);
+console.log(encoded.toString('hex'));
+```
