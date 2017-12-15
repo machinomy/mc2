@@ -1,4 +1,4 @@
-## Contract verification
+# Contract verification
 
 To display contract source code on etherscan you need to verify it:
 1. [ropsten](https://ropsten.etherscan.io/verifyContract)
