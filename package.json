@@ -22,7 +22,8 @@
     "truffle:migrate:ropsten": "truffle migrate --network ropsten",
     "test": "yarn run build && yarn run truffle:test",
     "build": "tsc",
-    "lint": "tslint -t stylish --type-check -p '.' -e './build/**/*.ts'",
+    "lint": "tslint -t stylish --type-check -p '.' -e './build/**/*.ts' && yarn sollint",
+    "sollint": "solium -d contracts/",
     "prepare": "yarn lint && yarn build"
   },
   "repository": {
@@ -46,6 +47,7 @@
     "@types/node": "^8.0.28",
     "chai-as-promised": "^7.1.1",
     "run-with-testrpc": "^0.2.1",
+    "solium": "^1.0.11",
     "truffle": "^3.2.93",
     "tslint": "^5.7.0",
     "tslint-config-standard": "^6.0.1",
