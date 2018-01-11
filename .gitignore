@@ -1,18 +1,12 @@
 .vscode/
 .idea/
-datadir
 node_modules/
 .env
 yarn-error.log
 
 **/*.js.map
 **/*.d.ts
-
-build/contracts/*.js
-helpers/*.js
-types/*.js
-test/*.js
-src/*.js
-index.js
+**/*.js
+!migrations/*.js
 
 .DS_Store
