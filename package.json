@@ -40,9 +40,6 @@
     "url": "https://github.com/machinomy/machinomy-contracts/issues"
   },
   "homepage": "https://github.com/machinomy/machinomy-contracts#readme",
-  "engines": {
-    "node": ">=9.0.0"
-  },
   "devDependencies": {
     "@machinomy/types-truffle-contract": "https://github.com/machinomy/types-truffle-contract",
     "@types/bignumber.js": "^4.0.3",
