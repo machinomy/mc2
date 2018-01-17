@@ -1,16 +1,14 @@
 {
   "name": "@machinomy/contracts",
-  "version": "3.1.0",
+  "version": "4.0.0-alpha",
   "description": "Machinomy contracts managed by Truffle",
   "main": "src/index.js",
   "types": "src/index.d.ts",
   "files": [
     "build/",
     "contracts/",
-    "helpers/",
     "migrations/",
     "test/",
-    "types/",
     "src/"
   ],
   "directories": {
