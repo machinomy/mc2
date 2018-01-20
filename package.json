@@ -2,6 +2,15 @@
   "name": "@machinomy/contracts",
   "version": "4.0.0-alpha",
   "description": "Machinomy contracts managed by Truffle",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/machinomy/machinomy-contracts#readme",
+  "bugs": {
+    "url": "https://github.com/machinomy/machinomy-contracts/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/machinomy/machinomy-contracts.git"
+  },
   "main": "src/index.js",
   "types": "src/index.d.ts",
   "files": [
@@ -14,30 +23,27 @@
   "directories": {
     "test": "test"
   },
+  "config": {
+    "truffleTests": "test/*.test.js"
+  },
   "scripts": {
-    "truffle:test": "run-with-testrpc --networkId 999 --mnemonic 'testtest' --unlock 0 'truffle test ./test/*.test.js'",
+    "prepare": "yarn lint && yarn build",
+    "travis": "yarn prepare && yarn test",
+    "lint": "yarn lint:solidity && yarn lint:typescript",
+    "lint:solidity": "solium -d contracts/",
+    "lint:typescript": "tslint --format stylish --project .",
+    "build": "tsc --project tsconfig.json",
+    "truffle:test": "run-with-testrpc 'truffle test $npm_package_config_truffleTests'",
+    "truffle:compile": "truffle compile",
     "truffle:migrate": "truffle migrate",
     "truffle:migrate:ropsten": "truffle migrate --network ropsten",
-    "test": "yarn run build && yarn run truffle:test",
-    "build": "tsc",
-    "lint": "tslint -t stylish --type-check -p '.' -e './build/**/*.ts' && yarn sollint",
-    "sollint": "solium -d contracts/",
-    "prepare": "yarn lint && yarn build"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/machinomy/machinomy-contracts.git"
+    "test": "yarn build && yarn truffle:test"
   },
   "author": "Sergey Ukustov <sergey.ukustov@machinomy.com",
   "contributors": [
     "Alexandr Burtovoy <alexandr.burtovoy@machinomy.com>",
     "David Wolever <david@wolever.net>"
   ],
-  "license": "Apache-2.0",
-  "bugs": {
-    "url": "https://github.com/machinomy/machinomy-contracts/issues"
-  },
-  "homepage": "https://github.com/machinomy/machinomy-contracts#readme",
   "devDependencies": {
     "@machinomy/types-truffle-contract": "https://github.com/machinomy/types-truffle-contract",
     "@types/bignumber.js": "^4.0.3",

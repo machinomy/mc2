@@ -1,25 +1,31 @@
+const FROM = process.env.FROM
+const PASSWORD = process.env.PASSWORD
+
+const GAS = 1700000
+
 module.exports = {
   networks: {
     development: {
+      network_id: "*",
       host: "localhost",
       port: 8545,
-      network_id: "*" // Match any network id
+      gas: GAS
     },
     ropsten: {
+      network_id: 3,
       host: "localhost",
       port: 8545,
-      network_id: 3,
-      from: '0x5D20CFdC322827519bDfC362Add9A98d65922e2C',
-      password: process.env.PASSWORD,
-      gas: 1700000
+      gas: GAS,
+      from: FROM,
+      password: PASSWORD
     },
     kovan: {
+      network_id: 42,
       host: "localhost",
       port: 8545,
-      network_id: 42,
-      from: '0x1edfecaa5c2ebcccc2a7f200619333d05beaaa69',
-      password: process.env.PASSWORD,
-      gas: 1700000
+      gas: GAS,
+      from: FROM,
+      password: PASSWORD
     }
   }
-};
+}
