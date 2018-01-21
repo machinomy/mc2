@@ -45,7 +45,7 @@
     "David Wolever <david@wolever.net>"
   ],
   "devDependencies": {
-    "@machinomy/types-truffle-contract": "https://github.com/machinomy/types-truffle-contract",
+    "@machinomy/types-truffle": "https://github.com/machinomy/types-truffle",
     "@types/bignumber.js": "^4.0.3",
     "@types/chai": "^4.0.5",
     "@types/chai-as-promised": "^7.1.0",

@@ -7,6 +7,5 @@ yarn-error.log
 **/*.js.map
 **/*.d.ts
 **/*.js
-!migrations/*.js
 
 .DS_Store
