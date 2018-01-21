@@ -7,5 +7,6 @@ yarn-error.log
 **/*.js.map
 **/*.d.ts
 **/*.js
+build/wrappers
 
 .DS_Store
