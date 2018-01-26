@@ -48,6 +48,7 @@
     "David Wolever <david@wolever.net>"
   ],
   "devDependencies": {
+    "@machinomy/types-ethereumjs-units": "https://github.com/machinomy/types-ethereumjs-units",
     "@machinomy/types-truffle": "https://github.com/machinomy/types-truffle",
     "@types/bignumber.js": "^4.0.3",
     "@types/chai": "^4.0.5",

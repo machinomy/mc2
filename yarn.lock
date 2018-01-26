@@ -2,6 +2,10 @@
 # yarn lockfile v1
 
 
+"@machinomy/types-ethereumjs-units@https://github.com/machinomy/types-ethereumjs-units":
+  version "0.0.1"
+  resolved "https://github.com/machinomy/types-ethereumjs-units#19be879564c331c70e50e3e03c292f6b21db4bce"
+
 "@machinomy/types-truffle-contract@https://github.com/machinomy/types-truffle-contract":
   version "0.0.1"
   resolved "https://github.com/machinomy/types-truffle-contract#112f61ec4527a0fbf7c1b9bcc0bedaa6be42caa7"
