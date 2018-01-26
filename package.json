@@ -29,7 +29,7 @@
   },
   "scripts": {
     "prepublish": "yarn lint && yarn build",
-    "travis": "yarn prepare && yarn test",
+    "travis": "yarn prepublish && yarn test",
     "lint": "yarn lint:solidity && yarn lint:typescript",
     "lint:solidity": "solium -d contracts/",
     "lint:typescript": "tslint --format stylish --project .",

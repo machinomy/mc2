@@ -52,7 +52,7 @@ contract('Unidirectional', accounts => {
     specify('emit DidOpen event', async () => {
       let channelId = contracts.channelId(sender, receiver)
       const log = await createChannelRaw(channelId)
-      assert(await contracts.Unidirectional.isDidOpenEvent(log.logs[0]))
+      assert(contracts.Unidirectional.isDidOpenEvent(log.logs[0]))
       let event = log.logs[0].args as contracts.Unidirectional.DidOpen
       assert.equal(event.channelId, channelId)
       assert.equal(event.sender, sender)
