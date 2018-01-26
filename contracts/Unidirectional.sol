@@ -21,7 +21,7 @@ contract Unidirectional {
     event DidOpen(bytes32 indexed channelId, address indexed sender, address indexed receiver, uint256 value);
     event DidDeposit(bytes32 indexed channelId, uint256 deposit);
     event DidClaim(bytes32 indexed channelId);
-    event DidStartSettling(bytes32 indexed channelId);
+    event DidStartSettling(bytes32 indexed channelId, address indexed sender, address indexed receiver);
     event DidSettle(bytes32 indexed channelId);
 
     function open(bytes32 channelId, address receiver, uint32 settlingPeriod) public payable {
@@ -64,7 +64,7 @@ contract Unidirectional {
         var channel = channels[channelId];
         channel.settlingUntil = block.number + channel.settlingPeriod;
 
-        DidStartSettling(channelId);
+        DidStartSettling(channelId, channel.sender, channel.receiver);
     }
 
     function canSettle(bytes32 channelId) public view returns(bool) {
