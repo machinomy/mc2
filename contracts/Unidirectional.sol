@@ -18,13 +18,15 @@ contract Unidirectional {
 
     mapping (bytes32 => PaymentChannel) public channels;
 
-    event DidOpen(bytes32 indexed channelId, address indexed sender, address indexed receiver, uint256 amount);
+    event DidOpen(bytes32 indexed channelId, address indexed sender, address indexed receiver, uint256 value);
     event DidDeposit(bytes32 indexed channelId, uint256 deposit);
     event DidClaim(bytes32 indexed channelId);
     event DidStartSettling(bytes32 indexed channelId);
     event DidSettle(bytes32 indexed channelId);
 
     function open(bytes32 channelId, address receiver, uint32 settlingPeriod) public payable {
+        require(isAbsent(channelId));
+
         channels[channelId] = PaymentChannel({
             sender: msg.sender,
             receiver: receiver,
@@ -33,7 +35,7 @@ contract Unidirectional {
             settlingUntil: 0
         });
 
-        DidOpen(channelId);
+        DidOpen(channelId, msg.sender, receiver, msg.value);
     }
 
     function canDeposit(bytes32 channelId, address origin) public view returns(bool) {
@@ -65,14 +67,14 @@ contract Unidirectional {
         DidStartSettling(channelId);
     }
 
-    function canSettle(bytes32 channelId, address origin) public view returns(bool) {
+    function canSettle(bytes32 channelId) public view returns(bool) {
         var channel = channels[channelId];
         bool isWaitingOver = block.number >= channel.settlingUntil && isSettling(channelId);
-        return isSender && isSettling(channelId) && isWaitingOver;
+        return isSettling(channelId) && isWaitingOver;
     }
 
     function settle(bytes32 channelId) public {
-        require(canSettle(channelId, msg.sender));
+        require(canSettle(channelId));
         var channel = channels[channelId];
         require(channel.sender.send(channel.value));
 
@@ -83,7 +85,7 @@ contract Unidirectional {
     function canClaim(bytes32 channelId, uint256 payment, address origin, bytes signature) public view returns(bool) {
         var channel = channels[channelId];
         bool isReceiver = origin == channel.receiver;
-        var hash = signatureDigest(channelId, payment);
+        var hash = recoveryPaymentDigest(channelId, payment);
         bool isSigned = channel.sender == ECRecovery.recover(hash, signature);
 
         return isReceiver && isSigned;
@@ -107,8 +109,12 @@ contract Unidirectional {
     }
 
     function isPresent(bytes32 channelId) public view returns(bool) {
+        return !isAbsent(channelId);
+    }
+
+    function isAbsent(bytes32 channelId) public view returns(bool) {
         var channel = channels[channelId];
-        return channel.sender != 0;
+        return channel.sender == 0;
     }
 
     function isSettling(bytes32 channelId) public view returns(bool) {
@@ -124,7 +130,7 @@ contract Unidirectional {
         return keccak256(address(this), channelId, payment);
     }
 
-    function signatureDigest(bytes32 channelId, uint256 payment) public view returns(bytes32) {
+    function recoveryPaymentDigest(bytes32 channelId, uint256 payment) internal view returns(bytes32) {
         bytes memory prefix = "\x19Ethereum Signed Message:\n32";
         return keccak256(prefix, paymentDigest(channelId, payment));
     }

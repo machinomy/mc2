@@ -1,31 +1,20 @@
-const util = require('ethereumjs-util')
-import Web3 = require('web3')
-const abi = require('ethereumjs-abi')
-const BN = require('bn.js')
-import BigNumber from 'bignumber.js'
+import Unidirectional from '../build/wrappers/Unidirectional'
+import * as ethUtil from 'ethereumjs-util'
 
-export interface Signature {
-  v: number
-  r: Buffer
-  s: Buffer
+export {
+  Unidirectional
 }
 
-export function sign (web3: Web3, sender: string, digest: string): Promise<Signature> {
-  return new Promise<Signature>((resolve, reject) => {
-    web3.eth.sign(sender, digest, (error, signature) => {
-      if (error) {
-        reject(error)
-      } else {
-        resolve(util.fromRpcSig(signature))
-      }
-    })
-  })
+export function randomId (digits: number = 3) {
+  const datePart = new Date().getTime() * Math.pow(10, digits)
+  // 3 random digits
+  const extraPart = Math.floor(Math.random() * Math.pow(10, digits))
+  // 16 digits
+  return datePart + extraPart
 }
 
-export function paymentDigest (channelId: string, value: BigNumber, contractAddress: string, chainId: number): string {
-  let digest = abi.soliditySHA3(
-    ['bytes32', 'uint256', 'address', 'uint32'],
-    [channelId.toString(), new BigNumber(value).toString(), new BN(contractAddress, 16), chainId]
-  )
-  return util.bufferToHex(digest)
+export function channelId (sender: string, receiver: string): string {
+  let random = randomId()
+  let buffer = ethUtil.sha3(sender + receiver + random)
+  return ethUtil.bufferToHex(buffer)
 }
