@@ -4,7 +4,8 @@
     "module": "commonjs",
     "lib": [ "es2017" ],
     "typeRoots": [
-      "../node_modules/@types"
+      "../node_modules/@types",
+      "../node_modules/@machinomy"
     ]
   },
   "include": [
