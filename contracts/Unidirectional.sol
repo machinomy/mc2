@@ -22,7 +22,7 @@ contract Unidirectional {
     event DidOpen(bytes32 indexed channelId, address indexed sender, address indexed receiver, uint256 value);
     event DidDeposit(bytes32 indexed channelId, uint256 deposit);
     event DidClaim(bytes32 indexed channelId);
-    event DidStartSettling(bytes32 indexed channelId, address indexed sender, address indexed receiver);
+    event DidStartSettling(bytes32 indexed channelId);
     event DidSettle(bytes32 indexed channelId);
 
     /// @notice Open a new channel between `msg.sender` and `receiver`, and do an initial deposit to the channel.
@@ -83,7 +83,7 @@ contract Unidirectional {
         var channel = channels[channelId];
         channel.settlingUntil = block.number + channel.settlingPeriod;
 
-        DidStartSettling(channelId, channel.sender, channel.receiver);
+        DidStartSettling(channelId);
     }
 
     /// @notice Ensure one can settle the channel identified by `channelId`.

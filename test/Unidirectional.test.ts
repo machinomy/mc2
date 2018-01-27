@@ -148,6 +148,17 @@ contract('Unidirectional', accounts => {
       let delta = after.minus(before).plus(txCost)
       assert.equal(delta.toString(), payment.toString())
     })
+    specify('send channel value to receiver', async () => {
+      let didOpenEvent = await createChannel()
+      let _payment = channelValue.plus(payment)
+      let signature = await paymentSignature(sender, didOpenEvent.channelId, _payment)
+      let before = web3.eth.getBalance(receiver)
+      let tx = await instance.claim(didOpenEvent.channelId, _payment, signature, {from: receiver})
+      let txCost = support.GAS_PRICE.mul(tx.receipt.gasUsed)
+      let after = web3.eth.getBalance(receiver)
+      let delta = after.minus(before).plus(txCost)
+      assert.equal(delta.toString(), channelValue.toString())
+    })
     specify('send change to sender', async () => {
       let didOpenEvent = await createChannel()
       let signature = await paymentSignature(sender, didOpenEvent.channelId, payment)
@@ -251,6 +262,68 @@ contract('Unidirectional', accounts => {
       let didOpenEvent = await createChannel(30)
       await instance.startSettling(didOpenEvent.channelId, {from: sender})
       return assert.isRejected(instance.settle(didOpenEvent.channelId, {from: sender}))
+    })
+  })
+
+  describe('.deposit', () => {
+    specify('emit DidDeposit event', async () => {
+      let didOpenEvent = await createChannel()
+      let channelId = didOpenEvent.channelId
+      let tx = await instance.deposit(channelId, {value: payment, from: sender})
+      assert(contracts.Unidirectional.isDidDepositEvent(tx.logs[0]))
+      let event = tx.logs[0].args as contracts.Unidirectional.DidDeposit
+      assert.equal(event.channelId, channelId)
+    })
+
+    specify('increase contract balance', async () => {
+      let before = web3.eth.getBalance(instance.address)
+      let channelId = (await createChannel()).channelId
+      await instance.deposit(channelId, {value: payment, from: sender})
+      let after = web3.eth.getBalance(instance.address)
+      let delta = after.minus(before)
+      assert.equal(delta.toString(), channelValue.plus(payment).toString())
+    })
+
+    specify('increase channel value', async () => {
+      let channelId = (await createChannel()).channelId
+      let before = (await instance.channels(channelId))[2]
+      await instance.deposit(channelId, {value: payment, from: sender})
+      let after = (await instance.channels(channelId))[2]
+      let delta = after.minus(before)
+      assert.equal(delta.toString(), payment.toString())
+    })
+
+    specify('decrease sender balance', async () => {
+      let channelId = (await createChannel()).channelId
+      let before = web3.eth.getBalance(sender)
+      let log = await instance.deposit(channelId, {value: payment, from: sender})
+      let after = web3.eth.getBalance(sender)
+      let txCost = support.GAS_PRICE.mul(log.receipt.gasUsed)
+      let actual = before.minus(after)
+      let expected = txCost.plus(payment)
+      assert.equal(actual.toString(), expected.toString())
+    })
+
+    specify('not if no channel', async () => {
+      return assert.isRejected(instance.deposit(WRONG_CHANNEL_ID, {value: payment, from: sender}))
+    })
+
+    specify('not if settling', async () => {
+      let didOpenEvent = await createChannel(30)
+      await instance.startSettling(didOpenEvent.channelId, {from: sender})
+      return assert.isRejected(instance.deposit(didOpenEvent.channelId, {value: payment, from: sender}))
+    })
+
+    specify('not if receiver', async () => {
+      let channelId = contracts.channelId(sender, receiver)
+      await createChannelRaw(channelId)
+      return assert.isRejected(instance.deposit(channelId, {value: payment, from: receiver}))
+    })
+
+    specify('not if alien', async () => {
+      let channelId = contracts.channelId(sender, receiver)
+      await createChannelRaw(channelId)
+      return assert.isRejected(instance.deposit(channelId, {value: payment, from: alien}))
     })
   })
 })
