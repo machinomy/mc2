@@ -183,7 +183,7 @@ async-eventemitter@^0.2.2:
   dependencies:
     async "^2.4.0"
 
-async@^1.4.2:
+async@^1.4.2, async@^1.5.0, async@^1.5.2:
   version "1.5.2"
   resolved "https://registry.yarnpkg.com/async/-/async-1.5.2.tgz#ec6a61ae56480c0c3cb241c95618e20892f9672a"
 
@@ -632,6 +632,10 @@ big.js@^3.1.3:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/big.js/-/big.js-3.2.0.tgz#a5fc298b81b9e0dca2e458824784b65c52ba588e"
 
+bignumber.js@^2.1.4:
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/bignumber.js/-/bignumber.js-2.4.0.tgz#838a992da9f9d737e0f4b2db0be62bb09dd0c5e8"
+
 bignumber.js@^4.0.2, bignumber.js@^4.1.0:
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/bignumber.js/-/bignumber.js-4.1.0.tgz#db6f14067c140bd46624815a7916c92d9b6c24b1"
@@ -827,6 +831,10 @@ camelcase@^1.0.2:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/camelcase/-/camelcase-1.2.1.tgz#9bb5304d2e0b56698b2c758b08a3eaa9daa58a39"
 
+camelcase@^2.0.1:
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/camelcase/-/camelcase-2.1.1.tgz#7c1d16d679a1bbe59ca02cacecfb011e201f5a1f"
+
 camelcase@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/camelcase/-/camelcase-3.0.0.tgz#32fc4b9fcdaf845fcdf7e73bb97cac2261f0ab0a"
@@ -917,7 +925,7 @@ cliui@^2.1.0:
     right-align "^0.1.1"
     wordwrap "0.0.2"
 
-cliui@^3.2.0:
+cliui@^3.0.3, cliui@^3.2.0:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/cliui/-/cliui-3.2.0.tgz#120601537a916d29940f934da3b48d585a39213d"
   dependencies:
@@ -1342,6 +1350,21 @@ esutils@^2.0.2:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/esutils/-/esutils-2.0.2.tgz#0abf4f1caa5bcb1f7a9d8acc6dea4faaa04bac9b"
 
+ether-pudding@^3.2.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/ether-pudding/-/ether-pudding-3.2.0.tgz#d1f9dc04e0522530d8f771a1024fe5ec17d8c50d"
+  dependencies:
+    async "^1.5.2"
+    ethereumjs-testrpc "^2.0.7"
+    lodash "^4.11.2"
+    node-dir "^0.1.11"
+    solc "^0.3.6"
+    web3 "^0.15.3"
+
+ethereum-common@0.0.16:
+  version "0.0.16"
+  resolved "https://registry.yarnpkg.com/ethereum-common/-/ethereum-common-0.0.16.tgz#9a1e169ead34ab75e089f50ca512bfd0fbd12655"
+
 ethereum-common@0.0.18, ethereum-common@^0.0.18:
   version "0.0.18"
   resolved "https://registry.yarnpkg.com/ethereum-common/-/ethereum-common-0.0.18.tgz#2fdc3576f232903358976eb39da783213ff9523f"
@@ -1357,7 +1380,7 @@ ethereum-common@0.1.0:
     bn.js "^4.10.0"
     ethereumjs-util "^4.3.0"
 
-ethereumjs-account@^2.0.3:
+ethereumjs-account@^2.0.3, ethereumjs-account@^2.0.4:
   version "2.0.4"
   resolved "https://registry.yarnpkg.com/ethereumjs-account/-/ethereumjs-account-2.0.4.tgz#f8c30231bcb707f4514d8a052c1f9da103624d47"
   dependencies:
@@ -1374,20 +1397,41 @@ ethereumjs-block@^1.2.2:
     ethereumjs-util "^5.0.0"
     merkle-patricia-tree "^2.1.2"
 
+ethereumjs-testrpc@^2.0.7:
+  version "2.2.7"
+  resolved "https://registry.yarnpkg.com/ethereumjs-testrpc/-/ethereumjs-testrpc-2.2.7.tgz#ff732fefdb3a189e82d5f09b99946bff18140224"
+  dependencies:
+    async "^1.5.0"
+    bignumber.js "^2.1.4"
+    bip39 "^2.2.0"
+    ethereumjs-account "^2.0.4"
+    ethereumjs-block "^1.2.2"
+    ethereumjs-tx "^1.1.0"
+    ethereumjs-util "^4.5.0"
+    ethereumjs-vm "^1.3.0"
+    ethereumjs-wallet "^0.6.0"
+    fake-merkle-patricia-tree "^1.0.1"
+    merkle-patricia-tree "^2.1.2"
+    seedrandom "^2.4.2"
+    shelljs "^0.6.0"
+    web3 "^0.16.0"
+    web3-provider-engine "^8.0.3"
+    yargs "^3.29.0"
+
 ethereumjs-testrpc@^4.1.1:
   version "4.1.3"
   resolved "https://registry.yarnpkg.com/ethereumjs-testrpc/-/ethereumjs-testrpc-4.1.3.tgz#74db90c9075fdfa3ba2513f08595baac36a86c7e"
   dependencies:
     webpack "^3.0.0"
 
-ethereumjs-tx@^1.2.0, ethereumjs-tx@^1.2.2:
+ethereumjs-tx@^1.1.0, ethereumjs-tx@^1.2.0, ethereumjs-tx@^1.2.2:
   version "1.3.3"
   resolved "https://registry.yarnpkg.com/ethereumjs-tx/-/ethereumjs-tx-1.3.3.tgz#ece051d3efdbe771ad2a518d61632ca2ab75ecbb"
   dependencies:
     ethereum-common "^0.0.18"
     ethereumjs-util "^5.0.0"
 
-ethereumjs-util@4.5.0, ethereumjs-util@^4.0.0, ethereumjs-util@^4.0.1, ethereumjs-util@^4.3.0, ethereumjs-util@^4.4.0:
+ethereumjs-util@4.5.0, ethereumjs-util@^4.0.0, ethereumjs-util@^4.0.1, ethereumjs-util@^4.3.0, ethereumjs-util@^4.4.0, ethereumjs-util@^4.5.0:
   version "4.5.0"
   resolved "https://registry.yarnpkg.com/ethereumjs-util/-/ethereumjs-util-4.5.0.tgz#3e9428b317eebda3d7260d854fddda954b1f1bc6"
   dependencies:
@@ -1409,6 +1453,20 @@ ethereumjs-util@^5.0.0, ethereumjs-util@^5.0.1, ethereumjs-util@^5.1.2:
     keccak "^1.0.2"
     rlp "^2.0.0"
     secp256k1 "^3.0.1"
+
+ethereumjs-vm@^1.3.0:
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/ethereumjs-vm/-/ethereumjs-vm-1.4.1.tgz#a8c3a33917c62d761de195002391d6ca6d038c09"
+  dependencies:
+    async "^1.4.2"
+    async-eventemitter "^0.2.2"
+    ethereum-common "0.0.16"
+    ethereumjs-account "^2.0.3"
+    ethereumjs-block "^1.2.2"
+    ethereumjs-util "^4.0.1"
+    fake-merkle-patricia-tree "^1.0.1"
+    functional-red-black-tree "^1.0.1"
+    merkle-patricia-tree "^2.1.2"
 
 ethereumjs-vm@^2.0.2:
   version "2.2.1"
@@ -2288,7 +2346,7 @@ lodash.keys@^3.0.0:
     lodash.isarguments "^3.0.0"
     lodash.isarray "^3.0.0"
 
-lodash@^4.14.0, lodash@^4.14.2, lodash@^4.17.4:
+lodash@^4.11.2, lodash@^4.14.0, lodash@^4.14.2, lodash@^4.17.4:
   version "4.17.4"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.4.tgz#78203a4d1c328ae1d86dca6460e369b57f4055ae"
 
@@ -2476,6 +2534,12 @@ nan@^2.0.5, nan@^2.0.8, nan@^2.2.1, nan@^2.3.0:
 node-abi@^2.0.0:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/node-abi/-/node-abi-2.1.1.tgz#c9cda256ec8aa99bcab2f6446db38af143338b2a"
+
+node-dir@^0.1.11:
+  version "0.1.17"
+  resolved "https://registry.yarnpkg.com/node-dir/-/node-dir-0.1.17.tgz#5f5665d93351335caabef8f1c554516cf5f1e4e5"
+  dependencies:
+    minimatch "^3.0.2"
 
 node-fetch@^1.0.1:
   version "1.7.3"
@@ -3129,6 +3193,10 @@ secp256k1@^3.0.1:
     prebuild-install "^2.0.0"
     safe-buffer "^5.1.0"
 
+seedrandom@^2.4.2:
+  version "2.4.3"
+  resolved "https://registry.yarnpkg.com/seedrandom/-/seedrandom-2.4.3.tgz#2438504dad33917314bff18ac4d794f16d6aaecc"
+
 semaphore@>=1.0.1, semaphore@^1.0.3:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/semaphore/-/semaphore-1.1.0.tgz#aaad8b86b20fe8e9b32b16dc2ee682a8cd26a8aa"
@@ -3171,6 +3239,10 @@ shebang-regex@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/shebang-regex/-/shebang-regex-1.0.0.tgz#da42f49740c0b42db2ca9728571cb190c98efea3"
 
+shelljs@^0.6.0:
+  version "0.6.1"
+  resolved "https://registry.yarnpkg.com/shelljs/-/shelljs-0.6.1.tgz#ec6211bed1920442088fe0f70b2837232ed2c8a8"
+
 signal-exit@^3.0.0:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/signal-exit/-/signal-exit-3.0.2.tgz#b5fdc08f1287ea1178628e415e25132b73646c6d"
@@ -3201,9 +3273,17 @@ sol-explore@^1.6.1:
   version "1.6.2"
   resolved "https://registry.yarnpkg.com/sol-explore/-/sol-explore-1.6.2.tgz#43ae8c419fd3ac056a05f8a9d1fb1022cd41ecc2"
 
-solc@0.4.15:
-  version "0.4.15"
-  resolved "https://registry.yarnpkg.com/solc/-/solc-0.4.15.tgz#8ae8f1606a124a3f81c28b9dcecb0964ebdf9f25"
+solc@^0.3.6:
+  version "0.3.6"
+  resolved "https://registry.yarnpkg.com/solc/-/solc-0.3.6.tgz#ee1678e144701fbc1635efb21213c7953cf2bba9"
+  dependencies:
+    memorystream "^0.3.1"
+    require-from-string "^1.1.0"
+    yargs "^4.7.1"
+
+solc@^0.4.11, solc@^0.4.19:
+  version "0.4.19"
+  resolved "https://registry.yarnpkg.com/solc/-/solc-0.4.19.tgz#1af1c4c292a0365a6977d4cbe3fbee7139b4b561"
   dependencies:
     fs-extra "^0.30.0"
     memorystream "^0.3.1"
@@ -3525,13 +3605,13 @@ truffle-hdwallet-provider@0.0.3:
     web3 "^0.18.2"
     web3-provider-engine "^8.4.0"
 
-truffle@^3.2.93:
-  version "3.4.9"
-  resolved "https://registry.yarnpkg.com/truffle/-/truffle-3.4.9.tgz#9186a2b8d51696fffae1439bf8eea3dd3deed44e"
+truffle@3.2.93:
+  version "3.2.93"
+  resolved "https://registry.yarnpkg.com/truffle/-/truffle-3.2.93.tgz#a9b6994b6c45579e1ed8364e4d3d010f7d1f8877"
   dependencies:
     mocha "^3.4.2"
     original-require "^1.0.1"
-    solc "0.4.15"
+    solc "^0.4.11"
 
 tslib@^1.0.0, tslib@^1.7.1:
   version "1.8.0"
@@ -3689,7 +3769,7 @@ watchpack@^1.4.0:
     chokidar "^1.7.0"
     graceful-fs "^4.1.2"
 
-web3-provider-engine@^8.4.0:
+web3-provider-engine@^8.0.3, web3-provider-engine@^8.4.0:
   version "8.6.1"
   resolved "https://registry.yarnpkg.com/web3-provider-engine/-/web3-provider-engine-8.6.1.tgz#4d86e19e30caaf97df351511ec0f60136e5b30eb"
   dependencies:
@@ -3713,6 +3793,15 @@ web3-provider-engine@^8.4.0:
   resolved "https://github.com/0xProject/web3-typescript-typings#79b24fa42a94eaa78ff175121d9580c5fcde5119"
   dependencies:
     bignumber.js "^4.0.2"
+
+web3@^0.15.3:
+  version "0.15.3"
+  resolved "https://registry.yarnpkg.com/web3/-/web3-0.15.3.tgz#f997ccda419fc528c0d6c5d8d5382212bfa74628"
+  dependencies:
+    bignumber.js "git+https://github.com/debris/bignumber.js#master"
+    crypto-js "^3.1.4"
+    utf8 "^2.1.1"
+    xmlhttprequest "*"
 
 web3@^0.16.0:
   version "0.16.0"
@@ -3805,6 +3894,10 @@ window-size@0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/window-size/-/window-size-0.1.0.tgz#5438cd2ea93b202efa3a19fe8887aee7c94f9c9d"
 
+window-size@^0.1.4:
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/window-size/-/window-size-0.1.4.tgz#f8e1aa1ee5a53ec5bf151ffa09742a6ad7697876"
+
 window-size@^0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/window-size/-/window-size-0.2.0.tgz#b4315bb4214a3d7058ebeee892e13fa24d98b075"
@@ -3851,7 +3944,7 @@ xtend@~2.1.1:
   dependencies:
     object-keys "~0.4.0"
 
-y18n@^3.2.1:
+y18n@^3.2.0, y18n@^3.2.1:
   version "3.2.1"
   resolved "https://registry.yarnpkg.com/y18n/-/y18n-3.2.1.tgz#6d15fba884c08679c0d77e88e7759e811e07fa41"
 
@@ -3894,6 +3987,18 @@ yargs@^10.0.3:
     which-module "^2.0.0"
     y18n "^3.2.1"
     yargs-parser "^8.0.0"
+
+yargs@^3.29.0:
+  version "3.32.0"
+  resolved "https://registry.yarnpkg.com/yargs/-/yargs-3.32.0.tgz#03088e9ebf9e756b69751611d2a5ef591482c995"
+  dependencies:
+    camelcase "^2.0.1"
+    cliui "^3.0.3"
+    decamelize "^1.1.1"
+    os-locale "^1.4.0"
+    string-width "^1.0.1"
+    window-size "^0.1.4"
+    y18n "^3.2.0"
 
 yargs@^4.7.1:
   version "4.8.1"

@@ -62,7 +62,7 @@ contract Broker is Destructible {
     function claim(bytes32 channelId, uint256 payment, uint8 v, bytes32 r, bytes32 s) public {
         require(canClaim(channelId, payment, v, r, s));
 
-        this.settle(channelId, payment);
+        settle(channelId, payment);
     }
 
     /* Sender starts settling */
@@ -94,7 +94,7 @@ contract Broker is Destructible {
 
     /******** BEHIND THE SCENES ********/
 
-    function settle(bytes32 channelId, uint256 payment)  public {
+    function settle(bytes32 channelId, uint256 payment) internal {
         var channel = channels[channelId];
         uint256 paid = payment;
         uint256 change = 0;
@@ -106,8 +106,8 @@ contract Broker is Destructible {
             require(channel.receiver.send(paid));
             change = channel.value - paid;
             require(channel.sender.send(change));
-            channel.value = 0;
         }
+        channel.value = 0;
 
         channels[channelId].state = ChannelState.Settled;
         DidSettle(channelId, payment, change);
@@ -137,9 +137,9 @@ contract Broker is Destructible {
         uint32 _chainId, address contractId, bytes32 channelId,
         uint256 payment,
         uint8 sigV, bytes32 sigR, bytes32 sigS
-    ) 
-        public 
-        returns(bool) 
+    )
+        public
+        returns(bool)
     {
         var actualHash = sha256(
             _chainId, contractId, channelId,

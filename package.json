@@ -19,6 +19,7 @@
   "scripts": {
     "truffle:test": "run-with-testrpc --networkId 999 --mnemonic 'testtest' --unlock 0 'truffle test ./test/*.test.js'",
     "truffle:migrate": "truffle migrate",
+    "truffle:compile": "truffle compile",
     "truffle:migrate:ropsten": "truffle migrate --network ropsten",
     "test": "yarn run build && yarn run truffle:test",
     "build": "tsc --project tsconfig.json",
@@ -47,7 +48,9 @@
     "@types/chai-as-promised": "^7.1.0",
     "@types/node": "^8.0.28",
     "chai-as-promised": "^7.1.1",
+    "ether-pudding": "^3.2.0",
     "run-with-testrpc": "^0.2.1",
+    "solc": "^0.4.19",
     "solium": "^1.0.11",
     "truffle": "3.2.93",
     "tslint": "^5.7.0",
