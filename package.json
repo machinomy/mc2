@@ -72,6 +72,7 @@
     "@types/yargs": "^10.0.1",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
+    "coveralls": "^3.0.0",
     "ethereumjs-abi": "https://github.com/ethereumjs/ethereumjs-abi",
     "ethereumjs-units": "^0.2.0",
     "handlebars": "^4.0.11",
