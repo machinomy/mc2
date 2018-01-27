@@ -48,7 +48,8 @@
     "truffle:migrate:ropsten": "truffle migrate --network ropsten",
     "test": "yarn build && yarn truffle:test",
     "doc:natspec": "node support/natspec",
-    "size": "size-limit"
+    "size": "size-limit",
+    "coverage": "./node_modules/.bin/solidity-coverage"
   },
   "author": "Sergey Ukustov <sergey.ukustov@machinomy.com",
   "contributors": [
@@ -77,6 +78,7 @@
     "mkdirp": "^0.5.1",
     "run-with-testrpc": "^0.2.1",
     "size-limit": "^0.14.0",
+    "solidity-coverage": "^0.4.9",
     "solium": "^1.0.11",
     "truffle": "^4.0.5",
     "ts-node": "^4.1.0",
