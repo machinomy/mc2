@@ -1,9 +1,11 @@
 pragma solidity ^0.4.11;
 
-import "zeppelin-solidity/contracts/lifecycle/Destructible.sol";
+import "zeppelin-solidity/contracts/math/SafeMath.sol";
 
 
-contract Broker is Destructible {
+contract Broker {
+    using SafeMath for uint256;
+
     enum ChannelState { Open, Settling, Settled }
 
     struct PaymentChannel {
@@ -38,13 +40,13 @@ contract Broker is Destructible {
 
     /* Create payment channel */
     function createChannel(address receiver, uint duration, uint settlementPeriod) public payable returns(bytes32) {
-        var channelId = keccak256(now + id++); // solium-disable-line
+        var channelId = keccak256(block.number.add(id++)); // solium-disable-line
         var sender = msg.sender;
         var value = msg.value;
         channels[channelId] = PaymentChannel(
-            sender, receiver, value, settlementPeriod, ChannelState.Open, block.timestamp + duration, 0); // solium-disable-line
+            sender, receiver, value, settlementPeriod, ChannelState.Open, block.timestamp.add(duration), 0); // solium-disable-line
 
-        DidCreateChannel(channelId, sender, receiver, value, settlementPeriod, block.timestamp + duration); // solium-disable-line
+        DidCreateChannel(channelId, sender, receiver, value, settlementPeriod, block.timestamp.add(duration)); // solium-disable-line
 
         return channelId;
     }
@@ -54,7 +56,7 @@ contract Broker is Destructible {
         require(canDeposit(msg.sender, channelId));
 
         var channel = channels[channelId];
-        channel.value += msg.value;
+        channel.value = channel.value.add(msg.value);
 
         DidDeposit(channelId, msg.value);
     }
@@ -71,7 +73,7 @@ contract Broker is Destructible {
 
         var channel = channels[channelId];
         channel.state = ChannelState.Settling;
-        channel.until = now + channel.settlementPeriod; // solium-disable-line
+        channel.until = now.add(channel.settlementPeriod); // solium-disable-line
         channel.payment = payment;
         DidStartSettle(channelId, payment);
     }
@@ -84,7 +86,7 @@ contract Broker is Destructible {
 
     function close(bytes32 channelId) public {
         var channel = channels[channelId];
-        if (channel.state == ChannelState.Settled && (msg.sender == owner || msg.sender == channel.sender || msg.sender == channel.receiver)) {
+        if (channel.state == ChannelState.Settled && (msg.sender == channel.sender || msg.sender == channel.receiver)) {
             if (channel.value > 0) {
                 require(channel.sender.send(channel.value));
             }
@@ -104,7 +106,7 @@ contract Broker is Destructible {
             require(channel.receiver.send(paid));
         } else {
             require(channel.receiver.send(paid));
-            change = channel.value - paid;
+            change = channel.value.sub(paid);
             require(channel.sender.send(change));
         }
         channel.value = 0;
@@ -157,7 +159,7 @@ contract Broker is Destructible {
 
     function canFinishSettle(address sender, bytes32 channelId) public constant returns(bool) {
         var channel = channels[channelId];
-        return channel.state == ChannelState.Settling && (sender == channel.sender || sender == owner) && channel.until <= now; // solium-disable-line
+        return channel.state == ChannelState.Settling && (sender == channel.sender) && channel.until <= now; // solium-disable-line
     }
 
     /******** READERS ********/
