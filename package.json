@@ -27,6 +27,11 @@
     "truffleTests": "test/*.test.js",
     "wrappedArtifacts": "build/contracts/@(Unidirectional).json"
   },
+  "natspec": {
+    "whitelist": [
+      "Unidirectional"
+    ]
+  },
   "size-limit": [
     {
       "path": "src/index.js",
