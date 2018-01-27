@@ -1,4 +1,4 @@
-import { BigNumber } from 'bignumber.js'
+import * as BigNumber from 'bignumber.js'
 import * as Web3 from 'web3'
 import * as truffle from 'truffle-contract'
 
@@ -16,7 +16,7 @@ export namespace {{contractName}} {
     {{> function contractName=../contractName}}
   {{/each}}
 
-    send: (value: BigNumber | number) => Promise<truffle.TransactionResult>
+    send: (value: BigNumber.BigNumber | number) => Promise<truffle.TransactionResult>
     sendTransaction: (opts: Web3.CallData) => Promise<truffle.TransactionResult>
   }
 
