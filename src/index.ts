@@ -7,10 +7,8 @@ export {
 
 export function randomId (digits: number = 3) {
   const datePart = new Date().getTime() * Math.pow(10, digits)
-  // 3 random digits
-  const extraPart = Math.floor(Math.random() * Math.pow(10, digits))
-  // 16 digits
-  return datePart + extraPart
+  const extraPart = Math.floor(Math.random() * Math.pow(10, digits)) // 3 random digits
+  return datePart + extraPart // 16 digits
 }
 
 export function channelId (sender: string, receiver: string): string {
