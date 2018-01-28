@@ -145,23 +145,6 @@ contract TokenBroker {
         channel.sender == ecrecover(prefixedHash, v, r, s);
     }
 
-    function isStateUpdateSigValid(
-        address sender,
-        uint32 _chainId, address contractId, bytes32 channelId,
-        uint256 payment,
-        uint8 sigV, bytes32 sigR, bytes32 sigS
-    )
-    public
-    returns(bool)
-    {
-        var actualHash = sha256(
-            _chainId, contractId, channelId,
-            payment
-        );
-
-        return (sender == ecrecover(actualHash, sigV, sigR, sigS));
-    }
-
     function canStartSettle(address sender, bytes32 channelId) public constant returns(bool) {
         var channel = channels[channelId];
         return channel.state == ChannelState.Open &&
