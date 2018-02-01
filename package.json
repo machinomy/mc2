@@ -1,70 +1,105 @@
 {
   "name": "@machinomy/contracts",
-  "version": "3.1.0",
+  "version": "4.0.0-alpha",
   "description": "Machinomy contracts managed by Truffle",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/machinomy/machinomy-contracts#readme",
+  "bugs": {
+    "url": "https://github.com/machinomy/machinomy-contracts/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/machinomy/machinomy-contracts.git"
+  },
   "main": "src/index.js",
   "types": "src/index.d.ts",
   "files": [
     "build/",
     "contracts/",
-    "helpers/",
     "migrations/",
     "test/",
-    "types/",
     "src/"
   ],
   "directories": {
     "test": "test"
   },
-  "scripts": {
-    "truffle:test": "run-with-testrpc --networkId 999 --mnemonic 'testtest' --unlock 0 'truffle test ./test/*.test.js'",
-    "truffle:migrate": "truffle migrate",
-    "truffle:compile": "truffle compile",
-    "truffle:migrate:ropsten": "truffle migrate --network ropsten",
-    "test": "yarn run build && yarn run truffle:test",
-    "build": "tsc --project tsconfig.json",
-    "lint": "tslint -t stylish --type-check -p '.' -e './build/**/*.ts' && yarn sollint",
-    "sollint": "solium -d contracts/",
-    "prepare": "yarn lint && yarn build"
+  "config": {
+    "truffleTests": "test/*.test.js",
+    "wrappedArtifacts": "build/contracts/@(Unidirectional).json"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/machinomy/machinomy-contracts.git"
+  "natspec": {
+    "whitelist": [
+      "Unidirectional"
+    ]
+  },
+  "size-limit": [
+    {
+      "path": "src/index.js",
+      "limit": "200 KB"
+    }
+  ],
+  "scripts": {
+    "prepublish": "yarn lint && yarn build",
+    "travis": "yarn prepublish && yarn test && yarn size",
+    "lint": "yarn lint:solidity && yarn lint:typescript",
+    "lint:solidity": "solium -d contracts/",
+    "lint:typescript": "tslint --format stylish --project .",
+    "build": "yarn support:wrap && tsc --project tsconfig.json",
+    "support:wrap": "yarn support:build && node support/wrap $npm_package_config_wrappedArtifacts --output $npm_package_config_wrappers_dir",
+    "support:build": "tsc --project support/tsconfig.json",
+    "truffle:test": "run-with-testrpc 'truffle test $npm_package_config_truffleTests'",
+    "truffle:compile": "truffle compile",
+    "truffle:migrate": "truffle migrate",
+    "truffle:migrate:ropsten": "truffle migrate --network ropsten",
+    "test": "yarn build && yarn truffle:test",
+    "doc:natspec": "node support/natspec",
+    "size": "size-limit",
+    "coverage": "./node_modules/.bin/solidity-coverage"
   },
   "author": "Sergey Ukustov <sergey.ukustov@machinomy.com",
   "contributors": [
     "Alexandr Burtovoy <alexandr.burtovoy@machinomy.com>",
     "David Wolever <david@wolever.net>"
   ],
-  "license": "Apache-2.0",
-  "bugs": {
-    "url": "https://github.com/machinomy/machinomy-contracts/issues"
-  },
-  "homepage": "https://github.com/machinomy/machinomy-contracts#readme",
   "devDependencies": {
-    "@machinomy/types-truffle-contract": "https://github.com/machinomy/types-truffle-contract",
-    "@types/bignumber.js": "^4.0.3",
+    "@machinomy/types-ethereumjs-units": "https://github.com/machinomy/types-ethereumjs-units",
+    "@machinomy/types-truffle": "https://github.com/machinomy/types-truffle",
+    "@machinomy/types-truffle-artifactor": "https://github.com/machinomy/types-truffle-artifactor",
+    "@machinomy/types-truffle-compile": "https://github.com/machinomy/types-truffle-compile",
+    "@machinomy/types-truffle-config": "https://github.com/machinomy/types-truffle-config",
+    "@machinomy/types-truffle-contract-sources": "https://github.com/machinomy/types-truffle-contract-sources",
+    "@machinomy/types-truffle-resolver": "https://github.com/machinomy/types-truffle-resolver",
+    "@types/bignumber.js": "4.0.2",
     "@types/chai": "^4.0.5",
     "@types/chai-as-promised": "^7.1.0",
+    "@types/mkdirp": "^0.5.2",
     "@types/node": "^8.0.28",
+    "@types/yargs": "^10.0.1",
+    "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
-    "ether-pudding": "^3.2.0",
+    "coveralls": "^3.0.0",
+    "ethereumjs-abi": "https://github.com/ethereumjs/ethereumjs-abi",
+    "ethereumjs-units": "^0.2.0",
+    "handlebars": "^4.0.11",
+    "mkdirp": "^0.5.1",
     "run-with-testrpc": "^0.2.1",
-    "solc": "^0.4.19",
+    "size-limit": "^0.14.0",
+    "solidity-coverage": "^0.4.9",
     "solium": "^1.0.11",
-    "truffle": "3.2.93",
+    "truffle": "^4.0.5",
+    "ts-node": "^4.1.0",
     "tslint": "^5.7.0",
     "tslint-config-standard": "^6.0.1",
-    "typescript": "^2.5.3"
+    "types-ethereumjs-util": "https://github.com/machinomy/types-ethereumjs-util",
+    "typescript": "^2.5.3",
+    "yargs": "^10.1.1",
+    "zeppelin-solidity": "^1.6.0"
   },
   "dependencies": {
-    "bignumber.js": "^4.1.0",
+    "bignumber.js": "4.1.0",
     "buffer": "^5.0.7",
-    "chai": "^4.1.2",
-    "ethereumjs-abi": "https://github.com/ethereumjs/ethereumjs-abi",
-    "ethereumjs-util": "^5.1.2",
+    "ethereumjs-util": "^5.1.3",
     "truffle-contract": "^3.0.0",
-    "web3": "^0.20.1",
-    "zeppelin-solidity": "^1.2.0"
+    "web3": "^0.20.1"
   }
 }

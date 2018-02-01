@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "es2017",
+    "module": "commonjs",
+    "lib": [ "es2017" ],
+    "typeRoots": [
+      "../node_modules/@types",
+      "../node_modules/@machinomy"
+    ]
+  },
+  "include": [
+    "../node_modules/**/*/index.d.ts",
+    "../types/**/index.d.ts",
+    "./**/*.ts"
+  ]
+}
