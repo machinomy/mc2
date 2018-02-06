@@ -25,6 +25,8 @@ contract Unidirectional {
     event DidStartSettling(bytes32 indexed channelId);
     event DidSettle(bytes32 indexed channelId);
 
+    /*** ACTIONS AND CONSTRAINTS ***/
+
     /// @notice Open a new channel between `msg.sender` and `receiver`, and do an initial deposit to the channel.
     /// @param channelId Unique identifier of the channel to be created.
     /// @param receiver Receiver of the funds, counter-party of `msg.sender`.
@@ -144,6 +146,8 @@ contract Unidirectional {
         DidClaim(channelId);
     }
 
+    /*** CHANNEL STATE ***/
+
     /// @notice Check if the channel is present: in open or settling state.
     /// @param channelId Identifier of the channel.
     function isPresent(bytes32 channelId) public view returns(bool) {
@@ -170,6 +174,8 @@ contract Unidirectional {
     function isOpen(bytes32 channelId) public view returns(bool) {
         return isPresent(channelId) && !isSettling(channelId);
     }
+
+    /*** PAYMENT DIGEST ***/
 
     /// @return Hash of the payment promise to sign.
     /// @param channelId Identifier of the channel.
