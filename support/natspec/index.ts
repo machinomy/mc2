@@ -22,9 +22,12 @@ async function main () {
   let fullText = await sources.requiredSources(config)
   let solcOutput = await compiler.doc(fullText)
   let natSpec = await NatSpec.build(solcOutput, whitelist)
-  let outputFile = path.join(config.build_directory, 'doc', 'natspec.json')
-  let asString = JSON.stringify(natSpec, null, 4)
-  await write(outputFile, asString)
+  for (let name in natSpec) {
+    let documentation = natSpec[name]
+    let outputFile = path.join(config.build_directory, 'doc', `${name}.json`)
+    let asString = JSON.stringify(documentation, null, 4)
+    await write(outputFile, asString)
+  }
 }
 
 main().catch(err => {
