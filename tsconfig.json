@@ -11,7 +11,7 @@
   "include": [
     "build/wrappers/*.ts",
     "node_modules/**/*/index.d.ts",
-    "globals.d.ts",
+    "src/globals.d.ts",
     "src/**/*.ts",
     "migrations/**/*.ts",
     "test/**/*.ts",
