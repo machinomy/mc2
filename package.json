@@ -1,6 +1,6 @@
 {
   "name": "@machinomy/contracts",
-  "version": "4.0.2",
+  "version": "4.0.3-a0",
   "description": "Machinomy contracts managed by Truffle",
   "license": "Apache-2.0",
   "homepage": "https://github.com/machinomy/machinomy-contracts#readme",
@@ -11,14 +11,10 @@
     "type": "git",
     "url": "git+https://github.com/machinomy/machinomy-contracts.git"
   },
-  "main": "src/index.js",
-  "types": "src/index.d.ts",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
   "files": [
-    "build/",
-    "contracts/",
-    "migrations/",
-    "test/",
-    "src/"
+    "dist/"
   ],
   "directories": {
     "test": "test"
@@ -32,15 +28,8 @@
       "Unidirectional"
     ]
   },
-  "size-limit": [
-    {
-      "path": "src/index.js",
-      "limit": "200 KB"
-    }
-  ],
   "scripts": {
-    "prepublish": "yarn lint && yarn build",
-    "travis": "yarn prepublish && yarn test && yarn size",
+    "prepublish": "yarn lint && yarn build --outDir dist/ && cp -r build/contracts dist/build",
     "lint": "yarn lint:solidity && yarn lint:typescript",
     "lint:solidity": "solium -d contracts/",
     "lint:typescript": "tslint --format stylish --project .",
@@ -53,7 +42,6 @@
     "truffle:migrate:ropsten": "truffle migrate --network ropsten",
     "test": "yarn build && yarn truffle:test",
     "doc:natspec": "node support/natspec",
-    "size": "size-limit",
     "coverage": "./node_modules/.bin/solidity-coverage"
   },
   "author": "Sergey Ukustov <sergey.ukustov@machinomy.com",
@@ -83,10 +71,9 @@
     "handlebars": "^4.0.11",
     "mkdirp": "^0.5.1",
     "run-with-testrpc": "^0.2.1",
-    "size-limit": "^0.14.0",
     "solidity-coverage": "^0.4.9",
     "solium": "^1.0.11",
-    "truffle": "^4.0.5",
+    "truffle": "4.0.6",
     "ts-node": "^4.1.0",
     "tslint": "^5.7.0",
     "tslint-config-standard": "^6.0.1",

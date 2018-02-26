@@ -12,3 +12,4 @@ coverage/
 build/wrappers
 
 .DS_Store
+dist/
