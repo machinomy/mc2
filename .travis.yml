@@ -4,8 +4,7 @@ node_js:
   - "9"
 script:
   - yarn lint
-  - yarn build
-  - yarn travis
+  - yarn test
 after_script:
   - yarn coverage && cat coverage/lcov.info | coveralls
 notifications:
