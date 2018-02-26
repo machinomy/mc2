@@ -36,8 +36,8 @@ export namespace NatSpec {
     let inputs = inputParams.map(param => ({ ...param, description: params[param.name] }))
     delete devDocs.params
 
-    let outputParams
-    let outputs
+    let outputParams = {}
+    let outputs = []
     try {
       outputParams = JSON.parse(devDocs.return)
     } catch (e) {
