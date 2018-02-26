@@ -135,10 +135,10 @@ contract Unidirectional {
         var channel = channels[channelId];
 
         if (payment >= channel.value) {
-            require(channel.receiver.send(channel.value));
+            channel.receiver.transfer(channel.value);
         } else {
-            require(channel.receiver.send(payment));
-            require(channel.sender.send(channel.value.sub(payment)));
+            channel.receiver.transfer(payment);
+            channel.sender.transfer(channel.value.sub(payment));
         }
 
         delete channels[channelId];
