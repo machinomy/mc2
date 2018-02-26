@@ -39,7 +39,6 @@
     "truffle:test": "run-with-testrpc 'truffle test $npm_package_config_truffleTests'",
     "truffle:compile": "truffle compile",
     "truffle:migrate": "truffle migrate",
-    "truffle:migrate:ropsten": "truffle migrate --network ropsten",
     "test": "yarn build && yarn truffle:test",
     "doc:natspec": "node support/natspec",
     "coverage": "./node_modules/.bin/solidity-coverage"

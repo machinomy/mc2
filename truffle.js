@@ -26,6 +26,14 @@ module.exports = {
       gas: GAS_LIMIT,
       from: FROM,
       password: PASSWORD
+    },
+    main: {
+      host: "localhost",
+      port: 8545,
+      network_id: 1,
+      gas: GAS_LIMIT,
+      from: FROM,
+      password: PASSWORD
     }
   }
 }
