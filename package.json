@@ -1,6 +1,6 @@
 {
   "name": "@machinomy/contracts",
-  "version": "4.0.2",
+  "version": "4.0.1",
   "description": "Machinomy contracts managed by Truffle",
   "license": "Apache-2.0",
   "homepage": "https://github.com/machinomy/machinomy-contracts#readme",
@@ -39,8 +39,8 @@
     }
   ],
   "scripts": {
-    "prepublish": "yarn lint && yarn build",
-    "travis": "yarn prepublish && yarn test && yarn size",
+    "prepublish": "yarn lint && yarn build --outDir dist/ && cp -r build/contracts dist/build",
+    "travis": "yarn test && yarn size",
     "lint": "yarn lint:solidity && yarn lint:typescript",
     "lint:solidity": "solium -d contracts/",
     "lint:typescript": "tslint --format stylish --project .",
@@ -86,7 +86,7 @@
     "size-limit": "^0.14.0",
     "solidity-coverage": "^0.4.9",
     "solium": "^1.0.11",
-    "truffle": "^4.0.5",
+    "truffle": "4.0.5",
     "ts-node": "^4.1.0",
     "tslint": "^5.7.0",
     "tslint-config-standard": "^6.0.1",
