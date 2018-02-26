@@ -39,7 +39,7 @@
     }
   ],
   "scripts": {
-    "prepublish": "yarn lint && yarn build --outDir dist/",
+    "prepublish": "yarn lint && yarn build --outDir dist/ && cp -r build/contracts dist/build",
     "travis": "yarn test && yarn size",
     "lint": "yarn lint:solidity && yarn lint:typescript",
     "lint:solidity": "solium -d contracts/",
