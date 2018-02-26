@@ -103,7 +103,7 @@ contract Unidirectional {
     function settle(bytes32 channelId) public {
         require(canSettle(channelId));
         var channel = channels[channelId];
-        require(channel.sender.send(channel.value));
+        channel.sender.transfer(channel.value);
 
         delete channels[channelId];
         DidSettle(channelId);
