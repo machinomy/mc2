@@ -1,6 +1,3 @@
-const FROM = process.env.FROM
-const PASSWORD = process.env.PASSWORD
-
 const GAS_LIMIT = 2700000
 
 module.exports = {
@@ -15,25 +12,26 @@ module.exports = {
       network_id: 3,
       host: "localhost",
       port: 8545,
-      gas: GAS_LIMIT,
-      from: FROM,
-      password: PASSWORD
+      gas: GAS_LIMIT
     },
     kovan: {
       network_id: 42,
       host: "localhost",
       port: 8545,
-      gas: GAS_LIMIT,
-      from: FROM,
-      password: PASSWORD
+      gas: GAS_LIMIT
     },
     main: {
       host: "localhost",
       port: 8545,
       network_id: 1,
-      gas: GAS_LIMIT,
-      from: FROM,
-      password: PASSWORD
+      gas: GAS_LIMIT
+    },
+    rinkeby: {
+      host: "localhost",
+      port: 8545,
+      network_id: 4,
+      from: '0xb5660e3210b398befaf228337f82c67d240f367c',
+      gas: GAS_LIMIT
     }
   }
 }
