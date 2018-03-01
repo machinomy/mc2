@@ -3194,9 +3194,9 @@ truffle-resolver@^4.0.1:
     truffle-expect "0.0.3"
     truffle-provisioner "^0.1.0"
 
-truffle@4.0.6:
-  version "4.0.6"
-  resolved "https://registry.yarnpkg.com/truffle/-/truffle-4.0.6.tgz#04a23b4c75336f325804d262317f901dbab4f729"
+truffle@^4.1.0:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/truffle/-/truffle-4.1.0.tgz#2a4e13f86a0aaf816721f060d7e95844c6e8963c"
   dependencies:
     mocha "^3.4.2"
     original-require "^1.0.1"
