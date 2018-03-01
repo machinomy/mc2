@@ -12,6 +12,7 @@ module.exports = {
       network_id: 3,
       host: "localhost",
       port: 8545,
+      from: '0x1d612c43acf0c1bf855fe32a0beb782293b1bfb8',
       gas: GAS_LIMIT
     },
     kovan: {
