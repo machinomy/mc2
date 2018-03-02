@@ -34,5 +34,11 @@ module.exports = {
       from: '0x13d1be93e913d910245a069c67fc4c45a3d0b2fc',
       gas: GAS_LIMIT
     }
+  },
+  solc: {
+    optimizer: {
+      enabled: true,
+      runs: 200
+    }
   }
 }

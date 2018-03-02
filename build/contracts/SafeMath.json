@@ -1,8 +1,8 @@
 {
   "contractName": "SafeMath",
   "abi": [],
-  "bytecode": "0x60606040523415600e57600080fd5b603580601b6000396000f3006060604052600080fd00a165627a7a72305820a797f1c5e23ee804653382abf5d1ea8405bd1fd456f973485fb75484c7b447780029",
-  "deployedBytecode": "0x6060604052600080fd00a165627a7a72305820a797f1c5e23ee804653382abf5d1ea8405bd1fd456f973485fb75484c7b447780029",
+  "bytecode": "0x60606040523415600e57600080fd5b603580601b6000396000f3006060604052600080fd00a165627a7a723058205fd5367235934514c03161931018c81790dedcd28f9c80677934aebbea71a3b70029",
+  "deployedBytecode": "0x6060604052600080fd00a165627a7a723058205fd5367235934514c03161931018c81790dedcd28f9c80677934aebbea71a3b70029",
   "sourceMap": "117:1022:3:-;;;;;;;;;;;;;;;;;",
   "deployedSourceMap": "117:1022:3:-;;;;;",
   "source": "pragma solidity ^0.4.18;\n\n\n/**\n * @title SafeMath\n * @dev Math operations with safety checks that throw on error\n */\nlibrary SafeMath {\n\n  /**\n  * @dev Multiplies two numbers, throws on overflow.\n  */\n  function mul(uint256 a, uint256 b) internal pure returns (uint256) {\n    if (a == 0) {\n      return 0;\n    }\n    uint256 c = a * b;\n    assert(c / a == b);\n    return c;\n  }\n\n  /**\n  * @dev Integer division of two numbers, truncating the quotient.\n  */\n  function div(uint256 a, uint256 b) internal pure returns (uint256) {\n    // assert(b > 0); // Solidity automatically throws when dividing by 0\n    uint256 c = a / b;\n    // assert(a == b * c + a % b); // There is no case in which this doesn't hold\n    return c;\n  }\n\n  /**\n  * @dev Substracts two numbers, throws on overflow (i.e. if subtrahend is greater than minuend).\n  */\n  function sub(uint256 a, uint256 b) internal pure returns (uint256) {\n    assert(b <= a);\n    return a - b;\n  }\n\n  /**\n  * @dev Adds two numbers, throws on overflow.\n  */\n  function add(uint256 a, uint256 b) internal pure returns (uint256) {\n    uint256 c = a + b;\n    assert(c >= a);\n    return c;\n  }\n}\n",
@@ -2461,20 +2461,7 @@
     "name": "solc",
     "version": "0.4.19+commit.c4cbbb05.Emscripten.clang"
   },
-  "networks": {
-    "3": {
-      "events": {},
-      "links": {},
-      "address": "0x146fed3c2477d47e0a10e0c8ffdefa535f5766a1",
-      "transactionHash": "0x0a933a763b837b00233b98028891390a6043ed607d6b594a52121e19d75571a5"
-    },
-    "4": {
-      "events": {},
-      "links": {},
-      "address": "0x1a180d81fa324f0f8ab24214c4a94061e2625e14",
-      "transactionHash": "0x161f386785037aa5592727c0da7a03d55f1c264ac6e9e0a1250b8a2e56942958"
-    }
-  },
+  "networks": {},
   "schemaVersion": "2.0.0",
-  "updatedAt": "2018-03-01T17:21:30.380Z"
+  "updatedAt": "2018-03-02T09:38:25.192Z"
 }
