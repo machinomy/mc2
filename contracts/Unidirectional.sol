@@ -51,7 +51,7 @@ contract Unidirectional {
     /// @param channelId Identifier of the channel.
     /// @param origin Caller of `deposit` function.
     function canDeposit(bytes32 channelId, address origin) public view returns(bool) {
-        var channel = channels[channelId];
+        PaymentChannel memory channel = channels[channelId];
         bool isSender = channel.sender == origin;
         return isOpen(channelId) && isSender;
     }
@@ -71,7 +71,7 @@ contract Unidirectional {
     /// @param channelId Identifier of the channel.
     /// @param origin Caller of `startSettling` function.
     function canStartSettling(bytes32 channelId, address origin) public view returns(bool) {
-        var channel = channels[channelId];
+        PaymentChannel memory channel = channels[channelId];
         bool isSender = channel.sender == origin;
         return isOpen(channelId) && isSender;
     }
@@ -82,7 +82,7 @@ contract Unidirectional {
     function startSettling(bytes32 channelId) public {
         require(canStartSettling(channelId, msg.sender));
 
-        var channel = channels[channelId];
+        PaymentChannel storage channel = channels[channelId];
         channel.settlingUntil = block.number + channel.settlingPeriod;
 
         DidStartSettling(channelId);
@@ -92,7 +92,7 @@ contract Unidirectional {
     /// @dev Check if settling period is over by comparing `settlingUntil` to a current block number.
     /// @param channelId Identifier of the channel.
     function canSettle(bytes32 channelId) public view returns(bool) {
-        var channel = channels[channelId];
+        PaymentChannel memory channel = channels[channelId];
         bool isWaitingOver = isSettling(channelId) && block.number >= channel.settlingUntil;
         return isSettling(channelId) && isWaitingOver;
     }
@@ -102,7 +102,7 @@ contract Unidirectional {
     /// @param channelId Identifier of the channel.
     function settle(bytes32 channelId) public {
         require(canSettle(channelId));
-        var channel = channels[channelId];
+        PaymentChannel storage channel = channels[channelId];
         channel.sender.transfer(channel.value);
 
         delete channels[channelId];
@@ -116,9 +116,9 @@ contract Unidirectional {
     /// @param origin Caller of `claim` function.
     /// @param signature Signature for the payment promise.
     function canClaim(bytes32 channelId, uint256 payment, address origin, bytes signature) public view returns(bool) {
-        var channel = channels[channelId];
+        PaymentChannel memory channel = channels[channelId];
         bool isReceiver = origin == channel.receiver;
-        var hash = recoveryPaymentDigest(channelId, payment);
+        bytes32 hash = recoveryPaymentDigest(channelId, payment);
         bool isSigned = channel.sender == ECRecovery.recover(hash, signature);
 
         return isReceiver && isSigned;
@@ -132,7 +132,7 @@ contract Unidirectional {
     function claim(bytes32 channelId, uint256 payment, bytes signature) public {
         require(canClaim(channelId, payment, msg.sender, signature));
 
-        var channel = channels[channelId];
+        PaymentChannel memory channel = channels[channelId];
 
         if (payment >= channel.value) {
             channel.receiver.transfer(channel.value);
@@ -157,7 +157,7 @@ contract Unidirectional {
     /// @notice Check if the channel is not present.
     /// @param channelId Identifier of the channel.
     function isAbsent(bytes32 channelId) public view returns(bool) {
-        var channel = channels[channelId];
+        PaymentChannel memory channel = channels[channelId];
         return channel.sender == 0;
     }
 
@@ -165,7 +165,7 @@ contract Unidirectional {
     /// @dev It is settling, if `settlingUntil` is set to non-zero.
     /// @param channelId Identifier of the channel.
     function isSettling(bytes32 channelId) public view returns(bool) {
-        var channel = channels[channelId];
+        PaymentChannel memory channel = channels[channelId];
         return channel.settlingUntil != 0;
     }
 
