@@ -97,3 +97,11 @@ export async function assertBalance (contract: ContractLike, expected: BigNumber
   let actualBalance = await web3.eth.getBalance(contract.address)
   chai.assert.equal(actualBalance.toString(), expected.toString())
 }
+
+export interface TokenLike {
+  balanceOf (_owner: Address): Promise<BigNumber.BigNumber>
+}
+export async function assertTokenBalance (token: TokenLike, address: Address, expected: BigNumber.BigNumber|number): Promise<void> {
+  let actualBalance = await token.balanceOf(address)
+  chai.assert.equal(actualBalance.toString(), expected.toString())
+}

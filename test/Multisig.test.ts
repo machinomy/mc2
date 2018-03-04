@@ -17,6 +17,7 @@ const assert = chai.assert
 
 const ECRecovery = artifacts.require<contracts.ECRecovery.Contract>('ECRecovery.sol')
 const PublicRegistry = artifacts.require<contracts.PublicRegistry.Contract>('PublicRegistry.sol')
+const TransferToken = artifacts.require<contracts.TransferToken.Contract>('TransferToken.sol')
 const Multisig = artifacts.require<contracts.Multisig.Contract>('Multisig.sol')
 const Proxy = artifacts.require<contracts.Proxy.Contract>('Proxy.sol')
 const TestContract: truffle.TruffleContract<TestContractWrapper.Contract> = artifacts.require<TestContractWrapper.Contract>('TestContract.sol')
@@ -27,6 +28,7 @@ contract('Multisig', accounts => {
   let registry: contracts.PublicRegistry.Contract
   let proxy: contracts.Proxy.Contract
   let counterFactory: support.InstantiationFactory
+  let transferToken: contracts.TransferToken.Contract
 
   let sender = accounts[0]
   let receiver = accounts[1]
@@ -37,6 +39,7 @@ contract('Multisig', accounts => {
     registry = await PublicRegistry.deployed()
     proxy = await Proxy.deployed()
     counterFactory = new InstantiationFactory(web3, multisig)
+    transferToken = await TransferToken.new()
   })
 
   let registryNonce = util.bufferToHex(Buffer.from('secret'))
@@ -65,7 +68,7 @@ contract('Multisig', accounts => {
     let counterfactualAddress = await registry.counterfactualAddress(bytecodeTestContract, registryNonce)
 
     let instantiateTestContract = await counterFactory.call(registry.deploy.request(bytecodeTestContract, registryNonce))
-    let moveMoney = await counterFactory.delegatecall(proxy.execute.request(registry.address, counterfactualAddress, toTestContract, '0x00', 0), instantiateTestContract.nonce.plus(1))
+    let moveMoney = await counterFactory.delegatecall(proxy.doCall.request(registry.address, counterfactualAddress, toTestContract, '0x00'), instantiateTestContract.nonce.plus(1))
 
     // Move Eth to Multisig
 
@@ -95,15 +98,30 @@ contract('Multisig', accounts => {
 
   specify('can send ERC20 token to counterfactual contract', async () => {
     // Prepare
-    let token = await TestToken.new()
-    await token.mint(sender, new BigNumber.BigNumber(100))
-    // Deploy transfer token
-    // Do delegate call to TransferToken, to move tokens to contract
+    let initialMultisigBalance = new BigNumber.BigNumber(100)
+    let toTestContract = new BigNumber.BigNumber(12)
 
+    let token = await TestToken.new()
+    await token.mint(multisig.address, initialMultisigBalance)
+    await token.finishMinting()
+
+    // Deploy TestContract
     let bytecodeTestContract = support.constructorBytecode(web3, TestContract, 1)
     let counterfactualAddress = await registry.counterfactualAddress(bytecodeTestContract, registryNonce)
-
     let instantiateTestContract = await counterFactory.call(registry.deploy.request(bytecodeTestContract, registryNonce))
-    // await counterFactory.execute(instantiateTestContract) // TxCheck
+
+    // Move tokens to contract
+    let transferTokens = await counterFactory.delegatecall(transferToken.execute.request(registry.address, token.address, counterfactualAddress, toTestContract), instantiateTestContract.nonce.plus(1))
+
+    await support.assertTokenBalance(token, multisig.address, initialMultisigBalance)
+
+    await counterFactory.execute(instantiateTestContract) // TxCheck
+    let testContractRealAddress = await registry.resolve(counterfactualAddress)
+    await support.assertTokenBalance(token, multisig.address, initialMultisigBalance)
+    await support.assertTokenBalance(token, testContractRealAddress, 0)
+
+    await counterFactory.execute(transferTokens)
+    await support.assertTokenBalance(token, multisig.address, initialMultisigBalance.minus(toTestContract))
+    await support.assertTokenBalance(token, testContractRealAddress, toTestContract)
   })
 })

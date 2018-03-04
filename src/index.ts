@@ -3,6 +3,7 @@ import PublicRegistry from '../build/wrappers/PublicRegistry'
 import Multisig from '../build/wrappers/Multisig'
 import Proxy from '../build/wrappers/Proxy'
 import ECRecovery from '../build/wrappers/ECRecovery'
+import TransferToken from '../build/wrappers/TransferToken'
 import * as ethUtil from 'ethereumjs-util'
 
 export {
@@ -10,7 +11,8 @@ export {
   PublicRegistry,
   Multisig,
   Proxy,
-  ECRecovery
+  ECRecovery,
+  TransferToken
 }
 
 export function randomId (digits: number = 3) {
