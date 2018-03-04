@@ -8,6 +8,10 @@ export namespace {{contractName}} {
   export interface Contract {
     address: string
 
+    constructor: {
+      web3: Web3
+    }
+
   {{#each getters}}
     {{> getter contractName=../contractName}}
   {{/each}}

@@ -1,8 +1,16 @@
 import Unidirectional from '../build/wrappers/Unidirectional'
+import PublicRegistry from '../build/wrappers/PublicRegistry'
+import Multisig from '../build/wrappers/Multisig'
+import Proxy from '../build/wrappers/Proxy'
+import ECRecovery from '../build/wrappers/ECRecovery'
 import * as ethUtil from 'ethereumjs-util'
 
 export {
-  Unidirectional
+  Unidirectional,
+  PublicRegistry,
+  Multisig,
+  Proxy,
+  ECRecovery
 }
 
 export function randomId (digits: number = 3) {

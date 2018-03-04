@@ -33,8 +33,8 @@
     truffle-contract-sources "^0.0.1"
 
 "@machinomy/types-truffle-contract@https://github.com/machinomy/types-truffle-contract":
-  version "0.0.1"
-  resolved "https://github.com/machinomy/types-truffle-contract#e0f27e6818695c9dee8e6e74184d55994e45b206"
+  version "0.0.3"
+  resolved "https://github.com/machinomy/types-truffle-contract#daab815996588c49592ced964847c67a1931873f"
   dependencies:
     truffle-contract "^3.0.0"
     web3 "^0.20.2"
@@ -3088,6 +3088,10 @@ truffle-blockchain-utils@^0.0.3:
   dependencies:
     web3 "^0.20.1"
 
+truffle-blockchain-utils@^0.0.4:
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/truffle-blockchain-utils/-/truffle-blockchain-utils-0.0.4.tgz#e31a346db61775c80ccd6f632de5e72f97f20ea5"
+
 truffle-compile@^3.0.4:
   version "3.0.5"
   resolved "https://registry.yarnpkg.com/truffle-compile/-/truffle-compile-3.0.5.tgz#a1b69fe5dea072e1875f54a5d6c605db339bbd00"
@@ -3119,13 +3123,21 @@ truffle-contract-schema@^1.0.0:
     ajv "^5.1.1"
     crypto-js "^3.1.9-1"
 
+truffle-contract-schema@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/truffle-contract-schema/-/truffle-contract-schema-2.0.0.tgz#535378c0b6a7f58011ea8d84f57771771cb45163"
+  dependencies:
+    ajv "^5.1.1"
+    crypto-js "^3.1.9-1"
+    debug "^3.1.0"
+
 truffle-contract-sources@^0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/truffle-contract-sources/-/truffle-contract-sources-0.0.1.tgz#29b6270366c86109cbb0eb307418fc6b2795d7fd"
   dependencies:
     node-dir "^0.1.16"
 
-truffle-contract@^3.0.0, truffle-contract@^3.0.2, truffle-contract@^3.0.3:
+truffle-contract@^3.0.0:
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/truffle-contract/-/truffle-contract-3.0.3.tgz#b14fb318f9a743db8b061046e24978d91f31dbfb"
   dependencies:
@@ -3135,11 +3147,21 @@ truffle-contract@^3.0.0, truffle-contract@^3.0.2, truffle-contract@^3.0.3:
     truffle-error "0.0.2"
     web3 "^0.20.1"
 
-truffle-deployer@^2.0.1:
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/truffle-deployer/-/truffle-deployer-2.0.2.tgz#63869249cf49360b1e586f6866d1c3f6f4553e48"
+truffle-contract@^3.0.2, truffle-contract@^3.0.3, truffle-contract@^3.0.4:
+  version "3.0.4"
+  resolved "https://registry.yarnpkg.com/truffle-contract/-/truffle-contract-3.0.4.tgz#be169ce00a14d025431e95318e8bae049fca9cfc"
   dependencies:
-    truffle-contract "^3.0.3"
+    ethjs-abi "0.1.8"
+    truffle-blockchain-utils "^0.0.4"
+    truffle-contract-schema "^2.0.0"
+    truffle-error "0.0.2"
+    web3 "^0.20.1"
+
+truffle-deployer@^2.0.1:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/truffle-deployer/-/truffle-deployer-2.0.3.tgz#3909201e217a8f8cae299cf107c5f04a6f1d3aab"
+  dependencies:
+    truffle-contract "^3.0.4"
     truffle-expect "^0.0.3"
 
 truffle-error@0.0.2, truffle-error@^0.0.2:

@@ -2,4 +2,5 @@
   ({{> method_input inputs=inputs trailingComma=true}}options?: Web3.CallData): Promise<truffle.TransactionResult>
   call ({{> method_input inputs=inputs trailingComma=true}}options?: Web3.CallData): Promise<{{> method_output outputs=outputs}}>
   estimateGas ({{> method_input inputs=inputs}}): Promise<number>
+  request ({{> method_input inputs=inputs}}): { method: string, params: [{to: string, data: string}]}
 }
