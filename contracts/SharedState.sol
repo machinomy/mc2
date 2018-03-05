@@ -5,8 +5,8 @@ import "zeppelin-solidity/contracts/ECRecovery.sol";
 
 contract SharedState {
     address owner;
-    uint32 nonce;
-    bytes32 merkleRoot;
+    uint32 public nonce;
+    bytes32 public merkleRoot;
 
 
     modifier restricted() {
