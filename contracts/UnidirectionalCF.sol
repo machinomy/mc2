@@ -22,14 +22,14 @@ contract UnidirectionalCF is ICounterfactual {
         settlingUntil = block.number + _settlementPeriod;
     }
 
-    function () payable public {}
+    function() payable public {}
 
     function setId(bytes32 _id) public {
         require(id == bytes32(0x0));
         id = _id;
     }
 
-    function canSettle() public view returns(bool) {
+    function canSettle() public view returns (bool) {
         bool isWaitingOver = block.number >= settlingUntil;
         return isSettling() && isWaitingOver;
     }
@@ -39,7 +39,7 @@ contract UnidirectionalCF is ICounterfactual {
         selfdestruct(multisig.sender());
     }
 
-    function canWithdraw(uint256 payment, address origin, bytes signature) public view returns(bool) {
+    function canWithdraw(uint256 payment, address origin, bytes signature) public view returns (bool) {
         bool isReceiver = origin == multisig.receiver();
         bytes32 hash = recoveryPaymentDigest(payment);
         bool isSigned = multisig.sender() == ECRecovery.recover(hash, signature);
@@ -50,28 +50,31 @@ contract UnidirectionalCF is ICounterfactual {
     function withdraw(uint256 payment, bytes signature) public {
         require(canWithdraw(payment, msg.sender, signature));
 
-        if (payment < this.balance) {
+        if (payment >= this.balance) {
             multisig.receiver().transfer(payment);
+        } else {
+            multisig.receiver().transfer(payment);
+            multisig.sender().transfer(this.balance.sub(payment));
         }
 
-        selfdestruct(multisig.receiver());
+        selfdestruct(multisig.sender());
     }
 
     /*** CHANNEL STATE ***/
 
-    function isSettling() public view returns(bool) {
+    function isSettling() public view returns (bool) {
         return settlingUntil != 0;
     }
 
-    function isOpen() public view returns(bool) {
+    function isOpen() public view returns (bool) {
         return !isSettling();
     }
 
-    function paymentDigest(uint256 payment) public view returns(bytes32) {
-        return keccak256(id, payment);
+    function paymentDigest(uint256 payment) public view returns (bytes32) {
+        return keccak256(payment);
     }
 
-    function recoveryPaymentDigest(uint256 payment) internal view returns(bytes32) {
+    function recoveryPaymentDigest(uint256 payment) internal view returns (bytes32) {
         bytes memory prefix = "\x19Ethereum Signed Message:\n32";
         return keccak256(prefix, paymentDigest(payment));
     }
