@@ -62,8 +62,8 @@ export class InstantiationFactory {
     return this.build(call, 1, _nonce)
   }
 
-  async execute (i: Instantiation): Promise<truffle.TransactionResult> {
-    return this.multisig.execute(i.destination, i.value, i.callBytecode, i.operation, i.senderSig, i.receiverSig)
+  async execute (i: Instantiation, options?: Web3.TxData): Promise<truffle.TransactionResult> {
+    return this.multisig.execute(i.destination, i.value, i.callBytecode, i.operation, i.senderSig, i.receiverSig, options)
   }
 
   private async build (call: Call, _operation: number = 0, _nonce?: BigNumber.BigNumber): Promise<Instantiation> {

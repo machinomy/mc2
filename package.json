@@ -21,7 +21,7 @@
   },
   "config": {
     "truffleTests": "test/*.test.js",
-    "wrappedArtifacts": "build/contracts/@(Unidirectional|PublicRegistry|TestToken|Multisig|TransferToken|TestContract|Proxy|ECRecovery).json"
+    "wrappedArtifacts": "build/contracts/@(Unidirectional|DistributeEth|PublicRegistry|TestToken|Multisig|TransferToken|TestContract|Proxy|ECRecovery).json"
   },
   "natspec": {
     "whitelist": [

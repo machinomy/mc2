@@ -20,6 +20,8 @@ const PublicRegistry = artifacts.require<contracts.PublicRegistry.Contract>('Pub
 const TransferToken = artifacts.require<contracts.TransferToken.Contract>('TransferToken.sol')
 const Multisig = artifacts.require<contracts.Multisig.Contract>('Multisig.sol')
 const Proxy = artifacts.require<contracts.Proxy.Contract>('Proxy.sol')
+const DistributeEth = artifacts.require<contracts.DistributeEth.Contract>('DistributeEth.sol')
+
 const TestContract: truffle.TruffleContract<TestContractWrapper.Contract> = artifacts.require<TestContractWrapper.Contract>('TestContract.sol')
 const TestToken: truffle.TruffleContract<TestTokenWrapper.Contract> = artifacts.require<TestTokenWrapper.Contract>('TestToken.sol')
 
@@ -28,10 +30,13 @@ contract('Multisig', accounts => {
   let registry: contracts.PublicRegistry.Contract
   let proxy: contracts.Proxy.Contract
   let counterFactory: support.InstantiationFactory
+
   let transferToken: contracts.TransferToken.Contract
+  let distributeEth: contracts.DistributeEth.Contract
 
   let sender = accounts[0]
   let receiver = accounts[1]
+  let alien = accounts[2]
 
   before(async () => {
     Multisig.link(ECRecovery)
@@ -40,6 +45,7 @@ contract('Multisig', accounts => {
     proxy = await Proxy.deployed()
     counterFactory = new InstantiationFactory(web3, multisig)
     transferToken = await TransferToken.new()
+    distributeEth = await DistributeEth.new()
   })
 
   let registryNonce = util.bufferToHex(Buffer.from('secret'))
@@ -123,5 +129,29 @@ contract('Multisig', accounts => {
     await support.logGas('transfer tokens', counterFactory.execute(transferTokens))
     await support.assertTokenBalance(token, multisig.address, initialMultisigBalance.minus(toTestContract))
     await support.assertTokenBalance(token, testContractRealAddress, toTestContract)
+  })
+
+  specify('can distribute Eth', async () => {
+    let toSender = new BigNumber.BigNumber(web3.toWei(3, 'ether'))
+    let toReceiver = new BigNumber.BigNumber(web3.toWei(2, 'ether'))
+    let toMultisig = toSender.plus(toReceiver)
+
+    let multisigBefore = await web3.eth.getBalance(multisig.address)
+    await web3.eth.sendTransaction({ from: sender, to: multisig.address, value: toMultisig }) // TxCheck
+    let multisigAfter = await web3.eth.getBalance(multisig.address)
+    assert.equal(multisigAfter.minus(multisigBefore).toString(), toMultisig.toString())
+
+    let distributeEthCommand = await counterFactory.delegatecall(distributeEth.execute.request(sender, receiver, toSender, toReceiver))
+
+    let senderBefore = await web3.eth.getBalance(sender)
+    let receiverBefore = await web3.eth.getBalance(receiver)
+    multisigBefore = await web3.eth.getBalance(multisig.address)
+    await support.logGas('distribute Eth', counterFactory.execute(distributeEthCommand, { from: alien }))
+    let senderAfter = await web3.eth.getBalance(sender)
+    let receiverAfter = await web3.eth.getBalance(receiver)
+    multisigAfter = await web3.eth.getBalance(multisig.address)
+    assert.equal(senderAfter.minus(senderBefore).toString(), toSender.toString())
+    assert.equal(receiverAfter.minus(receiverBefore).toString(), toReceiver.toString())
+    assert.equal(multisigAfter.minus(multisigBefore).toString(), toMultisig.mul(-1).toString())
   })
 })
