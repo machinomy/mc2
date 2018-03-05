@@ -51,7 +51,7 @@ contract('Multisig', accounts => {
 
     // Instantiate
     let instantiation = await counterFactory.call(registry.deploy.request(bytecode, registryNonce))
-    await counterFactory.execute(instantiation)
+    await support.logGas('instantiate test contract', counterFactory.execute(instantiation))
 
     // Check if instantiated
     let address = await registry.resolve(counterfactualAddress)
@@ -79,7 +79,7 @@ contract('Multisig', accounts => {
     // Not Deployed Yet
     assert.equal(await registry.resolve(counterfactualAddress), '0x0000000000000000000000000000000000000000')
 
-    await counterFactory.execute(instantiateTestContract) // TxCheck
+    await support.logGas('instantiate test contract', counterFactory.execute(instantiateTestContract))
 
     let address = await registry.resolve(counterfactualAddress)
     let testInstance = await TestContract.at(address)
@@ -91,7 +91,7 @@ contract('Multisig', accounts => {
     await support.assertBalance(testInstance, 0)
 
     // Move Eth to TestContract
-    await counterFactory.execute(moveMoney)
+    await support.logGas('move Eth', counterFactory.execute(moveMoney))
     await support.assertBalance(multisig, toMultisig.minus(toTestContract))
     await support.assertBalance(testInstance, toTestContract)
   })
@@ -115,12 +115,12 @@ contract('Multisig', accounts => {
 
     await support.assertTokenBalance(token, multisig.address, initialMultisigBalance)
 
-    await counterFactory.execute(instantiateTestContract) // TxCheck
+    await support.logGas('instantiate test contract', counterFactory.execute(instantiateTestContract))
     let testContractRealAddress = await registry.resolve(counterfactualAddress)
     await support.assertTokenBalance(token, multisig.address, initialMultisigBalance)
     await support.assertTokenBalance(token, testContractRealAddress, 0)
 
-    await counterFactory.execute(transferTokens)
+    await support.logGas('transfer tokens', counterFactory.execute(transferTokens))
     await support.assertTokenBalance(token, multisig.address, initialMultisigBalance.minus(toTestContract))
     await support.assertTokenBalance(token, testContractRealAddress, toTestContract)
   })

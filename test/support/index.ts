@@ -4,6 +4,16 @@ import * as Web3 from 'web3'
 import { Multisig, PublicRegistry } from '../../src/index'
 import * as chai from 'chai'
 
+const LOG_GAS_COST = Boolean(process.env.LOG_GAS_COST)
+
+export async function logGas (name: string, promisedTx: Promise<truffle.TransactionResult>, forceLog: boolean = false) {
+  let tx = await promisedTx
+  if (LOG_GAS_COST || forceLog) {
+    let gasCost = tx.receipt.gasUsed
+    console.log(`GAS: ${name}: `, gasCost)
+  }
+}
+
 export function txPrice (web3: Web3, log: truffle.TransactionResult): BigNumber.BigNumber {
   return web3.eth.getTransaction(log.tx).gasPrice.mul(log.receipt.gasUsed)
 }
