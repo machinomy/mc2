@@ -16,8 +16,7 @@ contract Proxy {
         require(destination.delegatecall(data)); // solium-disable-line security/no-low-level-calls
     }
 
-    function findDestination(address _registry, bytes32 _destination) internal view
-    returns (address destination) {
+    function findDestination(address _registry, bytes32 _destination) internal view returns (address destination) {
         IRegistry registry = IRegistry(_registry);
         destination = registry.resolve(_destination);
         require(destination != address(0x0));

@@ -6,6 +6,7 @@ import * as contracts from '../src/index'
 import * as util from 'ethereumjs-util'
 import * as truffle from 'truffle-contract'
 import * as support from './support'
+
 import TestContractWrapper from '../build/wrappers/TestContract'
 import TestTokenWrapper from '../build/wrappers/TestToken'
 import { InstantiationFactory } from './support/index'
@@ -22,9 +23,18 @@ const Multisig = artifacts.require<contracts.Multisig.Contract>('Multisig.sol')
 const Proxy = artifacts.require<contracts.Proxy.Contract>('Proxy.sol')
 const DistributeEth = artifacts.require<contracts.DistributeEth.Contract>('DistributeEth.sol')
 const DistributeToken = artifacts.require<contracts.DistributeToken.Contract>('DistributeToken.sol')
+const SharedState = artifacts.require<contracts.SharedState.Contract>('SharedState.sol')
 
 const TestContract: truffle.TruffleContract<TestContractWrapper.Contract> = artifacts.require<TestContractWrapper.Contract>('TestContract.sol')
 const TestToken: truffle.TruffleContract<TestTokenWrapper.Contract> = artifacts.require<TestTokenWrapper.Contract>('TestToken.sol')
+
+function localAccount (web3: Web3): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
+    web3.eth.getAccounts((error, accounts) => {
+      error ? reject(error) : resolve(accounts[0])
+    })
+  })
+}
 
 contract('Multisig', accounts => {
   let multisig: contracts.Multisig.Contract
@@ -177,5 +187,23 @@ contract('Multisig', accounts => {
     await support.assertTokenBalance(token, multisig.address, 0)
     await support.assertTokenBalance(token, sender, toSender)
     await support.assertTokenBalance(token, receiver, toReceiver)
+  })
+
+  specify('can istantiate SharedState', async () => {
+    let ss = await SharedState.new(sender)
+
+    let sharedStateContract = support.constructorBytecode(web3, SharedState, multisig.address)
+    let instSharedState = await counterFactory.call(registry.deploy.request(sharedStateContract, registryNonce))
+    let counterfactualAddress = await registry.counterfactualAddress(sharedStateContract, registryNonce)
+
+    await support.logGas('instantiate SharedState', counterFactory.execute(instSharedState))
+
+    let bytecodeCall = ss.update.request(42, '0xdead').params[0].data
+    let updateSharedState = await counterFactory.delegatecall(proxy.doCall.request(registry.address, counterfactualAddress, new BigNumber.BigNumber(0), bytecodeCall))
+    await support.logGas('update SharedState', counterFactory.execute(updateSharedState))
+
+    let sharedStateAddress = await registry.resolve(counterfactualAddress)
+    let sharedStateInstance = await SharedState.at(sharedStateAddress)
+    assert.equal((await sharedStateInstance.nonce()).toNumber(), 42)
   })
 })

@@ -68,7 +68,6 @@ export class InstantiationFactory {
   }
 
   private async build (call: Call, _operation: number = 0, _nonce?: BigNumber.BigNumber): Promise<Instantiation> {
-
     let params = call.params[0]
     let destination = params.to
     let callBytecode = params.data

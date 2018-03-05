@@ -20,8 +20,8 @@
     "test": "test"
   },
   "config": {
-    "truffleTests": "test/UnidirectionalCF.test.js",
-    "wrappedArtifacts": "build/contracts/@(Unidirectional|DistributeEth|DistributeToken|UnidirectionalCF|PublicRegistry|TestToken|Multisig|TransferToken|TestContract|Proxy|ECRecovery).json"
+    "truffleTests": "test/Multisig.test.js",
+    "wrappedArtifacts": "build/contracts/@(Unidirectional|SharedState|DistributeEth|DistributeToken|UnidirectionalCF|PublicRegistry|TestToken|Multisig|TransferToken|TestContract|Proxy|ECRecovery).json"
   },
   "natspec": {
     "whitelist": [
@@ -85,6 +85,7 @@
     "bignumber.js": "4.1.0",
     "buffer": "^5.0.7",
     "ethereumjs-util": "^5.1.3",
+    "ganache-core": "^2.0.2",
     "truffle-contract": "^3.0.0",
     "web3": "^0.20.1"
   }

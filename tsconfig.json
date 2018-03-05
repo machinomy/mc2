@@ -8,6 +8,9 @@
     "strict": true,             // Enable all strict type-checking options
     "noImplicitReturns": true   // Report error when not all code paths in function return a value
   },
+  "exclude": [
+    "node_modules/abstract-leveldown/index.d.ts"
+  ],
   "include": [
     "build/wrappers/*.ts",
     "node_modules/**/*/index.d.ts",
