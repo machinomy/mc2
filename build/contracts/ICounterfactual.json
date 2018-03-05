@@ -1,0 +1,224 @@
+{
+  "contractName": "ICounterfactual",
+  "abi": [
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "id",
+          "type": "bytes32"
+        }
+      ],
+      "name": "setId",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "sourceMap": "",
+  "deployedSourceMap": "",
+  "source": "pragma solidity ^0.4.19;\n\n\ncontract ICounterfactual {\n    function setId(bytes32 id) public;\n}\n",
+  "sourcePath": "/Users/ukstv/Documents/Pro/Machinomy/machinomy-contracts/contracts/ICounterfactual.sol",
+  "ast": {
+    "absolutePath": "/Users/ukstv/Documents/Pro/Machinomy/machinomy-contracts/contracts/ICounterfactual.sol",
+    "exportedSymbols": {
+      "ICounterfactual": [
+        7
+      ]
+    },
+    "id": 8,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 1,
+        "literals": [
+          "solidity",
+          "^",
+          "0.4",
+          ".19"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:24:0"
+      },
+      {
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": null,
+        "fullyImplemented": false,
+        "id": 7,
+        "linearizedBaseContracts": [
+          7
+        ],
+        "name": "ICounterfactual",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "body": null,
+            "id": 6,
+            "implemented": false,
+            "isConstructor": false,
+            "isDeclaredConst": false,
+            "modifiers": [],
+            "name": "setId",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 4,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 3,
+                  "name": "id",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 6,
+                  "src": "73:10:0",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 2,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "73:7:0",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "72:12:0"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 5,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "91:0:0"
+            },
+            "scope": 7,
+            "src": "58:34:0",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "public"
+          }
+        ],
+        "scope": 8,
+        "src": "27:67:0"
+      }
+    ],
+    "src": "0:95:0"
+  },
+  "legacyAST": {
+    "absolutePath": "/Users/ukstv/Documents/Pro/Machinomy/machinomy-contracts/contracts/ICounterfactual.sol",
+    "exportedSymbols": {
+      "ICounterfactual": [
+        7
+      ]
+    },
+    "id": 8,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 1,
+        "literals": [
+          "solidity",
+          "^",
+          "0.4",
+          ".19"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:24:0"
+      },
+      {
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": null,
+        "fullyImplemented": false,
+        "id": 7,
+        "linearizedBaseContracts": [
+          7
+        ],
+        "name": "ICounterfactual",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "body": null,
+            "id": 6,
+            "implemented": false,
+            "isConstructor": false,
+            "isDeclaredConst": false,
+            "modifiers": [],
+            "name": "setId",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 4,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 3,
+                  "name": "id",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 6,
+                  "src": "73:10:0",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 2,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "73:7:0",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "72:12:0"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 5,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "91:0:0"
+            },
+            "scope": 7,
+            "src": "58:34:0",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "public"
+          }
+        ],
+        "scope": 8,
+        "src": "27:67:0"
+      }
+    ],
+    "src": "0:95:0"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.4.19+commit.c4cbbb05.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "2.0.0",
+  "updatedAt": "2018-03-05T02:11:58.098Z"
+}
