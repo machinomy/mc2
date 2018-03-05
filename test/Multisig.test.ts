@@ -189,7 +189,25 @@ contract('Multisig', accounts => {
     await support.assertTokenBalance(token, receiver, toReceiver)
   })
 
-  specify('can istantiate SharedState', async () => {
+  specify('can instantiate SharedState', async () => {
+    let ss = await SharedState.new(sender)
+
+    let sharedStateContract = support.constructorBytecode(web3, SharedState, multisig.address)
+    let instSharedState = await counterFactory.call(registry.deploy.request(sharedStateContract, registryNonce))
+    let counterfactualAddress = await registry.counterfactualAddress(sharedStateContract, registryNonce)
+
+    await support.logGas('instantiate SharedState', counterFactory.execute(instSharedState))
+
+    let bytecodeCall = ss.update.request(42, '0xdead').params[0].data
+    let updateSharedState = await counterFactory.delegatecall(proxy.doCall.request(registry.address, counterfactualAddress, new BigNumber.BigNumber(0), bytecodeCall))
+    await support.logGas('update SharedState', counterFactory.execute(updateSharedState))
+
+    let sharedStateAddress = await registry.resolve(counterfactualAddress)
+    let sharedStateInstance = await SharedState.at(sharedStateAddress)
+    assert.equal((await sharedStateInstance.nonce()).toNumber(), 42)
+  })
+
+  specify('can send Ether conditionally on SharedState', async () => {
     let ss = await SharedState.new(sender)
 
     let sharedStateContract = support.constructorBytecode(web3, SharedState, multisig.address)
