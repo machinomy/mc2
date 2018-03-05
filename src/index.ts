@@ -5,6 +5,7 @@ import Proxy from '../build/wrappers/Proxy'
 import ECRecovery from '../build/wrappers/ECRecovery'
 import TransferToken from '../build/wrappers/TransferToken'
 import DistributeEth from '../build/wrappers/DistributeEth'
+import DistributeToken from '../build/wrappers/DistributeToken'
 import * as ethUtil from 'ethereumjs-util'
 
 export {
@@ -14,7 +15,8 @@ export {
   Proxy,
   ECRecovery,
   TransferToken,
-  DistributeEth
+  DistributeEth,
+  DistributeToken
 }
 
 export function randomId (digits: number = 3) {

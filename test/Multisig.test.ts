@@ -21,6 +21,7 @@ const TransferToken = artifacts.require<contracts.TransferToken.Contract>('Trans
 const Multisig = artifacts.require<contracts.Multisig.Contract>('Multisig.sol')
 const Proxy = artifacts.require<contracts.Proxy.Contract>('Proxy.sol')
 const DistributeEth = artifacts.require<contracts.DistributeEth.Contract>('DistributeEth.sol')
+const DistributeToken = artifacts.require<contracts.DistributeToken.Contract>('DistributeToken.sol')
 
 const TestContract: truffle.TruffleContract<TestContractWrapper.Contract> = artifacts.require<TestContractWrapper.Contract>('TestContract.sol')
 const TestToken: truffle.TruffleContract<TestTokenWrapper.Contract> = artifacts.require<TestTokenWrapper.Contract>('TestToken.sol')
@@ -33,6 +34,7 @@ contract('Multisig', accounts => {
 
   let transferToken: contracts.TransferToken.Contract
   let distributeEth: contracts.DistributeEth.Contract
+  let distributeToken: contracts.DistributeToken.Contract
 
   let sender = accounts[0]
   let receiver = accounts[1]
@@ -46,6 +48,7 @@ contract('Multisig', accounts => {
     counterFactory = new InstantiationFactory(web3, multisig)
     transferToken = await TransferToken.new()
     distributeEth = await DistributeEth.new()
+    distributeToken = await DistributeToken.new()
   })
 
   let registryNonce = util.bufferToHex(Buffer.from('secret'))
@@ -153,5 +156,26 @@ contract('Multisig', accounts => {
     assert.equal(senderAfter.minus(senderBefore).toString(), toSender.toString())
     assert.equal(receiverAfter.minus(receiverBefore).toString(), toReceiver.toString())
     assert.equal(multisigAfter.minus(multisigBefore).toString(), toMultisig.mul(-1).toString())
+  })
+
+  specify('can distribute ERC20 token', async () => {
+    let toSender = new BigNumber.BigNumber(web3.toWei(3, 'ether'))
+    let toReceiver = new BigNumber.BigNumber(web3.toWei(2, 'ether'))
+    let toMultisig = toSender.plus(toReceiver)
+
+    let token = await TestToken.new()
+    await token.mint(multisig.address, toMultisig)
+    await token.finishMinting()
+
+    await support.assertTokenBalance(token, multisig.address, toMultisig)
+    await support.assertTokenBalance(token, sender, 0)
+    await support.assertTokenBalance(token, receiver, 0)
+
+    let distributeTokenCommand = await counterFactory.delegatecall(distributeToken.execute.request(token.address, sender, receiver, toSender, toReceiver))
+
+    await support.logGas('distribute tokens', counterFactory.execute(distributeTokenCommand))
+    await support.assertTokenBalance(token, multisig.address, 0)
+    await support.assertTokenBalance(token, sender, toSender)
+    await support.assertTokenBalance(token, receiver, toReceiver)
   })
 })
