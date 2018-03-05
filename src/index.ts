@@ -7,6 +7,7 @@ import TransferToken from '../build/wrappers/TransferToken'
 import DistributeEth from '../build/wrappers/DistributeEth'
 import DistributeToken from '../build/wrappers/DistributeToken'
 import UnidirectionalCF from '../build/wrappers/UnidirectionalCF'
+import SharedState from '../build/wrappers/SharedState'
 import * as ethUtil from 'ethereumjs-util'
 
 export {
@@ -18,7 +19,8 @@ export {
   TransferToken,
   DistributeEth,
   DistributeToken,
-  UnidirectionalCF
+  UnidirectionalCF,
+  SharedState
 }
 
 export function randomId (digits: number = 3) {
