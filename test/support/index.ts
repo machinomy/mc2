@@ -12,6 +12,7 @@ export async function logGas (name: string, promisedTx: Promise<truffle.Transact
     let gasCost = tx.receipt.gasUsed
     console.log(`GAS: ${name}: `, gasCost)
   }
+  return tx
 }
 
 export function txPrice (web3: Web3, log: truffle.TransactionResult): BigNumber.BigNumber {
@@ -67,6 +68,7 @@ export class InstantiationFactory {
   }
 
   private async build (call: Call, _operation: number = 0, _nonce?: BigNumber.BigNumber): Promise<Instantiation> {
+
     let params = call.params[0]
     let destination = params.to
     let callBytecode = params.data
