@@ -4,17 +4,14 @@ import "zeppelin-solidity/contracts/math/SafeMath.sol";
 import "zeppelin-solidity/contracts/ECRecovery.sol";
 import "./Multisig.sol";
 import "./IRegistry.sol";
-import "./ICounterfactual.sol";
 
 /// @title Unidirectional Ether payment channels contract.
-contract UnidirectionalCF is ICounterfactual {
+contract UnidirectionalCF {
     using SafeMath for uint256;
 
     Multisig multisig;
     IRegistry registry;
     uint256 settlingUntil;
-
-    bytes32 id;
 
     function UnidirectionalCF(address _multisig, address _registry, uint32 _settlementPeriod) public payable {
         multisig = Multisig(_multisig);
@@ -23,11 +20,6 @@ contract UnidirectionalCF is ICounterfactual {
     }
 
     function () payable public {}
-
-    function setId(bytes32 _id) public {
-        require(id == bytes32(0x0));
-        id = _id;
-    }
 
     function canSettle() public view returns(bool) {
         bool isWaitingOver = block.number >= settlingUntil;
@@ -68,7 +60,7 @@ contract UnidirectionalCF is ICounterfactual {
     }
 
     function paymentDigest(uint256 payment) public view returns(bytes32) {
-        return keccak256(id, payment);
+        return keccak256(payment);
     }
 
     function recoveryPaymentDigest(uint256 payment) internal view returns(bytes32) {
