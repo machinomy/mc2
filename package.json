@@ -86,7 +86,6 @@
     "buffer": "^5.0.7",
     "ethereumjs-util": "^5.1.3",
     "truffle-contract": "^3.0.0",
-    "web3": "^0.20.1",
-    "machinomy-contracts":"https://github.com/machinomy/machinomy-contracts#feature/channel-network"
+    "web3": "^0.20.1"
   }
 }

@@ -38,7 +38,7 @@ contract SharedState {
 
         if (block.number > lastUpdate + updatePeriod) {
             for (uint256 i = 32; i <= proof.length; i += 32) {
-                assembly { proofElement := mload(add(proof, i)) }
+                assembly { proofElement := mload(add(proof, i)) } // solium-disable-line security/no-inline-assembly
 
                 if (cursor < proofElement) {
                     cursor = keccak256(cursor, proofElement);

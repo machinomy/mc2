@@ -11,7 +11,7 @@ import TestContractWrapper from '../build/wrappers/TestContract'
 import TestTokenWrapper from '../build/wrappers/TestToken'
 import { InstantiationFactory } from './support/index'
 import Units from '../src/Units'
-import {default as MerkleTree} from 'machinomy-contracts/src/MerkleTree'
+import {default as MerkleTree} from '../src/MerkleTree'
 import * as utils from 'ethereumjs-util'
 
 chai.use(asPromised)
