@@ -44,6 +44,11 @@ contract('UnidirectionalCF', accounts => {
   let receiver = accounts[1]
   let alien = accounts[2]
 
+  async function paymentSignature (instance: contracts.UnidirectionalCF.Contract, sender: string, payment: BigNumber.BigNumber): Promise<string> {
+    let digest = await instance.paymentDigest(payment)
+    return web3.eth.sign(sender, digest)
+  }
+
   before(async () => {
     Multisig.link(ECRecovery)
     UnidirectionalCF.link(ECRecovery)
@@ -73,5 +78,44 @@ contract('UnidirectionalCF', accounts => {
     let instance = await UnidirectionalCF.at(address)
     let isSettling = await instance.isSettling()
     assert.isTrue(isSettling)
+  })
+
+  specify('moveMoney', async () => {
+    let toMultisig = new BigNumber.BigNumber(web3.toWei(15, 'ether'))
+    let toTestContract = new BigNumber.BigNumber(web3.toWei(12, 'ether'))
+    let countMoney = new BigNumber.BigNumber(web3.toWei(2, 'ether'))
+
+    let ecrecoveryAddress = (await ECRecovery.deployed()).address
+    let bytecode = support.constructorBytecode(web3, UnidirectionalCF, multisig.address, registry.address, 0).replace('__ECRecovery____________________________', ecrecoveryAddress.replace('0x', ''))
+    let counterfactualAddress = await registry.counterfactualAddress(bytecode, registryNonce)
+
+    let instantiation = await counterFactory.call(registry.deploy.request(bytecode, registryNonce))
+    let moveMoney = await counterFactory.delegatecall(proxy.doCall.request(registry.address, counterfactualAddress, toTestContract, '0x00'), instantiation.nonce.plus(1))
+
+    await support.assertBalance(multisig, 0)
+    await web3.eth.sendTransaction({ from: sender, to: multisig.address, value: toMultisig }) // TxCheck
+    await support.assertBalance(multisig, toMultisig)
+
+    await counterFactory.execute(instantiation)
+    await counterFactory.execute(moveMoney)
+
+    let address = await registry.resolve(counterfactualAddress)
+
+    let instance = await UnidirectionalCF.at(address)
+
+    assert.equal(web3.fromWei(web3.eth.getBalance(address), 'ether').toNumber(), 12)
+
+    let signature = await paymentSignature(instance, sender, countMoney)
+
+    assert.isTrue(await instance.canWithdraw(countMoney, receiver, signature))
+    let oldBalanceSender = web3.fromWei(web3.eth.getBalance(sender), 'ether').toNumber()
+    let oldBalanceReceiver = web3.fromWei(web3.eth.getBalance(receiver), 'ether').toNumber()
+
+    await instance.withdraw(countMoney, signature, { from: receiver })
+
+    assert.equal(Math.ceil(web3.fromWei(web3.eth.getBalance(sender), 'ether').toNumber() - oldBalanceSender), 10)
+    assert.equal(Math.ceil(web3.fromWei(web3.eth.getBalance(receiver), 'ether').toNumber() - oldBalanceReceiver), 2)
+
+    assert.isTrue(true)
   })
 })
