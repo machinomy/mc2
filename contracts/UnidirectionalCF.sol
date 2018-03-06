@@ -10,7 +10,7 @@ contract UnidirectionalCF {
     using SafeMath for uint256;
 
     Multisig multisig;
-    IRegistry registry;
+    IRegistry registry; // TODO Remove that, not needed
     uint256 settlingUntil;
 
     function UnidirectionalCF(address _multisig, address _registry, uint32 _settlementPeriod) public payable {

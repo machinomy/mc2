@@ -7,8 +7,8 @@ contract SharedState {
     address public owner;
     uint32 public nonce;
     bytes32 public merkleRoot;
-    uint updatePeriod;
-    uint lastUpdate;
+    uint256 updatePeriod;
+    uint256 lastUpdate;
 
 
     modifier restricted() {
@@ -25,6 +25,7 @@ contract SharedState {
 
     function update(uint32 _nonce, bytes32 _merkleRoot) public restricted {
         require(_nonce > nonce);
+        // require(block.number <= lastUpdate + updatePeriod); TODO
         merkleRoot = _merkleRoot;
         nonce = _nonce;
         lastUpdate = block.number;
