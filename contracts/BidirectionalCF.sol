@@ -47,7 +47,7 @@ contract BidirectionalCF {
         require(!isSettling());
 
         multisig.receiver().transfer(toReceiver);
-        multisig.receiver().transfer(toSender);
+        multisig.sender().transfer(toSender);
         selfdestruct(multisig); // TODO Use that every time
     }
 
