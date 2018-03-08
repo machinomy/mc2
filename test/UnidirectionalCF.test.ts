@@ -1,14 +1,11 @@
 import * as Web3 from 'web3'
 import * as chai from 'chai'
-import * as abi from 'ethereumjs-abi'
 import * as BigNumber from 'bignumber.js'
 import * as asPromised from 'chai-as-promised'
 import * as contracts from '../src/index'
 import * as util from 'ethereumjs-util'
 import * as truffle from 'truffle-contract'
 import * as support from './support'
-import TestContractWrapper from '../build/wrappers/TestContract'
-import TestTokenWrapper from '../build/wrappers/TestToken'
 import { InstantiationFactory } from './support/index'
 
 chai.use(asPromised)
@@ -18,16 +15,10 @@ const assert = chai.assert
 
 const ECRecovery = artifacts.require<contracts.ECRecovery.Contract>('ECRecovery.sol')
 const PublicRegistry = artifacts.require<contracts.PublicRegistry.Contract>('PublicRegistry.sol')
-const TransferToken = artifacts.require<contracts.TransferToken.Contract>('TransferToken.sol')
 const Multisig = artifacts.require<contracts.Multisig.Contract>('Multisig.sol')
 const Proxy = artifacts.require<contracts.Proxy.Contract>('Proxy.sol')
-const DistributeEth = artifacts.require<contracts.DistributeEth.Contract>('DistributeEth.sol')
-const DistributeToken = artifacts.require<contracts.DistributeToken.Contract>('DistributeToken.sol')
 
 const UnidirectionalCF: truffle.TruffleContract<contracts.UnidirectionalCF.Contract> = artifacts.require<contracts.UnidirectionalCF.Contract>('UnidirectionalCF.sol')
-
-const TestContract: truffle.TruffleContract<TestContractWrapper.Contract> = artifacts.require<TestContractWrapper.Contract>('TestContract.sol')
-const TestToken: truffle.TruffleContract<TestTokenWrapper.Contract> = artifacts.require<TestTokenWrapper.Contract>('TestToken.sol')
 
 contract('UnidirectionalCF', accounts => {
   let multisig: contracts.Multisig.Contract
@@ -35,14 +26,8 @@ contract('UnidirectionalCF', accounts => {
   let proxy: contracts.Proxy.Contract
   let counterFactory: support.InstantiationFactory
 
-  let transferToken: contracts.TransferToken.Contract
-  let distributeEth: contracts.DistributeEth.Contract
-  let distributeToken: contracts.DistributeToken.Contract
-  let uni: contracts.UnidirectionalCF.Contract
-
   let sender = accounts[0]
   let receiver = accounts[1]
-  let alien = accounts[2]
 
   async function paymentSignature (instance: contracts.UnidirectionalCF.Contract, sender: string, payment: BigNumber.BigNumber): Promise<string> {
     let digest = await instance.paymentDigest(payment)
@@ -57,10 +42,6 @@ contract('UnidirectionalCF', accounts => {
     registry = await PublicRegistry.deployed()
     proxy = await Proxy.deployed()
     counterFactory = new InstantiationFactory(web3, multisig)
-    transferToken = await TransferToken.new()
-    distributeEth = await DistributeEth.new()
-    distributeToken = await DistributeToken.new()
-    uni = await UnidirectionalCF.new(multisig.address, registry.address, 0)
   })
 
   let registryNonce = util.bufferToHex(Buffer.from('secret'))
@@ -93,7 +74,7 @@ contract('UnidirectionalCF', accounts => {
     let moveMoney = await counterFactory.delegatecall(proxy.doCall.request(registry.address, counterfactualAddress, toTestContract, '0x00'), instantiation.nonce.plus(1))
 
     await support.assertBalance(multisig, 0)
-    await web3.eth.sendTransaction({ from: sender, to: multisig.address, value: toMultisig }) // TxCheck
+    web3.eth.sendTransaction({ from: sender, to: multisig.address, value: toMultisig }) // TxCheck
     await support.assertBalance(multisig, toMultisig)
 
     await counterFactory.execute(instantiation)

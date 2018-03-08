@@ -5,6 +5,7 @@ import "zeppelin-solidity/contracts/ECRecovery.sol";
 import "./Multisig.sol";
 import "./IRegistry.sol";
 
+
 /// @title Unidirectional Ether payment channels contract.
 contract UnidirectionalCF {
     using SafeMath for uint256;
@@ -64,11 +65,11 @@ contract UnidirectionalCF {
         return !isSettling();
     }
 
-    function paymentDigest(uint256 payment) public view returns (bytes32) {
+    function paymentDigest(uint256 payment) public pure returns (bytes32) {
         return keccak256(payment);
     }
 
-    function recoveryPaymentDigest(uint256 payment) internal view returns (bytes32) {
+    function recoveryPaymentDigest(uint256 payment) internal pure returns (bytes32) {
         bytes memory prefix = "\x19Ethereum Signed Message:\n32";
         return keccak256(prefix, paymentDigest(payment));
     }

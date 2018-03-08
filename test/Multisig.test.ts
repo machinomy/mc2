@@ -28,6 +28,7 @@ const SharedState = artifacts.require<contracts.SharedState.Contract>('SharedSta
 const TestContract: truffle.TruffleContract<TestContractWrapper.Contract> = artifacts.require<TestContractWrapper.Contract>('TestContract.sol')
 const TestToken: truffle.TruffleContract<TestTokenWrapper.Contract> = artifacts.require<TestTokenWrapper.Contract>('TestToken.sol')
 
+/* tslint:disable:no-unused-variable */
 function localAccount (web3: Web3): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     web3.eth.getAccounts((error, accounts) => {
@@ -35,6 +36,7 @@ function localAccount (web3: Web3): Promise<string> {
     })
   })
 }
+/* tslint:enable:no-unused-variable */
 
 contract('Multisig', accounts => {
   let multisig: contracts.Multisig.Contract
@@ -92,7 +94,7 @@ contract('Multisig', accounts => {
     // Move Eth to Multisig
 
     await support.assertBalance(multisig, 0)
-    await web3.eth.sendTransaction({ from: sender, to: multisig.address, value: toMultisig }) // TxCheck
+    web3.eth.sendTransaction({ from: sender, to: multisig.address, value: toMultisig }) // TxCheck
     await support.assertBalance(multisig, toMultisig)
 
     // Not Deployed Yet
@@ -149,20 +151,20 @@ contract('Multisig', accounts => {
     let toReceiver = new BigNumber.BigNumber(web3.toWei(2, 'ether'))
     let toMultisig = toSender.plus(toReceiver)
 
-    let multisigBefore = await web3.eth.getBalance(multisig.address)
-    await web3.eth.sendTransaction({ from: sender, to: multisig.address, value: toMultisig }) // TxCheck
-    let multisigAfter = await web3.eth.getBalance(multisig.address)
+    let multisigBefore = web3.eth.getBalance(multisig.address)
+    web3.eth.sendTransaction({ from: sender, to: multisig.address, value: toMultisig }) // TxCheck
+    let multisigAfter = web3.eth.getBalance(multisig.address)
     assert.equal(multisigAfter.minus(multisigBefore).toString(), toMultisig.toString())
 
     let distributeEthCommand = await counterFactory.delegatecall(distributeEth.execute.request(sender, receiver, toSender, toReceiver))
 
-    let senderBefore = await web3.eth.getBalance(sender)
-    let receiverBefore = await web3.eth.getBalance(receiver)
-    multisigBefore = await web3.eth.getBalance(multisig.address)
+    let senderBefore = web3.eth.getBalance(sender)
+    let receiverBefore = web3.eth.getBalance(receiver)
+    multisigBefore = web3.eth.getBalance(multisig.address)
     await support.logGas('distribute Eth', counterFactory.execute(distributeEthCommand, { from: alien }))
-    let senderAfter = await web3.eth.getBalance(sender)
-    let receiverAfter = await web3.eth.getBalance(receiver)
-    multisigAfter = await web3.eth.getBalance(multisig.address)
+    let senderAfter = web3.eth.getBalance(sender)
+    let receiverAfter = web3.eth.getBalance(receiver)
+    multisigAfter = web3.eth.getBalance(multisig.address)
     assert.equal(senderAfter.minus(senderBefore).toString(), toSender.toString())
     assert.equal(receiverAfter.minus(receiverBefore).toString(), toReceiver.toString())
     assert.equal(multisigAfter.minus(multisigBefore).toString(), toMultisig.mul(-1).toString())

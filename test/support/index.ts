@@ -77,8 +77,8 @@ export class InstantiationFactory {
     let _operationHash = await this.multisig.executionHash(destination, value, callBytecode, operation, nonce)
     let sender = await this.multisig.sender()
     let receiver = await this.multisig.receiver()
-    let senderSig = await this.web3.eth.sign(sender, _operationHash)
-    let receiverSig = await this.web3.eth.sign(receiver, _operationHash)
+    let senderSig = this.web3.eth.sign(sender, _operationHash)
+    let receiverSig = this.web3.eth.sign(receiver, _operationHash)
 
     return Promise.resolve({
       destination,
@@ -105,7 +105,7 @@ export type ContractLike = {
 }
 export async function assertBalance (contract: ContractLike, expected: BigNumber.BigNumber|number): Promise<void> {
   let web3 = contract.constructor.web3
-  let actualBalance = await web3.eth.getBalance(contract.address)
+  let actualBalance = web3.eth.getBalance(contract.address)
   chai.assert.equal(actualBalance.toString(), expected.toString())
 }
 

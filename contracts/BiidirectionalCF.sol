@@ -4,6 +4,7 @@ import "zeppelin-solidity/contracts/math/SafeMath.sol";
 import "zeppelin-solidity/contracts/ECRecovery.sol";
 import "./Multisig.sol";
 
+
 /// @title Unidirectional Ether payment channels contract.
 contract BidirectionalCF {
     using SafeMath for uint256;
@@ -56,7 +57,7 @@ contract BidirectionalCF {
         return block.number <= lastUpdate + settlementPeriod;
     }
 
-    function paymentDigest(uint32 _nonce, uint256 _toSender, uint256 _toReceiver) public view returns(bytes32) {
+    function paymentDigest(uint32 _nonce, uint256 _toSender, uint256 _toReceiver) public pure returns(bytes32) {
         return keccak256(_nonce, _toSender, _toReceiver); // TODO Use some contract-internal value
     }
 
