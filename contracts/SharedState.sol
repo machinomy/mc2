@@ -1,9 +1,10 @@
 pragma solidity ^0.4.19;
 
 import "zeppelin-solidity/contracts/ECRecovery.sol";
+import "./ISharedState.sol";
 
 
-contract SharedState {
+contract SharedState is ISharedState {
     address public owner;
     uint32 public nonce;
     bytes32 public merkleRoot;
@@ -16,11 +17,12 @@ contract SharedState {
             _;
     }
 
-    function SharedState(address _owner) public {
+    function SharedState(address _owner, uint256 _updatePeriod, bytes32 _merkleRoot) public {
         owner = _owner;
         nonce = 0x0;
-        merkleRoot = 0x0;
+        merkleRoot = _merkleRoot;
         lastUpdate = 0x0;
+        updatePeriod = _updatePeriod;
     }
 
     function update(uint32 _nonce, bytes32 _merkleRoot) public restricted {

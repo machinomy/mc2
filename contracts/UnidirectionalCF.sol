@@ -65,6 +65,7 @@ contract UnidirectionalCF {
         return !isSettling();
     }
 
+    // FIXME Use some internal nonce/secret to prevent replay attack
     function paymentDigest(uint256 payment) public pure returns (bytes32) {
         return keccak256(payment);
     }

@@ -8,6 +8,7 @@ import DistributeEth from '../build/wrappers/DistributeEth'
 import DistributeToken from '../build/wrappers/DistributeToken'
 import UnidirectionalCF from '../build/wrappers/UnidirectionalCF'
 import SharedState from '../build/wrappers/SharedState'
+import ConditionalCall from '../build/wrappers/ConditionalCall'
 import * as ethUtil from 'ethereumjs-util'
 
 export {
@@ -20,6 +21,7 @@ export {
   DistributeEth,
   DistributeToken,
   UnidirectionalCF,
+  ConditionalCall,
   SharedState
 }
 

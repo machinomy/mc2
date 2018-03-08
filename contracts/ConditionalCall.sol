@@ -6,7 +6,8 @@ import "./IRegistry.sol";
 contract ConditionalCall {
     function execute(address _registry, bytes32 _sharedStateCF, bytes _proof, address _destination, uint256 _value, bytes _data) public {
         IRegistry registry = IRegistry(_registry);
-        ISharedState sharedState = ISharedState(registry.resolve(_sharedStateCF));
+        address sharedStateAddress = registry.resolve(_sharedStateCF);
+        ISharedState sharedState = ISharedState(sharedStateAddress);
 
         bytes32 hash = callHash(_destination, _value, _data);
         require(sharedState.isContained(_proof, hash));
