@@ -5,16 +5,16 @@ import "zeppelin-solidity/contracts/ECRecovery.sol";
 import "./Multisig.sol";
 
 
-/// @title Unidirectional Ether payment channels contract.
+/// @title Bidirectional Ether payment channels contract.
 contract BidirectionalCF {
     using SafeMath for uint256;
 
     Multisig multisig; // TODO Maybe it is more cool to pass that as sender, receiver addresses
     uint256 lastUpdate;
     uint256 settlementPeriod;
-    uint32  nonce;
-    uint256 toSender;
-    uint256 toReceiver;
+    uint32  public nonce;
+    uint256 public toSender;
+    uint256 public toReceiver;
 
     function BidirectionalCF(address _multisig, uint32 _settlementPeriod) public payable {
         multisig = Multisig(_multisig);
@@ -43,6 +43,20 @@ contract BidirectionalCF {
         lastUpdate = block.number;
     }
 
+    function canClose(uint256 _toSender, uint256 _toReceiver, bytes _senderSig, bytes _receiverSig) public view returns (bool) {
+        bytes32 hash = recoveryPaymentDigest(typeDigest('close', _toSender, _toReceiver));
+        bool isSenderSignature = multisig.sender() == ECRecovery.recover(hash, _senderSig);
+        bool isReceiverSignature = multisig.receiver() == ECRecovery.recover(hash, _receiverSig);
+        return isSettling() && isSenderSignature && isReceiverSignature;
+    }
+
+    function close(uint256 _toSender, uint256 _toReceiver, bytes _senderSig, bytes _receiverSig) public {
+        require(canClose(_toSender, _toReceiver, _senderSig, _receiverSig));
+        multisig.receiver().transfer(toReceiver);
+        multisig.sender().transfer(toSender);
+        selfdestruct(multisig);
+    }
+
     function withdraw() public {
         require(!isSettling());
 
@@ -59,6 +73,10 @@ contract BidirectionalCF {
 
     function paymentDigest(uint32 _nonce, uint256 _toSender, uint256 _toReceiver) public pure returns(bytes32) {
         return keccak256(_nonce, _toSender, _toReceiver); // TODO Use some contract-internal value
+    }
+
+    function typeDigest(string _type, uint256 _toSender, uint256 _toReceiver) public pure returns(bytes32) {
+        return keccak256(_type, _toSender, _toReceiver); // TODO Use some contract-internal value
     }
 
     function recoveryPaymentDigest(bytes32 hash) internal pure returns(bytes32) {

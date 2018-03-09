@@ -20,7 +20,7 @@ contract('SharedState', accounts => {
 
   before(async () => {
     SharedState.link(ECRecovery)
-    sharedState = await SharedState.new(sender)
+    sharedState = await SharedState.new(sender, 100, 0x0)
   })
 
   specify('SharedState::check update', async () => {

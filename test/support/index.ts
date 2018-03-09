@@ -55,8 +55,12 @@ export class InstantiationFactory {
     this.multisig = multisig
   }
 
-  async call (call: Call, _nonce?: BigNumber.BigNumber): Promise<Instantiation> {
-    return this.build(call, 0, _nonce)
+  async call (call: Call, _nonce?: BigNumber.BigNumber|number): Promise<Instantiation> {
+    if (_nonce) {
+      return this.build(call, 0, new BigNumber.BigNumber(_nonce))
+    } else {
+      return this.build(call, 0)
+    }
   }
 
   async delegatecall (call: Call, _nonce?: BigNumber.BigNumber): Promise<Instantiation> {

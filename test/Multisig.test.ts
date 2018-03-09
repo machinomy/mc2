@@ -192,7 +192,7 @@ contract('Multisig', accounts => {
   })
 
   specify('can instantiate SharedState', async () => {
-    let ss = await SharedState.new(sender)
+    let ss = await SharedState.new(sender, 100, 0x0)
 
     let sharedStateContract = support.constructorBytecode(web3, SharedState, multisig.address)
     let instSharedState = await counterFactory.call(registry.deploy.request(sharedStateContract, registryNonce))
@@ -210,7 +210,7 @@ contract('Multisig', accounts => {
   })
 
   specify('can send Ether conditionally on SharedState', async () => {
-    let ss = await SharedState.new(sender)
+    let ss = await SharedState.new(sender, 100, 0x0)
 
     let sharedStateContract = support.constructorBytecode(web3, SharedState, multisig.address)
     let instSharedState = await counterFactory.call(registry.deploy.request(sharedStateContract, registryNonce))

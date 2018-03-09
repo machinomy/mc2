@@ -9,6 +9,7 @@ import DistributeToken from '../build/wrappers/DistributeToken'
 import UnidirectionalCF from '../build/wrappers/UnidirectionalCF'
 import SharedState from '../build/wrappers/SharedState'
 import ConditionalCall from '../build/wrappers/ConditionalCall'
+import BidirectionalCF from '../build/wrappers/BidirectionalCF'
 import * as ethUtil from 'ethereumjs-util'
 
 export {
@@ -22,7 +23,8 @@ export {
   DistributeToken,
   UnidirectionalCF,
   ConditionalCall,
-  SharedState
+  SharedState,
+  BidirectionalCF
 }
 
 export function randomId (digits: number = 3) {
