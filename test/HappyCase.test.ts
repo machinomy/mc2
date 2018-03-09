@@ -81,13 +81,13 @@ contract('HappyCase', accounts => {
     // Step 4
     sharedState2 = support.constructorBytecode(web3, SharedState, sender, settlementPeriod, 0x3)
     instSharedState2 = await counterFactory.call(registry.deploy.request(sharedState2, '0x40'), nonceMultisig)
-    counterfactualAddressSharedState2 = await registry.counterfactualAddress(sharedState2, '0x40')
 
-    nonceBidirectional++
+    nonceBidirectional += 2
     // Step 5
-    let digest = await instanceForDigest.paymentDigest(new BigNumber.BigNumber(nonceBidirectional), new BigNumber.BigNumber(9), new BigNumber.BigNumber(1))
+    let digest = await instanceForDigest.paymentDigest(nonceBidirectional, new BigNumber.BigNumber(9), new BigNumber.BigNumber(1))
     let signedBySenderData = web3.eth.sign(sender, digest)
     let signedByReceiverData = web3.eth.sign(receiver, digest)
+    let moveMoneyToBiDi = await counterFactory.delegatecall(proxy.doCall.request(registry.address, counterfactualAddressBidirectionalCF, new BigNumber.BigNumber(10), '0x00'), new BigNumber.BigNumber(nonceMultisig))
 
     await counterFactory.execute(instSharedState)
     await counterFactory.execute(instBidirectionalCF)
@@ -95,14 +95,22 @@ contract('HappyCase', accounts => {
     let counterfactualAddressUpdateBidirectionalCF = await registry.counterfactualAddress(bidirectionalCF, '0x30')
     let realAddress = await registry.resolve(counterfactualAddressUpdateBidirectionalCF)
     let instance = await BidirectionalCF.at(realAddress)
-
-    instance.update(new BigNumber.BigNumber(nonceBidirectional), new BigNumber.BigNumber(9), new BigNumber.BigNumber(1), signedBySenderData, signedByReceiverData)
+    await instance.update(nonceBidirectional, new BigNumber.BigNumber(9), new BigNumber.BigNumber(1), signedBySenderData, signedByReceiverData)
 
     assert.equal((await instance.nonce()).toNumber(), nonceBidirectional)
     assert.equal((await instance.toSender()).toNumber(), 9)
     assert.equal((await instance.toReceiver()).toNumber(), 1)
     // Step 6
-    web3.eth.sendTransaction({ from: sender, to: multisig.address, value: new BigNumber.BigNumber(10) })
+    web3.eth.sendTransaction({ from: sender, to: multisig.address, value: new BigNumber.BigNumber(14) })
+    await counterFactory.execute(moveMoneyToBiDi)
+    let balanceOfSender = web3.eth.getBalance(sender)
+    let balanceOfReceiver = web3.eth.getBalance(receiver)
+    let bytecodeWithdrawCall = instance.withdraw.request().params[0].data
+    await counterFactory.delegatecall(proxy.doCall.request(registry.address, counterfactualAddressUpdateBidirectionalCF, new BigNumber.BigNumber(0), bytecodeWithdrawCall))
+
+    assert.equal(web3.eth.getBalance(multisig.address).toNumber(), new BigNumber.BigNumber(4).toNumber())
+    assert.equal(web3.eth.getBalance(sender).toNumber(), new BigNumber.BigNumber(9).plus(balanceOfSender).toNumber())
+    assert.equal(web3.eth.getBalance(receiver).toNumber(), new BigNumber.BigNumber(1).plus(balanceOfReceiver).toNumber())
   })
 
   specify('can instantiate BidirectionalCF contract', async () => {
