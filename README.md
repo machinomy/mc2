@@ -34,3 +34,14 @@ To deploy the package to the Ropsten network you need to run local geth instance
 $ yarn truffle:migrate --network ropsten
 $ yarn build
 ```
+
+## Testing
+
+```
+$ yarn prepublish && yarn test
+```
+
+To log gas cost for transactions:
+```
+$ LOG_GAS_COST=true yarn test
+```
