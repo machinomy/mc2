@@ -89,8 +89,8 @@ contract('HappyCase', accounts => {
     let signedByReceiverData = web3.eth.sign(receiver, digest)
     let moveMoneyToBiDi = await counterFactory.delegatecall(proxy.doCall.request(registry.address, counterfactualAddressBidirectionalCF, new BigNumber.BigNumber(10), '0x00'), new BigNumber.BigNumber(nonceMultisig))
 
-    await counterFactory.execute(instSharedState)
-    await counterFactory.execute(instBidirectionalCF)
+    await support.logGas('instantiate shared state', counterFactory.execute(instSharedState))
+    await support.logGas('instantiate BiDi', counterFactory.execute(instBidirectionalCF))
 
     let counterfactualAddressUpdateBidirectionalCF = await registry.counterfactualAddress(bidirectionalCF, '0x30')
     let realAddress = await registry.resolve(counterfactualAddressUpdateBidirectionalCF)
@@ -102,7 +102,8 @@ contract('HappyCase', accounts => {
     assert.equal((await instance.toReceiver()).toNumber(), 1)
     // Step 6
     web3.eth.sendTransaction({ from: sender, to: multisig.address, value: new BigNumber.BigNumber(14) })
-    await counterFactory.execute(moveMoneyToBiDi)
+
+    await support.logGas('instantiate move money to BiDi', counterFactory.execute(moveMoneyToBiDi))
     let balanceOfSender = web3.eth.getBalance(sender)
     let balanceOfReceiver = web3.eth.getBalance(receiver)
     let bytecodeWithdrawCall = instance.withdraw.request().params[0].data
