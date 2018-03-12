@@ -10,7 +10,6 @@ import * as support from './support'
 import TestContractWrapper from '../build/wrappers/TestContract'
 import TestTokenWrapper from '../build/wrappers/TestToken'
 import { InstantiationFactory } from './support/index'
-import MerkleTree from "../src/MerkleTree";
 
 chai.use(asPromised)
 

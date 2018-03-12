@@ -19,6 +19,8 @@ const Multisig = artifacts.require<contracts.Multisig.Contract>('Multisig.sol')
 const Proxy = artifacts.require<contracts.Proxy.Contract>('Proxy.sol')
 
 const UnidirectionalCF: truffle.TruffleContract<contracts.UnidirectionalCF.Contract> = artifacts.require<contracts.UnidirectionalCF.Contract>('UnidirectionalCF.sol')
+const Unidirectional: truffle.TruffleContract<contracts.Unidirectional.Contract> = artifacts.require<contracts.Unidirectional.Contract>('Unidirectional.sol')
+
 
 contract('UnidirectionalCF', accounts => {
   let multisig: contracts.Multisig.Contract
@@ -54,6 +56,10 @@ contract('UnidirectionalCF', accounts => {
     let instantiation = await counterFactory.call(registry.deploy.request(bytecode, registryNonce))
     // let setId = await counterFactory.call(proxy.doCall(registry.address, counterfactualAddress, new BigNumber.BigNumber(0), ))
     await support.logGas('instantiate UnidirectionalCF contract', counterFactory.execute(instantiation))
+
+    let bytecodeUni = support.constructorBytecode(web3, Unidirectional, multisig.address, registry.address, 0).replace('__ECRecovery____________________________', ecrecoveryAddress.replace('0x', ''))
+    let instantiationUni = await counterFactory.call(registry.deploy.request(bytecodeUni, registryNonce))
+    await support.logGas('instantiate Unidirectional contract', counterFactory.execute(instantiationUni))
     // Check if instantiated
     let address = await registry.resolve(counterfactualAddress)
     let instance = await UnidirectionalCF.at(address)

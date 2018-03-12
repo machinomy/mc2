@@ -2,6 +2,8 @@ pragma solidity ^0.4.19;
 
 import "zeppelin-solidity/contracts/ECRecovery.sol";
 import "./IRegistry.sol";
+import "./BidirectionalCFLibrary.sol";
+import "./MultisigLibrary.sol";
 
 
 contract Multisig {
@@ -9,10 +11,10 @@ contract Multisig {
     address public sender;
     address public receiver;
 
-    enum Operation {
-        Call,
-        DelegateCall
-    }
+//    enum Operation {
+//        Call,
+//        DelegateCall
+//    }
 
     function Multisig(address _sender, address _receiver) public {
         require(_sender != address(0x0));
@@ -27,23 +29,23 @@ contract Multisig {
         address destination,
         uint256 value,
         bytes data,
-        Operation op,
+        MultisigLibrary.Operation op,
         bytes senderSig,
         bytes receiverSig
     ) public
     {
-        bytes32 hash = recoveryHash(executionHash(destination, value, data, op, nonce));
+        bytes32 hash = BidirectionalCFLibrary.recoveryPaymentDigest(MultisigLibrary.executionHash(address(this), destination, value, data, op, nonce));
         require(sender == ECRecovery.recover(hash, senderSig));
         require(receiver == ECRecovery.recover(hash, receiverSig));
         require(transact(destination, value, data, op));
     }
 
-    function recoveryHash(bytes32 txHash) public pure returns (bytes32) {
-        bytes memory prefix = "\x19Ethereum Signed Message:\n32";
-        return keccak256(prefix, txHash);
-    }
+//    function recoveryHash(bytes32 txHash) public pure returns (bytes32) {
+//        bytes memory prefix = "\x19Ethereum Signed Message:\n32";
+//        return keccak256(prefix, txHash);
+//    }
 
-    function executionHash(address destination, uint256 value, bytes data, Operation op, uint256 _nonce) public view returns (bytes32) {
+    function executionHash(address destination, uint256 value, bytes data, MultisigLibrary.Operation op, uint256 _nonce) public view returns (bytes32) {
         return keccak256(
             address(this),
             destination,
@@ -54,11 +56,11 @@ contract Multisig {
         );
     }
 
-    function transact(address destination, uint256 value, bytes data, Operation op) internal returns (bool) {
+    function transact(address destination, uint256 value, bytes data, MultisigLibrary.Operation op) internal returns (bool) {
         nonce = nonce + 1;
-        if (op == Operation.Call) {
+        if (op == MultisigLibrary.Operation.Call) {
             return destination.call.value(value)(data); // solium-disable-line security/no-call-value
-        } else if (op == Operation.DelegateCall) {
+        } else if (op == MultisigLibrary.Operation.DelegateCall) {
             return destination.delegatecall(data); // solium-disable-line security/no-low-level-calls
         }
     }

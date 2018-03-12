@@ -1,7 +1,7 @@
 pragma solidity ^0.4.19;
 
 import "./IRegistry.sol";
-
+import "./PublicRegistryLibrary.sol";
 
 contract PublicRegistry is IRegistry {
     mapping (bytes32 => address) _contracts;
@@ -11,6 +11,7 @@ contract PublicRegistry is IRegistry {
     }
 
     function deploy(bytes _code, bytes32 nonce) public {
+        //PublicRegistryLibrary.deploy(_contracts, _code, nonce);
         address realAddress;
         // solium-disable-next-line security/no-inline-assembly
         assembly {
