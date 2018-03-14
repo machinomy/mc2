@@ -6,62 +6,85 @@ import "./BidirectionalCFLibrary.sol";
 import "./MultisigLibrary.sol";
 
 
-contract Multisig {
+contract MultisigProto {
     uint public nonce;
     address public sender;
     address public receiver;
 
-//    enum Operation {
-//        Call,
-//        DelegateCall
-//    }
 
-    function Multisig(address _sender, address _receiver) public {
-        require(_sender != address(0x0));
-        require(_receiver != address(0x0));
+    function MultisigProto(address _sender, address _receiver)  public {
         sender = _sender;
         receiver = _receiver;
+        nonce = 0;
     }
-
-    function () payable public {}
 
     function execute(
         address destination,
         uint256 value,
         bytes data,
-        MultisigLibrary.Operation op,
         bytes senderSig,
         bytes receiverSig
     ) public
     {
-        bytes32 hash = BidirectionalCFLibrary.recoveryPaymentDigest(MultisigLibrary.executionHash(address(this), destination, value, data, op, nonce));
+        bytes32 hash = BidirectionalCFLibrary.recoveryPaymentDigest(executionHash(destination, value, data, nonce));
         require(sender == ECRecovery.recover(hash, senderSig));
         require(receiver == ECRecovery.recover(hash, receiverSig));
-        require(transact(destination, value, data, op));
+        require(transact(destination, value, data));
     }
 
-//    function recoveryHash(bytes32 txHash) public pure returns (bytes32) {
-//        bytes memory prefix = "\x19Ethereum Signed Message:\n32";
-//        return keccak256(prefix, txHash);
-//    }
+    function executeDelegate(
+        address destination,
+        uint256 value,
+        bytes data,
+        bytes senderSig,
+        bytes receiverSig
+    ) public
+    {
+        bytes32 hash = BidirectionalCFLibrary.recoveryPaymentDigest(executionHash(destination, value, data, nonce));
+        require(sender == ECRecovery.recover(hash, senderSig));
+        require(receiver == ECRecovery.recover(hash, receiverSig));
+        require(transactDelegate(destination, value, data));
+    }
 
-    function executionHash(address destination, uint256 value, bytes data, MultisigLibrary.Operation op, uint256 _nonce) public view returns (bytes32) {
+    function transact(address destination, uint256 value, bytes data) internal returns (bool) {
+        nonce = nonce + 1;
+        return destination.call.value(value)(data); // solium-disable-line security/no-call-value
+
+    }
+
+    function transactDelegate(address destination, uint256 value, bytes data) internal returns (bool) {
+        nonce = nonce + 1;
+        return destination.delegatecall(data); // solium-disable-line security/no-low-level-calls
+    }
+
+    function executionHash(address destination, uint256 value, bytes data, uint256 _nonce) public view returns (bytes32) {
         return keccak256(
             address(this),
             destination,
             value,
             data,
-            op,
+            MultisigLibrary.Operation.Call,
             _nonce
         );
     }
 
-    function transact(address destination, uint256 value, bytes data, MultisigLibrary.Operation op) internal returns (bool) {
-        nonce = nonce + 1;
-        if (op == MultisigLibrary.Operation.Call) {
-            return destination.call.value(value)(data); // solium-disable-line security/no-call-value
-        } else if (op == MultisigLibrary.Operation.DelegateCall) {
-            return destination.delegatecall(data); // solium-disable-line security/no-low-level-calls
-        }
+    function executionHashDelegate(address destination, uint256 value, bytes data, uint256 _nonce) public view returns (bytes32) {
+        return keccak256(
+            address(this),
+            destination,
+            value,
+            data,
+            MultisigLibrary.Operation.DelegateCall,
+            _nonce
+        );
     }
+
+    function () payable public {}
+}
+
+contract Multisig is MultisigProto {
+
+    function Multisig(address _sender, address _receiver) MultisigProto(_sender, _receiver) public {}
+
+    function () payable public {}
 }

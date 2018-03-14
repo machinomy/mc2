@@ -57,28 +57,32 @@ export class InstantiationFactory {
 
   async call (call: Call, _nonce?: BigNumber.BigNumber|number): Promise<Instantiation> {
     if (_nonce) {
-      return this.build(call, 0, new BigNumber.BigNumber(_nonce))
+      return this.build(call, new BigNumber.BigNumber(_nonce))
     } else {
-      return this.build(call, 0)
+      return this.build(call)
     }
   }
 
   async delegatecall (call: Call, _nonce?: BigNumber.BigNumber): Promise<Instantiation> {
-    return this.build(call, 1, _nonce)
+    return this.buildDelegate(call, _nonce)
   }
 
   async execute (i: Instantiation, options?: Web3.TxData): Promise<truffle.TransactionResult> {
-    return this.multisig.execute(i.destination, i.value, i.callBytecode, i.operation, i.senderSig, i.receiverSig, options)
+    if (i.operation === 0) {
+      return this.multisig.execute(i.destination, i.value, i.callBytecode, i.senderSig, i.receiverSig, options)
+    } else {
+      return this.multisig.executeDelegate(i.destination, i.value, i.callBytecode, i.senderSig, i.receiverSig, options)
+    }
+
   }
 
-  private async build (call: Call, _operation: number = 0, _nonce?: BigNumber.BigNumber): Promise<Instantiation> {
+  private async build (call: Call, _nonce?: BigNumber.BigNumber): Promise<Instantiation> {
     let params = call.params[0]
     let destination = params.to
     let callBytecode = params.data
     let value = new BigNumber.BigNumber(0)
-    let operation = _operation // FIXME
     let nonce = _nonce || await this.multisig.nonce()
-    let _operationHash = await this.multisig.executionHash(destination, value, callBytecode, operation, nonce)
+    let _operationHash = await this.multisig.executionHash(destination, value, callBytecode, nonce)
     let sender = await this.multisig.sender()
     let receiver = await this.multisig.receiver()
     let senderSig = this.web3.eth.sign(sender, _operationHash)
@@ -88,7 +92,30 @@ export class InstantiationFactory {
       destination,
       callBytecode,
       value,
-      operation,
+      operation: 0,
+      senderSig,
+      receiverSig,
+      nonce
+    })
+  }
+
+  private async buildDelegate (call: Call, _nonce?: BigNumber.BigNumber): Promise<Instantiation> {
+    let params = call.params[0]
+    let destination = params.to
+    let callBytecode = params.data
+    let value = new BigNumber.BigNumber(0)
+    let nonce = _nonce || await this.multisig.nonce()
+    let _operationHash = await this.multisig.executionHash(destination, value, callBytecode, nonce)
+    let sender = await this.multisig.sender()
+    let receiver = await this.multisig.receiver()
+    let senderSig = this.web3.eth.sign(sender, _operationHash)
+    let receiverSig = this.web3.eth.sign(receiver, _operationHash)
+
+    return Promise.resolve({
+      destination,
+      callBytecode,
+      value,
+      operation: 1,
       senderSig,
       receiverSig,
       nonce

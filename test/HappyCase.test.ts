@@ -28,7 +28,7 @@ contract('HappyCase', accounts => {
   let sender = accounts[0]
   let receiver = accounts[1]
 
-  let settlementPeriod = 100
+  let settlementPeriod = 10
 
   let multisig: contracts.Multisig.Contract
   let registry: contracts.PublicRegistry.Contract
@@ -66,6 +66,7 @@ contract('HappyCase', accounts => {
     Proxy.link(ProxyLibrary)
     ConditionalCall.link(ConditionalCallLibrary)
     // SharedState.link(MerkleProof)
+    SharedState.link(BidirectionalCFLibrary)
 
 
     let ecrecoveryAddress = (await ECRecovery.deployed()).address
@@ -84,11 +85,12 @@ contract('HappyCase', accounts => {
 
     // Step 1
     multisig = await Multisig.new(sender, receiver)
+    console.log('Multisig address = ', multisig.address)
     instanceForDigest = await BidirectionalCF.new(multisig.address, settlementPeriod)
     counterFactory = new InstantiationFactory(web3, multisig)
 
     // Step 2
-    sharedState = support.constructorBytecode(web3, SharedState, sender, settlementPeriod, 0x0)
+    sharedState = support.constructorBytecode(web3, SharedState, sender, settlementPeriod, 0x0).replace(/__BidirectionalCFLibrary________________/g, bidirectionalCFLibraryAddress.replace('0x', ''))
     instSharedState = await counterFactory.call(registry.deploy.request(sharedState, '0x20'), nonceMultisig)
     counterfactualAddressSharedState = await registry.counterfactualAddress(sharedState, '0x20')
     nonceMultisig++
@@ -109,7 +111,7 @@ contract('HappyCase', accounts => {
     counterfactualAddressBidirectionalCF = await registry.counterfactualAddress(bidirectionalCF, '0x30')
 
     // Step 4
-    sharedState2 = support.constructorBytecode(web3, SharedState, sender, settlementPeriod, 0x3)
+    sharedState2 = support.constructorBytecode(web3, SharedState, sender, settlementPeriod, 0x3).replace(/__BidirectionalCFLibrary________________/g, bidirectionalCFLibraryAddress.replace('0x', ''))
     instSharedState2 = await counterFactory.call(registry.deploy.request(sharedState2, '0x40'), nonceMultisig)
 
     nonceBidirectional += 2
@@ -126,11 +128,9 @@ contract('HappyCase', accounts => {
     let realAddress = await registry.resolve(counterfactualAddressUpdateBidirectionalCF)
     let instance = await BidirectionalCF.at(realAddress)
     await instance.update(nonceBidirectional, new BigNumber.BigNumber(9), new BigNumber.BigNumber(1), signedBySenderData, signedByReceiverData)
-
-    // !!!!!!!!!! UNCOMMENT IT
-    // assert.equal((await instance.bidiData).value.toNumber(), nonceBidirectional)
-    // assert.equal((await instance.toSender()).toNumber(), 9)
-    // assert.equal((await instance.toReceiver()).toNumber(), 1)
+    assert.equal((await instance.nonce()).toNumber(), nonceBidirectional)
+    assert.equal((await instance.toSender()).toNumber(), 9)
+    assert.equal((await instance.toReceiver()).toNumber(), 1)
     // Step 6
     web3.eth.sendTransaction({ from: sender, to: multisig.address, value: new BigNumber.BigNumber(14) })
 
