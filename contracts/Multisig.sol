@@ -25,7 +25,7 @@ contract MultisigProto {
         bytes receiverSig
     ) public
     {
-        LibMultisig.executeHashCheck(destination, value, data, senderSig, receiverSig, state, receiver);
+        LibMultisig.executeHashCheck(destination, value, data, senderSig, receiverSig, state);
         state.nonce = state.nonce + 1;
         require(destination.call.value(value)(data)); // solium-disable-line security/no-call-value
     }
@@ -38,7 +38,7 @@ contract MultisigProto {
         bytes receiverSig
     ) public
     {
-        LibMultisig.executeHashCheck(destination, value, data, senderSig, receiverSig, state, receiver);
+        LibMultisig.executeHashCheck(destination, value, data, senderSig, receiverSig, state);
         state.nonce = state.nonce + 1;
         require(destination.delegatecall(data)); // solium-disable-line security/no-low-level-calls
     }

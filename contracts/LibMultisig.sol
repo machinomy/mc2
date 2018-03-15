@@ -23,9 +23,9 @@ library LibMultisig {
         );
     }
 
-    function executeHashCheck(address destination, uint256 value, bytes data, bytes senderSig, bytes receiverSig, State storage state, address receiver) public view {
+    function executeHashCheck(address destination, uint256 value, bytes data, bytes senderSig, bytes receiverSig, State storage state) public view {
         bytes32 hash = LibCommon.recoveryDigest(executionHash(address(this), destination, value, data, state.nonce));
         require(state.sender == ECRecovery.recover(hash, senderSig));
-        require(receiver == ECRecovery.recover(hash, receiverSig));
+        require(state.receiver == ECRecovery.recover(hash, receiverSig));
     }
 }
