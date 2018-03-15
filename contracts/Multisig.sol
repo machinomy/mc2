@@ -25,9 +25,7 @@ contract MultisigProto {
         bytes receiverSig
     ) public
     {
-        bytes32 hash = LibCommon.recoveryDigest(LibMultisig.executionHash(address(this), destination, value, data, state.nonce));
-        require(state.sender == ECRecovery.recover(hash, senderSig));
-        require(state.receiver == ECRecovery.recover(hash, receiverSig));
+        LibMultisig.executeHashCheck(destination, value, data, senderSig, receiverSig, state, receiver);
         state.nonce = state.nonce + 1;
         require(destination.call.value(value)(data)); // solium-disable-line security/no-call-value
     }
@@ -40,9 +38,7 @@ contract MultisigProto {
         bytes receiverSig
     ) public
     {
-        bytes32 hash = LibCommon.recoveryDigest(LibMultisig.executionHash(address(this), destination, value, data, state.nonce));
-        require(state.sender == ECRecovery.recover(hash, senderSig));
-        require(state.receiver == ECRecovery.recover(hash, receiverSig));
+        LibMultisig.executeHashCheck(destination, value, data, senderSig, receiverSig, state, receiver);
         state.nonce = state.nonce + 1;
         require(destination.delegatecall(data)); // solium-disable-line security/no-low-level-calls
     }
