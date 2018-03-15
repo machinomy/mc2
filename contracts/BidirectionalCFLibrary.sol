@@ -53,7 +53,7 @@ library BidirectionalCFLibrary {
         uint256 nonce;
         (sender, receiver, nonce) = self.multisig.state();
         bool isSenderSignature = sender == ECRecovery.recover(hash, _senderSig);
-        bool isReceiverSignature = self.multisig.receiver() == ECRecovery.recover(hash, _receiverSig);
+        bool isReceiverSignature = receiver == ECRecovery.recover(hash, _receiverSig);
         return isSettling(self.lastUpdate, self.settlementPeriod) && isNonceHigher && isSenderSignature && isReceiverSignature;
     }
 
