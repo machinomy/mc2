@@ -8,7 +8,7 @@ import "./LibCommon.sol";
 
 
 contract MultisigProto {
-    uint public nonce;
+    LibMultisig.State public state;
     address public sender;
     address public receiver;
 
@@ -16,7 +16,7 @@ contract MultisigProto {
     function MultisigProto(address _sender, address _receiver)  public {
         sender = _sender;
         receiver = _receiver;
-        nonce = 0;
+        state = LibMultisig.State(_sender, _receiver, 0);
     }
 
     function () payable public {}
@@ -29,10 +29,10 @@ contract MultisigProto {
         bytes receiverSig
     ) public
     {
-        bytes32 hash = LibCommon.recoveryDigest(LibMultisig.executionHash(address(this), destination, value, data, nonce));
+        bytes32 hash = LibCommon.recoveryDigest(LibMultisig.executionHash(address(this), destination, value, data, state.nonce));
         require(sender == ECRecovery.recover(hash, senderSig));
         require(receiver == ECRecovery.recover(hash, receiverSig));
-        nonce = nonce + 1;
+        state.nonce = state.nonce + 1;
         require(destination.call.value(value)(data)); // solium-disable-line security/no-call-value
     }
 
@@ -44,10 +44,10 @@ contract MultisigProto {
         bytes receiverSig
     ) public
     {
-        bytes32 hash = LibCommon.recoveryDigest(LibMultisig.executionHash(address(this), destination, value, data, nonce));
+        bytes32 hash = LibCommon.recoveryDigest(LibMultisig.executionHash(address(this), destination, value, data, state.nonce));
         require(sender == ECRecovery.recover(hash, senderSig));
         require(receiver == ECRecovery.recover(hash, receiverSig));
-        nonce = nonce + 1;
+        state.nonce = state.nonce + 1;
         require(destination.delegatecall(data)); // solium-disable-line security/no-low-level-calls
     }
 }

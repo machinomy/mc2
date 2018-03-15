@@ -94,7 +94,8 @@ export class InstantiationFactory {
     let destination = params.to
     let callBytecode = params.data
     let value = new BigNumber.BigNumber(0)
-    let nonce = _nonce || await this.multisig.nonce()
+    let _state = await this.multisig.state()
+    let nonce = _nonce || _state[2]
     let operationHash = util.bufferToHex(abi.soliditySHA3(
       ['address', 'address' , 'uint256', 'bytes', 'uint256'],
       [this.multisig.address, destination, value.toString(), util.toBuffer(callBytecode), nonce.toString()]
@@ -120,7 +121,8 @@ export class InstantiationFactory {
     let destination = params.to
     let callBytecode = params.data
     let value = new BigNumber.BigNumber(0)
-    let nonce = _nonce || await this.multisig.nonce()
+    let _state = await this.multisig.state()
+    let nonce = _nonce || _state[2]
     let _operationHash = util.bufferToHex(abi.soliditySHA3(
       ['address', 'address' , 'uint256', 'bytes', 'uint256'],
       [this.multisig.address, destination, value.toString(), util.toBuffer(callBytecode), nonce.toString()]
