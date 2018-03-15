@@ -95,13 +95,13 @@ export class InstantiationFactory {
     let callBytecode = params.data
     let value = new BigNumber.BigNumber(0)
     let _state = await this.multisig.state()
+    let sender = _state[0]
+    let receiver = _state[1]
     let nonce = _nonce || _state[2]
     let operationHash = util.bufferToHex(abi.soliditySHA3(
       ['address', 'address' , 'uint256', 'bytes', 'uint256'],
       [this.multisig.address, destination, value.toString(), util.toBuffer(callBytecode), nonce.toString()]
     )) // TODO Make it different for call and delegatecall
-    let sender = await this.multisig.sender()
-    let receiver = await this.multisig.receiver()
     let senderSig = this.web3.eth.sign(sender, operationHash)
     let receiverSig = this.web3.eth.sign(receiver, operationHash)
 
@@ -122,13 +122,13 @@ export class InstantiationFactory {
     let callBytecode = params.data
     let value = new BigNumber.BigNumber(0)
     let _state = await this.multisig.state()
+    let sender = _state[0]
+    let receiver = _state[1]
     let nonce = _nonce || _state[2]
     let _operationHash = util.bufferToHex(abi.soliditySHA3(
       ['address', 'address' , 'uint256', 'bytes', 'uint256'],
       [this.multisig.address, destination, value.toString(), util.toBuffer(callBytecode), nonce.toString()]
     )) // TODO Make it different for call and delegatecall
-    let sender = await this.multisig.sender()
-    let receiver = await this.multisig.receiver()
     let senderSig = this.web3.eth.sign(sender, _operationHash)
     let receiverSig = this.web3.eth.sign(receiver, _operationHash)
 
