@@ -52,7 +52,7 @@ contract('HappyCase', accounts => {
 
   before(async () => {
     const BidirectionalCFLibrary = artifacts.require('BidirectionalCFLibrary.sol')
-    const MultisigLibrary = artifacts.require('MultisigLibrary.sol')
+    const LibMultisig = artifacts.require('LibMultisig.sol')
     const ProxyLibrary = artifacts.require('ProxyLibrary.sol')
     const ConditionalCallLibrary = artifacts.require('ConditionalCallLibrary.sol')
     const MerkleProof = artifacts.require('MerkleProof.sol')
@@ -61,8 +61,8 @@ contract('HappyCase', accounts => {
     Multisig.link(ECRecovery)
     Multisig.link(LibCommon)
     BidirectionalCFLibrary.link(ECRecovery)
-    MultisigLibrary.link(ECRecovery)
-    Multisig.link(MultisigLibrary)
+    LibMultisig.link(ECRecovery)
+    Multisig.link(LibMultisig)
     BidirectionalCF.link(ECRecovery)
     BidirectionalCF.link(BidirectionalCFLibrary)
     Proxy.link(ProxyLibrary)
@@ -73,7 +73,7 @@ contract('HappyCase', accounts => {
 
     let ecrecoveryAddress = (await ECRecovery.deployed()).address
     let bidirectionalCFLibraryAddress = (await BidirectionalCFLibrary.deployed()).address
-    let multisigLibraryAddress = (await MultisigLibrary.deployed()).address
+    let multisigLibraryAddress = (await LibMultisig.deployed()).address
     let proxyLibraryAddress = (await ProxyLibrary.deployed()).address
     let conditionalCallAddress = (await ConditionalCallLibrary.deployed()).address
     let merkleRootCallAddress = (await MerkleProof.deployed()).address
@@ -104,7 +104,7 @@ contract('HappyCase', accounts => {
     bidirectionalCF = support.constructorBytecode(web3, BidirectionalCF, multisig.address, settlementPeriod)
       .replace(/__ECRecovery____________________________/g, ecrecoveryAddress.replace('0x', ''))
       .replace(/__BidirectionalCFLibrary________________/g, bidirectionalCFLibraryAddress.replace('0x', ''))
-      .replace(/__MultisigLibrary________________/g, multisigLibraryAddress.replace('0x', ''))
+      .replace(/__LibMultisig________________/g, multisigLibraryAddress.replace('0x', ''))
       .replace(/__ProxyLibrary________________/g, proxyLibraryAddress.replace('0x', ''))
       .replace(/__ConditionalCallLibrary________________/g, conditionalCallAddress.replace('0x', ''))
       .replace(/__MerkleRoot________________/g, merkleRootCallAddress.replace('0x', ''))

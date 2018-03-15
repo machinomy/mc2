@@ -1,17 +1,17 @@
 import * as Deployer from 'truffle-deployer'
 
 const ECRecovery = artifacts.require('ECRecovery.sol')
-const MultisigLibrary = artifacts.require('MultisigLibrary.sol')
+const LibMultisig = artifacts.require('LibMultisig.sol')
 const LibCommon = artifacts.require('LibCommon.sol')
 
 module.exports = function (deployer: Deployer) {
   return deployer.deploy(ECRecovery).then(() => {
-    return deployer.link(ECRecovery, MultisigLibrary)
+    return deployer.link(ECRecovery, LibMultisig)
   }).then(() => {
     return deployer.deploy(LibCommon)
   }).then(() => {
-    return deployer.link(LibCommon, MultisigLibrary)
+    return deployer.link(LibCommon, LibMultisig)
   }).then(() => {
-    return deployer.deploy(MultisigLibrary)
+    return deployer.deploy(LibMultisig)
   })
 }

@@ -4,28 +4,14 @@ import "zeppelin-solidity/contracts/math/SafeMath.sol";
 import "zeppelin-solidity/contracts/ECRecovery.sol";
 
 library LibMultisig {
-    enum Operation {
-        Call,
-        DelegateCall
-    }
-
-    function executionHash(address ownAddress, address destination, uint256 value, bytes data, Operation op, uint256 _nonce) public view returns (bytes32) {
+    // TODO Make it different for call and delegatecall
+    function executionHash(address _self, address _destination, uint256 _value, bytes _data, uint256 _nonce) public view returns (bytes32) {
         return keccak256(
-            ownAddress,
-            destination,
-            value,
-            data,
-            op,
+            _self,
+            _destination,
+            _value,
+            _data,
             _nonce
         );
     }
-
-    function transact(address destination, uint256 value, bytes data, LibMultisig.Operation op) internal returns (bool) {
-        if (op == LibMultisig.Operation.Call) {
-            return destination.call.value(value)(data); // solium-disable-line security/no-call-value
-        } else if (op == LibMultisig.Operation.DelegateCall) {
-            return destination.delegatecall(data); // solium-disable-line security/no-low-level-calls
-        }
-    }
-
 }

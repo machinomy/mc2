@@ -3,6 +3,8 @@ import * as truffle from 'truffle-contract'
 import * as Web3 from 'web3'
 import { Multisig, PublicRegistry } from '../../src/index'
 import * as chai from 'chai'
+import * as abi from 'ethereumjs-abi'
+import * as util from 'ethereumjs-util'
 
 const LOG_GAS_COST = Boolean(process.env.LOG_GAS_COST)
 
@@ -93,11 +95,14 @@ export class InstantiationFactory {
     let callBytecode = params.data
     let value = new BigNumber.BigNumber(0)
     let nonce = _nonce || await this.multisig.nonce()
-    let _operationHash = await this.multisig.executionHash(destination, value, callBytecode, nonce)
+    let operationHash = util.bufferToHex(abi.soliditySHA3(
+      ['address', 'address' , 'uint256', 'bytes', 'uint256'],
+      [this.multisig.address, destination, value.toString(), util.toBuffer(callBytecode), nonce.toString()]
+    )) // TODO Make it different for call and delegatecall
     let sender = await this.multisig.sender()
     let receiver = await this.multisig.receiver()
-    let senderSig = this.web3.eth.sign(sender, _operationHash)
-    let receiverSig = this.web3.eth.sign(receiver, _operationHash)
+    let senderSig = this.web3.eth.sign(sender, operationHash)
+    let receiverSig = this.web3.eth.sign(receiver, operationHash)
 
     return Promise.resolve({
       destination,
@@ -116,7 +121,10 @@ export class InstantiationFactory {
     let callBytecode = params.data
     let value = new BigNumber.BigNumber(0)
     let nonce = _nonce || await this.multisig.nonce()
-    let _operationHash = await this.multisig.executionHash(destination, value, callBytecode, nonce)
+    let _operationHash = util.bufferToHex(abi.soliditySHA3(
+      ['address', 'address' , 'uint256', 'bytes', 'uint256'],
+      [this.multisig.address, destination, value.toString(), util.toBuffer(callBytecode), nonce.toString()]
+    )) // TODO Make it different for call and delegatecall
     let sender = await this.multisig.sender()
     let receiver = await this.multisig.receiver()
     let senderSig = this.web3.eth.sign(sender, _operationHash)
