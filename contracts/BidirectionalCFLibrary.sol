@@ -47,7 +47,11 @@ library BidirectionalCFLibrary {
         bool isNonceHigher = _nonce > self.nonce;
         Trace(self.nonce, _nonce, isNonceHigher);
         bytes32 hash = recoveryPaymentDigest(paymentDigest(_nonce, _toSender, _toReceiver));
-        bool isSenderSignature = self.multisig.sender() == ECRecovery.recover(hash, _senderSig);
+        address sender;
+        address receiver;
+        uint256 nonce;
+        (sender, receiver, nonce) = self.multisig.state();
+        bool isSenderSignature = sender == ECRecovery.recover(hash, _senderSig);
         bool isReceiverSignature = self.multisig.receiver() == ECRecovery.recover(hash, _receiverSig);
         return isSettling(self.lastUpdate, self.settlementPeriod) && isNonceHigher && isSenderSignature && isReceiverSignature;
     }

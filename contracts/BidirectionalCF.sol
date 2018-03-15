@@ -41,7 +41,11 @@ contract BidirectionalCF {
         bool isNonceHigher = _nonce > nonce;
         //Trace(self.nonce, _nonce, isNonceHigher);
         bytes32 hash = BidirectionalCFLibrary.recoveryPaymentDigest(paymentDigest(_nonce, _toSender, _toReceiver));
-        bool isSenderSignature = multisig.sender() == ECRecovery.recover(hash, _senderSig);
+        address sender;
+        address receiver;
+        uint256 __nonce;
+        (sender, receiver, __nonce) = multisig.state();
+        bool isSenderSignature = sender == ECRecovery.recover(hash, _senderSig);
         bool isReceiverSignature = multisig.receiver() == ECRecovery.recover(hash, _receiverSig);
         return isSettling() && isNonceHigher && isSenderSignature && isReceiverSignature;
 
@@ -90,7 +94,13 @@ contract BidirectionalCF {
 
     function canClose(uint256 _toSender, uint256 _toReceiver, bytes _senderSig, bytes _receiverSig) public view returns (bool) {
         bytes32 hash = BidirectionalCFLibrary.recoveryPaymentDigest(typeDigest('close', _toSender, _toReceiver));
-        bool isSenderSignature = multisig.sender() == ECRecovery.recover(hash, _senderSig);
+
+        address sender;
+        address receiver;
+        uint256 __nonce;
+        (sender, receiver, __nonce) = multisig.state();
+
+        bool isSenderSignature = sender == ECRecovery.recover(hash, _senderSig);
         bool isReceiverSignature = multisig.receiver() == ECRecovery.recover(hash, _receiverSig);
 //        BidirectionalCFLibrary.BidirectionalCFData bidiData;
 //        bidiData.multisig = multisig;
@@ -105,15 +115,29 @@ contract BidirectionalCF {
     function close(uint256 _toSender, uint256 _toReceiver, bytes _senderSig, bytes _receiverSig) public {
         require(canClose(_toSender, _toReceiver, _senderSig, _receiverSig));
         multisig.receiver().transfer(toReceiver);
-        multisig.sender().transfer(toSender);
+
+        address sender;
+        address receiver;
+        uint256 __nonce;
+        (sender, receiver, __nonce) = multisig.state();
+
+        sender.transfer(toSender);
         selfdestruct(multisig);
     }
 
     function withdraw() public {
         require(!isSettling());
 
+
+        address sender;
+        address receiver;
+        uint256 __nonce;
+        (sender, receiver, __nonce) = multisig.state();
+
         multisig.receiver().transfer(toReceiver);
-        multisig.sender().transfer(toSender);
+
+
+        sender.transfer(toSender);
         selfdestruct(multisig); // TODO Use that every time
     }
 

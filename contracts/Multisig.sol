@@ -9,12 +9,10 @@ import "./LibCommon.sol";
 
 contract MultisigProto {
     LibMultisig.State public state;
-    address public sender;
     address public receiver;
 
 
     function MultisigProto(address _sender, address _receiver)  public {
-        sender = _sender;
         receiver = _receiver;
         state = LibMultisig.State(_sender, _receiver, 0);
     }
