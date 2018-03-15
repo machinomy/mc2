@@ -56,8 +56,10 @@ contract('HappyCase', accounts => {
     const ProxyLibrary = artifacts.require('ProxyLibrary.sol')
     const ConditionalCallLibrary = artifacts.require('ConditionalCallLibrary.sol')
     const MerkleProof = artifacts.require('MerkleProof.sol')
+    const LibCommon = artifacts.require('LibCommon.sol')
 
     Multisig.link(ECRecovery)
+    Multisig.link(LibCommon)
     BidirectionalCFLibrary.link(ECRecovery)
     MultisigLibrary.link(ECRecovery)
     Multisig.link(MultisigLibrary)
