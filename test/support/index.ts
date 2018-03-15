@@ -15,6 +15,17 @@ export async function logGas (name: string, promisedTx: Promise<truffle.Transact
   return tx
 }
 
+export async function gasDiff<A> (name: string, web3: Web3, account: string, fn: () => A, forceLog: boolean = false) {
+  let before = web3.eth.getBalance(account)
+  let result = await fn()
+  let after = web3.eth.getBalance(account)
+  if (LOG_GAS_COST || forceLog) {
+    let gasCost = before.minus(after).div(web3.eth.gasPrice.div(0.2)).toString() // Beware of magic numbers
+    console.log(`GAS: ${name}: `, gasCost)
+  }
+  return result
+}
+
 export function txPrice (web3: Web3, log: truffle.TransactionResult): BigNumber.BigNumber {
   return web3.eth.getTransaction(log.tx).gasPrice.mul(log.receipt.gasUsed)
 }

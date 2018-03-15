@@ -86,8 +86,10 @@ contract('HappyCase', accounts => {
     proxy = await Proxy.deployed()
 
     // Step 1
-    multisig = await Multisig.new(sender, receiver)
-    console.log('Multisig address = ', multisig.address)
+    let multisig = await support.gasDiff('Multisig.new', web3, sender, async () => {
+      return await Multisig.new(sender, receiver, {from: sender})
+    })
+
     instanceForDigest = await BidirectionalCF.new(multisig.address, settlementPeriod)
     counterFactory = new InstantiationFactory(web3, multisig)
 
