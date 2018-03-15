@@ -3,10 +3,7 @@ pragma solidity ^0.4.19;
 import "zeppelin-solidity/contracts/math/SafeMath.sol";
 import "zeppelin-solidity/contracts/ECRecovery.sol";
 
-import "./Multisig.sol";
-
-
-library MultisigLibrary {
+library LibMultisig {
     enum Operation {
         Call,
         DelegateCall
@@ -23,10 +20,10 @@ library MultisigLibrary {
         );
     }
 
-    function transact(address destination, uint256 value, bytes data, MultisigLibrary.Operation op) internal returns (bool) {
-        if (op == MultisigLibrary.Operation.Call) {
+    function transact(address destination, uint256 value, bytes data, LibMultisig.Operation op) internal returns (bool) {
+        if (op == LibMultisig.Operation.Call) {
             return destination.call.value(value)(data); // solium-disable-line security/no-call-value
-        } else if (op == MultisigLibrary.Operation.DelegateCall) {
+        } else if (op == LibMultisig.Operation.DelegateCall) {
             return destination.delegatecall(data); // solium-disable-line security/no-low-level-calls
         }
     }

@@ -3,7 +3,7 @@ pragma solidity ^0.4.19;
 import "zeppelin-solidity/contracts/ECRecovery.sol";
 import "./IRegistry.sol";
 import "./BidirectionalCFLibrary.sol";
-import "./MultisigLibrary.sol";
+import "./LibMultisig.sol";
 import "./LibCommon.sol";
 
 
@@ -41,7 +41,7 @@ contract MultisigProto {
         bytes receiverSig
     ) public
     {
-        bytes32 hash = BidirectionalCFLibrary.recoveryPaymentDigest(executionHash(destination, value, data, nonce));
+        bytes32 hash = LibCommon.recoveryDigest(executionHash(destination, value, data, nonce));
         require(sender == ECRecovery.recover(hash, senderSig));
         require(receiver == ECRecovery.recover(hash, receiverSig));
         require(transactDelegate(destination, value, data));
@@ -64,7 +64,7 @@ contract MultisigProto {
             destination,
             value,
             data,
-            MultisigLibrary.Operation.Call,
+                LibMultisig.Operation.Call,
             _nonce
         );
     }
@@ -75,7 +75,7 @@ contract MultisigProto {
             destination,
             value,
             data,
-            MultisigLibrary.Operation.DelegateCall,
+                LibMultisig.Operation.DelegateCall,
             _nonce
         );
     }
