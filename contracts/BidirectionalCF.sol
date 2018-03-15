@@ -18,14 +18,6 @@ contract BidirectionalCF {
     uint256 public toSender;
     uint256 public toReceiver;
 
-    bytes32 senderR;
-    bytes32 senderS;
-    uint8 senderV;
-
-    bytes32 receiverR;
-    bytes32 receiverS;
-    uint8 receiverV;
-
     function BidirectionalCF(address _multisig, uint32 _settlementPeriod) public payable {
         multisig = Multisig(_multisig);
         lastUpdate = block.number;
@@ -37,9 +29,7 @@ contract BidirectionalCF {
 
     // TODO Maybe get rid of signatures in favour of owner=multisig
     function canUpdate(uint32 _nonce, uint256 _toSender, uint256 _toReceiver, bytes _senderSig, bytes _receiverSig) public view returns (bool) {
-
         bool isNonceHigher = _nonce > nonce;
-        //Trace(self.nonce, _nonce, isNonceHigher);
         bytes32 hash = LibCommon.recoveryDigest(paymentDigest(_nonce, _toSender, _toReceiver));
         address sender;
         address receiver;
@@ -48,42 +38,9 @@ contract BidirectionalCF {
         bool isSenderSignature = sender == ECRecovery.recover(hash, _senderSig);
         bool isReceiverSignature = receiver == ECRecovery.recover(hash, _receiverSig);
         return isSettling() && isNonceHigher && isSenderSignature && isReceiverSignature;
-
-//        BidirectionalCFLibrary.BidirectionalCFData bidiData;
-//        bidiData.multisig = multisig;
-//        bidiData.lastUpdate = lastUpdate;
-//        bidiData.settlementPeriod = settlementPeriod;
-//        bidiData.nonce = nonce;
-//        bidiData.toSender = toSender;
-//        bidiData.toReceiver = toReceiver;
-//        //require(_nonce == 2);
-//        return BidirectionalCFLibrary.canUpdate(bidiData,  _nonce, _toSender, _toReceiver, _senderSig, _receiverSig);
-//        bool isNonceHigher = _nonce > nonce;
-//        bytes32 hash = BidirectionalCFLibrary.recoveryPaymentDigest(paymentDigest(_nonce, _toSender, _toReceiver));
-//        bool isSenderSignature = multisig.sender() == ECRecovery.recover(hash, _senderSig);
-//        bool isReceiverSignature = multisig.receiver() == ECRecovery.recover(hash, _receiverSig);
-//        return isSettling() && isNonceHigher && isSenderSignature && isReceiverSignature;
     }
 
-//    function canUpdate(BidirectionalCFData storage self, uint32 _nonce, uint256 _toSender, uint256 _toReceiver, bytes _senderSig, bytes _receiverSig) public view returns (bool) {
-//        bool isNonceHigher = _nonce > self.nonce;
-//        bytes32 hash = recoveryPaymentDigest(paymentDigest(_nonce, _toSender, _toReceiver));
-//        bool isSenderSignature = self.multisig.sender() == ECRecovery.recover(hash, _senderSig);
-//        bool isReceiverSignature = self.multisig.receiver() == ECRecovery.recover(hash, _receiverSig);
-//        return isNonceHigher && isSenderSignature && isReceiverSignature;
-//    }
-
-//    function canUpdate(uint32 _nonce, uint256 _toSender, uint256 _toReceiver, bytes _senderSig, bytes _receiverSig) public view returns (bool) {
-//        bool isNonceHigher = _nonce > nonce;
-//        bytes32 hash = BidirectionalCFLibrary.recoveryPaymentDigest(paymentDigest(_nonce, _toSender, _toReceiver));
-//        bool isSenderSignature = multisig.sender() == ECRecovery.recover(hash, _senderSig);
-//        bool isReceiverSignature = multisig.receiver() == ECRecovery.recover(hash, _receiverSig);
-//        return isSettling() && isNonceHigher && isSenderSignature && isReceiverSignature;
-//    }
-
     function update(uint32 _nonce, uint256 _toSender, uint256 _toReceiver, bytes _senderSig, bytes _receiverSig) public {
-//        require(_nonce == 2);
-//        require(nonce == 0);
         require(canUpdate(_nonce, _toSender, _toReceiver, _senderSig, _receiverSig));
 
         toSender = _toSender;
@@ -102,13 +59,6 @@ contract BidirectionalCF {
 
         bool isSenderSignature = sender == ECRecovery.recover(hash, _senderSig);
         bool isReceiverSignature = receiver == ECRecovery.recover(hash, _receiverSig);
-//        BidirectionalCFLibrary.BidirectionalCFData bidiData;
-//        bidiData.multisig = multisig;
-//        bidiData.lastUpdate = lastUpdate;
-//        bidiData.settlementPeriod = settlementPeriod;
-//        bidiData.nonce = nonce;
-//        bidiData.toSender = toSender;
-//        bidiData.toReceiver = toReceiver;
         return isSettling() && isSenderSignature && isReceiverSignature;
     }
 
@@ -127,14 +77,12 @@ contract BidirectionalCF {
     function withdraw() public {
         require(!isSettling());
 
-
         address sender;
         address receiver;
         uint256 __nonce;
         (sender, receiver, __nonce) = multisig.state();
 
         receiver.transfer(toReceiver);
-
 
         sender.transfer(toSender);
         selfdestruct(multisig); // TODO Use that every time
@@ -145,7 +93,7 @@ contract BidirectionalCF {
     function isSettling() public view returns(bool) {
         return block.number <= lastUpdate + settlementPeriod;
     }
-//
+
     function paymentDigest(uint32 _nonce, uint256 _toSender, uint256 _toReceiver) public pure returns(bytes32) {
         return BidirectionalCFLibrary.paymentDigest(_nonce, _toSender, _toReceiver); // TODO Use some contract-internal value
     }
