@@ -29,7 +29,7 @@ contract MultisigProto {
     {
         bytes32 hash = LibCommon.recoveryDigest(LibMultisig.executionHash(address(this), destination, value, data, state.nonce));
         require(state.sender == ECRecovery.recover(hash, senderSig));
-        require(receiver == ECRecovery.recover(hash, receiverSig));
+        require(state.receiver == ECRecovery.recover(hash, receiverSig));
         state.nonce = state.nonce + 1;
         require(destination.call.value(value)(data)); // solium-disable-line security/no-call-value
     }
@@ -44,7 +44,7 @@ contract MultisigProto {
     {
         bytes32 hash = LibCommon.recoveryDigest(LibMultisig.executionHash(address(this), destination, value, data, state.nonce));
         require(state.sender == ECRecovery.recover(hash, senderSig));
-        require(receiver == ECRecovery.recover(hash, receiverSig));
+        require(state.receiver == ECRecovery.recover(hash, receiverSig));
         state.nonce = state.nonce + 1;
         require(destination.delegatecall(data)); // solium-disable-line security/no-low-level-calls
     }
