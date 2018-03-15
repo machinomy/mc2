@@ -9,11 +9,9 @@ import "./LibCommon.sol";
 
 contract MultisigProto {
     LibMultisig.State public state;
-    address public receiver;
 
 
     function MultisigProto(address _sender, address _receiver)  public {
-        receiver = _receiver;
         state = LibMultisig.State(_sender, _receiver, 0);
     }
 
@@ -27,7 +25,7 @@ contract MultisigProto {
         bytes receiverSig
     ) public
     {
-        LibMultisig.execute(destination, value, data, senderSig, receiverSig, state, receiver);
+        LibMultisig.execute(destination, value, data, senderSig, receiverSig, state);
         require(destination.call.value(value)(data)); // solium-disable-line security/no-call-value
     }
 
@@ -39,7 +37,7 @@ contract MultisigProto {
         bytes receiverSig
     ) public
     {
-        LibMultisig.executeDelegate(destination, value, data, senderSig, receiverSig, state, receiver);
+        LibMultisig.executeDelegate(destination, value, data, senderSig, receiverSig, state);
         require(destination.delegatecall(data)); // solium-disable-line security/no-low-level-calls
     }
 }

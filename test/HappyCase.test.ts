@@ -5,6 +5,8 @@ import * as contracts from '../src/index'
 import * as support from './support'
 import * as BigNumber from 'bignumber.js';
 import { Instantiation, InstantiationFactory } from './support/index'
+import ProxyFactory from '../build/wrappers/ProxyFactory'
+import * as util from 'ethereumjs-util'
 
 
 chai.use(asPromised)

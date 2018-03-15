@@ -46,7 +46,7 @@ contract BidirectionalCF {
         uint256 __nonce;
         (sender, receiver, __nonce) = multisig.state();
         bool isSenderSignature = sender == ECRecovery.recover(hash, _senderSig);
-        bool isReceiverSignature = multisig.receiver() == ECRecovery.recover(hash, _receiverSig);
+        bool isReceiverSignature = receiver == ECRecovery.recover(hash, _receiverSig);
         return isSettling() && isNonceHigher && isSenderSignature && isReceiverSignature;
 
 //        BidirectionalCFLibrary.BidirectionalCFData bidiData;
@@ -101,7 +101,7 @@ contract BidirectionalCF {
         (sender, receiver, __nonce) = multisig.state();
 
         bool isSenderSignature = sender == ECRecovery.recover(hash, _senderSig);
-        bool isReceiverSignature = multisig.receiver() == ECRecovery.recover(hash, _receiverSig);
+        bool isReceiverSignature = receiver == ECRecovery.recover(hash, _receiverSig);
 //        BidirectionalCFLibrary.BidirectionalCFData bidiData;
 //        bidiData.multisig = multisig;
 //        bidiData.lastUpdate = lastUpdate;
@@ -114,12 +114,11 @@ contract BidirectionalCF {
 
     function close(uint256 _toSender, uint256 _toReceiver, bytes _senderSig, bytes _receiverSig) public {
         require(canClose(_toSender, _toReceiver, _senderSig, _receiverSig));
-        multisig.receiver().transfer(toReceiver);
-
         address sender;
         address receiver;
         uint256 __nonce;
         (sender, receiver, __nonce) = multisig.state();
+        receiver.transfer(toReceiver);
 
         sender.transfer(toSender);
         selfdestruct(multisig);
@@ -134,7 +133,7 @@ contract BidirectionalCF {
         uint256 __nonce;
         (sender, receiver, __nonce) = multisig.state();
 
-        multisig.receiver().transfer(toReceiver);
+        receiver.transfer(toReceiver);
 
 
         sender.transfer(toSender);
