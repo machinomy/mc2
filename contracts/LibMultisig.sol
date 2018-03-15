@@ -28,4 +28,32 @@ library LibMultisig {
         require(state.sender == ECRecovery.recover(hash, senderSig));
         require(receiver == ECRecovery.recover(hash, receiverSig));
     }
+
+    function execute(
+        address destination,
+        uint256 value,
+        bytes data,
+        bytes senderSig,
+        bytes receiverSig,
+        State storage state,
+        address receiver
+    ) public
+    {
+        executeHashCheck(destination, value, data, senderSig, receiverSig, state, receiver);
+        state.nonce = state.nonce + 1;
+    }
+
+    function executeDelegate(
+        address destination,
+        uint256 value,
+        bytes data,
+        bytes senderSig,
+        bytes receiverSig,
+        State storage state,
+        address receiver
+    ) public
+    {
+        executeHashCheck(destination, value, data, senderSig, receiverSig, state, receiver);
+        state.nonce = state.nonce + 1;
+    }
 }
