@@ -1,4 +1,4 @@
-pragma solidity ^0.4.0;
+pragma solidity ^0.4.19;
 
 library LibCommon {
     function recoveryDigest(bytes32 hash) public pure returns(bytes32) {
