@@ -4,6 +4,7 @@ import "zeppelin-solidity/contracts/math/SafeMath.sol";
 import "zeppelin-solidity/contracts/ECRecovery.sol";
 
 import "./Multisig.sol";
+import "./LibCommon.sol";
 
 
 library BidirectionalCFLibrary {
@@ -46,7 +47,7 @@ library BidirectionalCFLibrary {
     function canUpdate(BidirectionalCFData storage self, uint32 _nonce, uint256 _toSender, uint256 _toReceiver, bytes _senderSig, bytes _receiverSig) public view returns (bool) {
         bool isNonceHigher = _nonce > self.nonce;
         Trace(self.nonce, _nonce, isNonceHigher);
-        bytes32 hash = recoveryPaymentDigest(paymentDigest(_nonce, _toSender, _toReceiver));
+        bytes32 hash = LibCommon.recoveryDigest(paymentDigest(_nonce, _toSender, _toReceiver));
         bool isSenderSignature = self.multisig.sender() == ECRecovery.recover(hash, _senderSig);
         bool isReceiverSignature = self.multisig.receiver() == ECRecovery.recover(hash, _receiverSig);
         return isSettling(self.lastUpdate, self.settlementPeriod) && isNonceHigher && isSenderSignature && isReceiverSignature;
@@ -60,11 +61,6 @@ library BidirectionalCFLibrary {
 //        self.nonce = _nonce;
 //        self.lastUpdate = block.number;
 //    }
-
-    function recoveryPaymentDigest(bytes32 hash) internal pure returns(bytes32) {
-        bytes memory prefix = "\x19Ethereum Signed Message:\n32";
-        return keccak256(prefix, hash);
-    }
 
     function paymentDigest(uint32 _nonce, uint256 _toSender, uint256 _toReceiver) public pure returns(bytes32) {
         return keccak256(_nonce, _toSender, _toReceiver); // TODO Use some contract-internal value

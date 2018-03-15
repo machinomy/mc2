@@ -5,6 +5,7 @@ import "zeppelin-solidity/contracts/ECRecovery.sol";
 import "./Multisig.sol";
 
 import "./BidirectionalCFLibrary.sol";
+import "./LibCommon.sol";
 
 /// @title Bidirectional Ether payment channels contract.
 contract BidirectionalCF {
@@ -40,7 +41,7 @@ contract BidirectionalCF {
 
         bool isNonceHigher = _nonce > nonce;
         //Trace(self.nonce, _nonce, isNonceHigher);
-        bytes32 hash = BidirectionalCFLibrary.recoveryPaymentDigest(paymentDigest(_nonce, _toSender, _toReceiver));
+        bytes32 hash = LibCommon.recoveryDigest(paymentDigest(_nonce, _toSender, _toReceiver));
         bool isSenderSignature = multisig.sender() == ECRecovery.recover(hash, _senderSig);
         bool isReceiverSignature = multisig.receiver() == ECRecovery.recover(hash, _receiverSig);
         return isSettling() && isNonceHigher && isSenderSignature && isReceiverSignature;
@@ -89,7 +90,7 @@ contract BidirectionalCF {
     }
 
     function canClose(uint256 _toSender, uint256 _toReceiver, bytes _senderSig, bytes _receiverSig) public view returns (bool) {
-        bytes32 hash = BidirectionalCFLibrary.recoveryPaymentDigest(typeDigest('close', _toSender, _toReceiver));
+        bytes32 hash = LibCommon.recoveryDigest(typeDigest('close', _toSender, _toReceiver));
         bool isSenderSignature = multisig.sender() == ECRecovery.recover(hash, _senderSig);
         bool isReceiverSignature = multisig.receiver() == ECRecovery.recover(hash, _receiverSig);
 //        BidirectionalCFLibrary.BidirectionalCFData bidiData;

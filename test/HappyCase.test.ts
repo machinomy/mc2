@@ -55,7 +55,6 @@ contract('HappyCase', accounts => {
     const MultisigLibrary = artifacts.require('MultisigLibrary.sol')
     const ProxyLibrary = artifacts.require('ProxyLibrary.sol')
     const ConditionalCallLibrary = artifacts.require('ConditionalCallLibrary.sol')
-    const MerkleProof = artifacts.require('MerkleProof.sol')
     const LibCommon = artifacts.require('LibCommon.sol')
 
     Multisig.link(ECRecovery)
@@ -64,6 +63,7 @@ contract('HappyCase', accounts => {
     MultisigLibrary.link(ECRecovery)
     Multisig.link(MultisigLibrary)
     BidirectionalCF.link(ECRecovery)
+    BidirectionalCF.link(LibCommon)
     BidirectionalCF.link(BidirectionalCFLibrary)
     Proxy.link(ProxyLibrary)
     ConditionalCall.link(ConditionalCallLibrary)
@@ -76,7 +76,7 @@ contract('HappyCase', accounts => {
     let multisigLibraryAddress = (await MultisigLibrary.deployed()).address
     let proxyLibraryAddress = (await ProxyLibrary.deployed()).address
     let conditionalCallAddress = (await ConditionalCallLibrary.deployed()).address
-    let merkleRootCallAddress = (await MerkleProof.deployed()).address
+    let libCommonCallAddress = (await LibCommon.deployed()).address
 
 
     let nonceMultisig = 0
@@ -105,7 +105,7 @@ contract('HappyCase', accounts => {
       .replace(/__MultisigLibrary________________/g, multisigLibraryAddress.replace('0x', ''))
       .replace(/__ProxyLibrary________________/g, proxyLibraryAddress.replace('0x', ''))
       .replace(/__ConditionalCallLibrary________________/g, conditionalCallAddress.replace('0x', ''))
-      .replace(/__MerkleRoot________________/g, merkleRootCallAddress.replace('0x', ''))
+      .replace(/__LibCommon_____________________________/g, libCommonCallAddress.replace('0x', ''))
 
     // TODO Change name of nonce arg to something else
     instBidirectionalCF = await counterFactory.call(registry.deploy.request(bidirectionalCF, '0x30'), nonceMultisig)

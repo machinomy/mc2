@@ -41,7 +41,7 @@ contract MultisigProto {
         bytes receiverSig
     ) public
     {
-        bytes32 hash = BidirectionalCFLibrary.recoveryPaymentDigest(executionHash(destination, value, data, nonce));
+        bytes32 hash = LibCommon.recoveryDigest(executionHash(destination, value, data, nonce));
         require(sender == ECRecovery.recover(hash, senderSig));
         require(receiver == ECRecovery.recover(hash, receiverSig));
         require(transactDelegate(destination, value, data));
