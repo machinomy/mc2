@@ -7,7 +7,8 @@ contract Multisig {
     LibMultisig.State public state;
 
     function Multisig(address _sender, address _receiver)  public {
-        state = LibMultisig.State(_sender, _receiver, 0);
+        state.sender = _sender;
+        state.receiver = _receiver;
     }
 
     function () payable external {}

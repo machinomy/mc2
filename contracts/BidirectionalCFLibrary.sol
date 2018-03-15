@@ -17,21 +17,6 @@ library BidirectionalCFLibrary {
         uint256 toSender;
         uint256 toReceiver;
     }
-    struct UpdateArgs {
-        Multisig multisig;
-        uint32  noncePrev;
-        uint32  nonce;
-        uint256 _toSender;
-        uint256 _toReceiver;
-        bytes32 senderR;
-        bytes32 senderS;
-        uint8   senderV;
-        bytes32 receiverR;
-        bytes32 receiverS;
-        uint8   receiverV;
-        uint256 lastUpdate;
-        uint256 settlementPeriod;
-    }
 
     event Event(uint256 gas);
 

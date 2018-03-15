@@ -12,7 +12,7 @@ library LibMultisig {
     }
 
     // TODO Make it different for call and delegatecall
-    function executionHash(address _self, address _destination, uint256 _value, bytes _data, uint256 _nonce) public view returns (bytes32) {
+    function executionHash(address _self, address _destination, uint256 _value, bytes _data, uint256 _nonce) public pure returns (bytes32) {
         return keccak256(
             _self,
             _destination,
@@ -38,7 +38,7 @@ library LibMultisig {
     ) public
     {
         executeHashCheck(destination, value, data, senderSig, receiverSig, state);
-        state.nonce = state.nonce + 1;
+        state.nonce++;
     }
 
     function executeDelegate(
@@ -51,6 +51,6 @@ library LibMultisig {
     ) public
     {
         executeHashCheck(destination, value, data, senderSig, receiverSig, state);
-        state.nonce = state.nonce + 1;
+        state.nonce++;
     }
 }
