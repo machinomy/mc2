@@ -40,7 +40,7 @@ contract BidirectionalCF {
 
         bool isNonceHigher = _nonce > nonce;
         //Trace(self.nonce, _nonce, isNonceHigher);
-        bytes32 hash = BidirectionalCFLibrary.recoveryPaymentDigest(paymentDigest(_nonce, _toSender, _toReceiver));
+        bytes32 hash = LibCommon.recoveryDigest(paymentDigest(_nonce, _toSender, _toReceiver));
         address sender;
         address receiver;
         uint256 __nonce;
@@ -93,7 +93,7 @@ contract BidirectionalCF {
     }
 
     function canClose(uint256 _toSender, uint256 _toReceiver, bytes _senderSig, bytes _receiverSig) public view returns (bool) {
-        bytes32 hash = BidirectionalCFLibrary.recoveryPaymentDigest(typeDigest('close', _toSender, _toReceiver));
+        bytes32 hash = LibCommon.recoveryDigest(typeDigest('close', _toSender, _toReceiver));
 
         address sender;
         address receiver;
