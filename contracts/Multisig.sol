@@ -19,6 +19,8 @@ contract MultisigProto {
         nonce = 0;
     }
 
+    function () payable public {}
+
     function execute(
         address destination,
         uint256 value,
@@ -30,7 +32,8 @@ contract MultisigProto {
         bytes32 hash = LibCommon.recoveryDigest(LibMultisig.executionHash(address(this), destination, value, data, nonce));
         require(sender == ECRecovery.recover(hash, senderSig));
         require(receiver == ECRecovery.recover(hash, receiverSig));
-        require(transact(destination, value, data));
+        nonce = nonce + 1;
+        require(destination.call.value(value)(data)); // solium-disable-line security/no-call-value
     }
 
     function executeDelegate(
@@ -44,21 +47,9 @@ contract MultisigProto {
         bytes32 hash = LibCommon.recoveryDigest(LibMultisig.executionHash(address(this), destination, value, data, nonce));
         require(sender == ECRecovery.recover(hash, senderSig));
         require(receiver == ECRecovery.recover(hash, receiverSig));
-        require(transactDelegate(destination, value, data));
-    }
-
-    function transact(address destination, uint256 value, bytes data) internal returns (bool) {
         nonce = nonce + 1;
-        return destination.call.value(value)(data); // solium-disable-line security/no-call-value
-
+        require(destination.delegatecall(data)); // solium-disable-line security/no-low-level-calls
     }
-
-    function transactDelegate(address destination, uint256 value, bytes data) internal returns (bool) {
-        nonce = nonce + 1;
-        return destination.delegatecall(data); // solium-disable-line security/no-low-level-calls
-    }
-
-    function () payable public {}
 }
 
 contract Multisig is MultisigProto {
