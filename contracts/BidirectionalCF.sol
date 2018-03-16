@@ -41,21 +41,8 @@ contract BidirectionalCF {
         lastUpdate = block.number;
     }
 
-    function canClose(uint256 _toSender, uint256 _toReceiver, bytes _senderSig, bytes _receiverSig) public view returns (bool) {
-        bytes32 hash = LibCommon.recoveryDigest(typeDigest('close', _toSender, _toReceiver));
-
-        address sender;
-        address receiver;
-        uint256 __nonce;
-        (sender, receiver, __nonce) = multisig.state();
-
-        bool isSenderSignature = sender == ECRecovery.recover(hash, _senderSig);
-        bool isReceiverSignature = receiver == ECRecovery.recover(hash, _receiverSig);
-        return isSettling() && isSenderSignature && isReceiverSignature;
-    }
-
     function close(uint256 _toSender, uint256 _toReceiver, bytes _senderSig, bytes _receiverSig) public {
-        require(canClose(_toSender, _toReceiver, _senderSig, _receiverSig));
+        require(BidirectionalCFLibrary.canClose(multisig, lastUpdate, settlementPeriod, _toSender, _toReceiver, _senderSig, _receiverSig));
         address sender;
         address receiver;
         uint256 __nonce;
@@ -90,7 +77,4 @@ contract BidirectionalCF {
         return BidirectionalCFLibrary.paymentDigest(_nonce, _toSender, _toReceiver); // TODO Use some contract-internal value
     }
 
-    function typeDigest(bytes32 _type, uint256 _toSender, uint256 _toReceiver) public pure returns(bytes32) {
-        return keccak256(_type, _toSender, _toReceiver); // TODO Use some contract-internal value
-    }
 }
