@@ -46,7 +46,7 @@ contract BidirectionalCF {
     /*** CHANNEL STATE ***/
 
     function paymentDigest(uint32 _nonce, uint256 _toSender, uint256 _toReceiver) public pure returns(bytes32) {
-        return BidirectionalCFLibrary.paymentDigest(_nonce, _toSender, _toReceiver); // TODO Use some contract-internal value
+        return keccak256(_nonce, _toSender, _toReceiver); // TODO Use some contract-internal value
     }
 
 }
