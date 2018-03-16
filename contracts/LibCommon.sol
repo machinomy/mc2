@@ -1,6 +1,16 @@
 pragma solidity ^0.4.19;
 
 library LibCommon {
+
+    // TODO Move it to the separate library
+    struct ShareStateState {
+        address owner;
+        uint32 nonce;
+        bytes32 merkleRoot;
+        uint256 updatePeriod;
+        uint256 lastUpdate;
+    }
+
     function recoveryDigest(bytes32 hash) public pure returns(bytes32) {
         bytes memory prefix = "\x19Ethereum Signed Message:\n32";
         return keccak256(prefix, hash);
