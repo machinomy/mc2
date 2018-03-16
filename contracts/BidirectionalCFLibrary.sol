@@ -10,7 +10,7 @@ import "./LibCommon.sol";
 library BidirectionalCFLibrary {
     using SafeMath for uint256;
 
-    struct BidirectionalCFData {
+    struct State {
         Multisig multisig;
         uint256  lastUpdate;
         uint256 settlementPeriod;
@@ -19,7 +19,7 @@ library BidirectionalCFLibrary {
         uint256 toReceiver;
     }
 
-    function canUpdate(BidirectionalCFData storage self, uint32 _nonce, uint256 _toSender, uint256 _toReceiver, bytes _senderSig, bytes _receiverSig) public view returns (bool) {
+    function canUpdate(State storage self, uint32 _nonce, uint256 _toSender, uint256 _toReceiver, bytes _senderSig, bytes _receiverSig) public view returns (bool) {
         bool isNonceHigher = _nonce > self.nonce;
         bytes32 hash = LibCommon.recoveryDigest(paymentDigest(_nonce, _toSender, _toReceiver));
         address sender;
@@ -31,7 +31,7 @@ library BidirectionalCFLibrary {
         return isSettling(self.lastUpdate, self.settlementPeriod) && isNonceHigher && isSenderSignature && isReceiverSignature;
     }
 
-    function update(BidirectionalCFData storage bidiData, uint32 _nonce, uint256 _toSender, uint256 _toReceiver, bytes _senderSig, bytes _receiverSig) public {
+    function update(State storage bidiData, uint32 _nonce, uint256 _toSender, uint256 _toReceiver, bytes _senderSig, bytes _receiverSig) public view {
         require(canUpdate(bidiData, _nonce, _toSender, _toReceiver, _senderSig, _receiverSig));
     }
 
@@ -48,7 +48,7 @@ library BidirectionalCFLibrary {
         return isSettling(lastUpdate, settlementPeriod) && isSenderSignature && isReceiverSignature;
     }
 
-    function closeCheck(Multisig multisig, uint256 lastUpdate, uint256 settlementPeriod, uint256 _toSender, uint256 _toReceiver, bytes _senderSig, bytes _receiverSig) public {
+    function closeCheck(Multisig multisig, uint256 lastUpdate, uint256 settlementPeriod, uint256 _toSender, uint256 _toReceiver, bytes _senderSig, bytes _receiverSig) public view {
         require(canClose(multisig, lastUpdate, settlementPeriod, _toSender, _toReceiver, _senderSig, _receiverSig));
     }
 

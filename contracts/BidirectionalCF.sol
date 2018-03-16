@@ -10,37 +10,37 @@ import "./BidirectionalCFLibrary.sol";
 contract BidirectionalCF {
     using SafeMath for uint256;
 
-    BidirectionalCFLibrary.BidirectionalCFData public bidiData;
+    BidirectionalCFLibrary.State public state;
 
     function BidirectionalCF(address _multisig, uint32 _settlementPeriod) public payable {
-        bidiData.multisig = Multisig(_multisig);
-        bidiData.lastUpdate = block.number;
-        bidiData.settlementPeriod = _settlementPeriod;
-        bidiData.nonce = uint32(0);
+        state.multisig = Multisig(_multisig);
+        state.lastUpdate = block.number;
+        state.settlementPeriod = _settlementPeriod;
+        state.nonce = uint32(0);
     }
 
     function () payable public {}
 
     function update(uint32 _nonce, uint256 _toSender, uint256 _toReceiver, bytes _senderSig, bytes _receiverSig) public {
-        BidirectionalCFLibrary.update(bidiData, _nonce, _toSender, _toReceiver, _senderSig, _receiverSig);
-        bidiData.toSender = _toSender;
-        bidiData.toReceiver = _toReceiver;
-        bidiData.nonce = _nonce;
-        bidiData.lastUpdate = block.number;
+        BidirectionalCFLibrary.update(state, _nonce, _toSender, _toReceiver, _senderSig, _receiverSig);
+        state.toSender = _toSender;
+        state.toReceiver = _toReceiver;
+        state.nonce = _nonce;
+        state.lastUpdate = block.number;
     }
 
     function close(uint256 _toSender, uint256 _toReceiver, bytes _senderSig, bytes _receiverSig) public {
-        BidirectionalCFLibrary.closeCheck(bidiData.multisig, bidiData.lastUpdate, bidiData.settlementPeriod, _toSender, _toReceiver, _senderSig, _receiverSig);
-        BidirectionalCFLibrary.closeTransfer(bidiData.multisig, bidiData.toSender, bidiData.toReceiver);
+        BidirectionalCFLibrary.closeCheck(state.multisig, state.lastUpdate, state.settlementPeriod, _toSender, _toReceiver, _senderSig, _receiverSig);
+        BidirectionalCFLibrary.closeTransfer(state.multisig, state.toSender, state.toReceiver);
 
-        selfdestruct(bidiData.multisig);
+        selfdestruct(state.multisig);
     }
 
     function withdraw() public {
-        require(!BidirectionalCFLibrary.isSettling(bidiData.lastUpdate, bidiData.settlementPeriod));
+        require(!BidirectionalCFLibrary.isSettling(state.lastUpdate, state.settlementPeriod));
 
-        BidirectionalCFLibrary.closeTransfer(bidiData.multisig, bidiData.toSender, bidiData.toReceiver);
-        selfdestruct(bidiData.multisig); // TODO Use that every time
+        BidirectionalCFLibrary.closeTransfer(state.multisig, state.toSender, state.toReceiver);
+        selfdestruct(state.multisig); // TODO Use that every time
     }
 
     /*** CHANNEL STATE ***/
