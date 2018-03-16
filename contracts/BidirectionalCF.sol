@@ -27,22 +27,14 @@ contract BidirectionalCF {
 
     function () payable public {}
 
-    // TODO Maybe get rid of signatures in favour of owner=multisig
-    function canUpdate(uint32 _nonce, uint256 _toSender, uint256 _toReceiver, bytes _senderSig, bytes _receiverSig) public view returns (bool) {
-        bool isNonceHigher = _nonce > nonce;
-        bytes32 hash = LibCommon.recoveryDigest(paymentDigest(_nonce, _toSender, _toReceiver));
-        address sender;
-        address receiver;
-        uint256 __nonce;
-        (sender, receiver, __nonce) = multisig.state();
-        bool isSenderSignature = sender == ECRecovery.recover(hash, _senderSig);
-        bool isReceiverSignature = receiver == ECRecovery.recover(hash, _receiverSig);
-        return isSettling() && isNonceHigher && isSenderSignature && isReceiverSignature;
-    }
-
     function update(uint32 _nonce, uint256 _toSender, uint256 _toReceiver, bytes _senderSig, bytes _receiverSig) public {
-        require(canUpdate(_nonce, _toSender, _toReceiver, _senderSig, _receiverSig));
+        BidirectionalCFLibrary.BidirectionalCFData bidiData;
+        bidiData.settlementPeriod = settlementPeriod;
+        bidiData.lastUpdate = lastUpdate;
+        bidiData.nonce = nonce;
+        bidiData.multisig = multisig;
 
+        BidirectionalCFLibrary.update(bidiData, _nonce, _toSender, _toReceiver, _senderSig, _receiverSig);
         toSender = _toSender;
         toReceiver = _toReceiver;
         nonce = _nonce;

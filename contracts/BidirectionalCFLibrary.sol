@@ -17,6 +17,7 @@ library BidirectionalCFLibrary {
         uint256 toReceiver;
     }
 
+    // TODO Maybe get rid of signatures in favour of owner=multisig
     function canUpdate(BidirectionalCFData storage self, uint32 _nonce, uint256 _toSender, uint256 _toReceiver, bytes _senderSig, bytes _receiverSig) public view returns (bool) {
         bool isNonceHigher = _nonce > self.nonce;
         bytes32 hash = LibCommon.recoveryDigest(paymentDigest(_nonce, _toSender, _toReceiver));
@@ -27,6 +28,10 @@ library BidirectionalCFLibrary {
         bool isSenderSignature = sender == ECRecovery.recover(hash, _senderSig);
         bool isReceiverSignature = receiver == ECRecovery.recover(hash, _receiverSig);
         return isSettling(self.lastUpdate, self.settlementPeriod) && isNonceHigher && isSenderSignature && isReceiverSignature;
+    }
+
+    function update(BidirectionalCFData storage bidiData, uint32 _nonce, uint256 _toSender, uint256 _toReceiver, bytes _senderSig, bytes _receiverSig) public {
+        require(canUpdate(bidiData, _nonce, _toSender, _toReceiver, _senderSig, _receiverSig));
     }
 
     function paymentDigest(uint32 _nonce, uint256 _toSender, uint256 _toReceiver) public pure returns(bytes32) {
