@@ -37,24 +37,4 @@ library BidirectionalCFLibrary {
         return block.number <= lastUpdate + settlementPeriod;
     }
 
-    function isContained(uint256 lastUpdate, uint256 updatePeriod, bytes proof, bytes32 merkleRoot, bytes32 hashlock) public view returns (bool) {
-        bytes32 proofElement;
-        bytes32 cursor = hashlock;
-        bool result = false;
-
-        if (block.number > lastUpdate + updatePeriod) {
-            for (uint256 i = 32; i <= proof.length; i += 32) {
-                assembly { proofElement := mload(add(proof, i)) } // solium-disable-line security/no-inline-assembly
-
-                if (cursor < proofElement) {
-                    cursor = keccak256(cursor, proofElement);
-                } else {
-                    cursor = keccak256(proofElement, cursor);
-                }
-            }
-            result = cursor == merkleRoot;
-        }
-        return result;
-    }
-
 }

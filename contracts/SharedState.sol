@@ -1,9 +1,7 @@
 pragma solidity ^0.4.19;
 
-import "zeppelin-solidity/contracts/ECRecovery.sol";
-import "zeppelin-solidity/contracts/MerkleProof.sol";
 import "./ISharedState.sol";
-import "./BidirectionalCFLibrary.sol";
+import "./LibCommon.sol";
 
 
 contract SharedState is ISharedState {
@@ -35,24 +33,7 @@ contract SharedState is ISharedState {
         lastUpdate = block.number;
     }
 
-    function isContained(bytes proof, bytes32 hashlock) public view returns (bool) {
-        //return BidirectionalCFLibrary.isContained(lastUpdate, updatePeriod, proof, merkleRoot, hashlock);
-        bytes32 proofElement;
-        bytes32 cursor = hashlock;
-        bool result = false;
-
-        if (block.number > lastUpdate + updatePeriod) {
-            for (uint256 i = 32; i <= proof.length; i += 32) {
-                assembly { proofElement := mload(add(proof, i)) } // solium-disable-line security/no-inline-assembly
-
-                if (cursor < proofElement) {
-                    cursor = keccak256(cursor, proofElement);
-                } else {
-                    cursor = keccak256(proofElement, cursor);
-                }
-            }
-            result = cursor == merkleRoot;
-        }
-        return result;
+    function isContained(bytes proof, bytes32 hashlock) internal view returns (bool) {
+        return LibCommon.isContained(lastUpdate, updatePeriod, proof, merkleRoot, hashlock);
     }
 }
