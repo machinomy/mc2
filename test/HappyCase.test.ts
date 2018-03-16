@@ -134,9 +134,9 @@ contract('HappyCase', accounts => {
     let realAddress = await registry.resolve(counterfactualAddressUpdateBidirectionalCF)
     let instance = await BidirectionalCF.at(realAddress)
     await instance.update(nonceBidirectional, new BigNumber.BigNumber(9), new BigNumber.BigNumber(1), signedBySenderData, signedByReceiverData)
-    assert.equal((await instance.nonce()).toNumber(), nonceBidirectional)
-    assert.equal((await instance.toSender()).toNumber(), 9)
-    assert.equal((await instance.toReceiver()).toNumber(), 1)
+    assert.equal((await (await instance.bidiData())[3]).toNumber(), nonceBidirectional) // .nonce()
+    assert.equal((await (await instance.bidiData())[4]).toNumber(), 9) // .toSender()
+    assert.equal((await (await instance.bidiData())[5]).toNumber(), 1) // .toReceiver()
     // Step 6
     web3.eth.sendTransaction({ from: sender, to: multisig.address, value: new BigNumber.BigNumber(14) })
 

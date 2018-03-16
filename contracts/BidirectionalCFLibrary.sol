@@ -1,5 +1,6 @@
 pragma solidity ^0.4.19;
 
+import "zeppelin-solidity/contracts/math/SafeMath.sol";
 import "zeppelin-solidity/contracts/ECRecovery.sol";
 
 import "./Multisig.sol";
@@ -7,6 +8,7 @@ import "./LibCommon.sol";
 
 
 library BidirectionalCFLibrary {
+    using SafeMath for uint256;
 
     struct BidirectionalCFData {
         Multisig multisig;
@@ -16,7 +18,7 @@ library BidirectionalCFLibrary {
         uint256 toSender;
         uint256 toReceiver;
     }
-    
+
     function canUpdate(BidirectionalCFData storage self, uint32 _nonce, uint256 _toSender, uint256 _toReceiver, bytes _senderSig, bytes _receiverSig) public view returns (bool) {
         bool isNonceHigher = _nonce > self.nonce;
         bytes32 hash = LibCommon.recoveryDigest(paymentDigest(_nonce, _toSender, _toReceiver));
@@ -44,6 +46,20 @@ library BidirectionalCFLibrary {
         bool isSenderSignature = sender == ECRecovery.recover(hash, _senderSig);
         bool isReceiverSignature = receiver == ECRecovery.recover(hash, _receiverSig);
         return isSettling(lastUpdate, settlementPeriod) && isSenderSignature && isReceiverSignature;
+    }
+
+    function closeCheck(Multisig multisig, uint256 lastUpdate, uint256 settlementPeriod, uint256 _toSender, uint256 _toReceiver, bytes _senderSig, bytes _receiverSig) public {
+        require(canClose(multisig, lastUpdate, settlementPeriod, _toSender, _toReceiver, _senderSig, _receiverSig));
+    }
+
+    function closeTransfer(Multisig multisig, uint256 toSender, uint256 toReceiver) public {
+        address sender;
+        address receiver;
+        uint256 __nonce;
+        (sender, receiver, __nonce) = multisig.state();
+        receiver.transfer(toReceiver);
+
+        sender.transfer(toSender);
     }
 
     function paymentDigest(uint32 _nonce, uint256 _toSender, uint256 _toReceiver) public pure returns(bytes32) {
