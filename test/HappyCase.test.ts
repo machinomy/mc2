@@ -4,9 +4,8 @@ import * as asPromised from 'chai-as-promised'
 import * as contracts from '../src/index'
 import * as support from './support'
 import * as BigNumber from 'bignumber.js';
-import { Instantiation, InstantiationFactory } from './support/index'
-import ProxyFactory from '../build/wrappers/ProxyFactory'
-import * as util from 'ethereumjs-util'
+import * as truffle from 'truffle-contract'
+import { Instantiation, InstantiationFactory, BytecodeManager } from './support/index'
 
 
 chai.use(asPromised)
@@ -23,7 +22,6 @@ const UnidirectionalCF = artifacts.require<contracts.UnidirectionalCF.Contract>(
 const BidirectionalCF = artifacts.require<contracts.BidirectionalCF.Contract>('BidirectionalCF.sol')
 const Proxy = artifacts.require<contracts.Proxy.Contract>('Proxy.sol')
 const ConditionalCall = artifacts.require<contracts.ConditionalCall.Contract>('ConditionalCall.sol')
-// const BidirectionalCFLibrary = artifacts.require<contracts.BidirectionalCFLibrary.Contract>('BidirectionalCFLibrary.sol')
 
 
 contract('HappyCase', accounts => {
@@ -48,17 +46,18 @@ contract('HappyCase', accounts => {
 
   let counterfactualAddressSharedState: string
   let counterfactualAddressBidirectionalCF: string
-  let counterfactualAddressSharedState2: string
 
   let nonceBidirectional: number
 
-  before(async () => {
-    const BidirectionalCFLibrary = artifacts.require('BidirectionalCFLibrary.sol')
-    const LibMultisig = artifacts.require('LibMultisig.sol')
-    const ProxyLibrary = artifacts.require('ProxyLibrary.sol')
-    const ConditionalCallLibrary = artifacts.require('ConditionalCallLibrary.sol')
-    const LibCommon = artifacts.require('LibCommon.sol')
+  const BidirectionalCFLibrary = artifacts.require('BidirectionalCFLibrary.sol')
+  const LibMultisig = artifacts.require('LibMultisig.sol')
+  const ProxyLibrary = artifacts.require('ProxyLibrary.sol')
+  const ConditionalCallLibrary = artifacts.require('ConditionalCallLibrary.sol')
+  const LibCommon = artifacts.require('LibCommon.sol')
 
+  let bytecodeManager: BytecodeManager
+
+  before(async () => {
     Multisig.link(ECRecovery)
     Multisig.link(LibCommon)
     BidirectionalCFLibrary.link(ECRecovery)
@@ -69,17 +68,15 @@ contract('HappyCase', accounts => {
     BidirectionalCF.link(BidirectionalCFLibrary)
     Proxy.link(ProxyLibrary)
     ConditionalCall.link(ConditionalCallLibrary)
-    // SharedState.link(MerkleProof)
     SharedState.link(BidirectionalCFLibrary)
 
-
-    let ecrecoveryAddress = (await ECRecovery.deployed()).address
-    let bidirectionalCFLibraryAddress = (await BidirectionalCFLibrary.deployed()).address
-    let multisigLibraryAddress = (await LibMultisig.deployed()).address
-    let proxyLibraryAddress = (await ProxyLibrary.deployed()).address
-    let conditionalCallAddress = (await ConditionalCallLibrary.deployed()).address
-    let libCommonCallAddress = (await LibCommon.deployed()).address
-
+    bytecodeManager = new BytecodeManager(web3)
+    bytecodeManager.addLink(ECRecovery)
+    bytecodeManager.addLink(BidirectionalCFLibrary)
+    bytecodeManager.addLink(LibCommon)
+    bytecodeManager.addLink(LibMultisig)
+    bytecodeManager.addLink(ProxyLibrary)
+    bytecodeManager.addLink(ConditionalCallLibrary)
 
     let nonceMultisig = 0
     nonceBidirectional = 0
@@ -96,20 +93,14 @@ contract('HappyCase', accounts => {
     counterFactory = new InstantiationFactory(web3, multisig)
 
     // Step 2
-    sharedState = support.constructorBytecode(web3, SharedState, sender, settlementPeriod, 0x0).replace(/__BidirectionalCFLibrary________________/g, bidirectionalCFLibraryAddress.replace('0x', ''))
+    sharedState = bytecodeManager.constructBytecode(SharedState, sender, settlementPeriod, 0x0)
     instSharedState = await counterFactory.call(registry.deploy.request(sharedState, '0x20'), nonceMultisig)
     counterfactualAddressSharedState = await registry.counterfactualAddress(sharedState, '0x20')
     nonceMultisig++
 
     // Step 3
     // FIXME ConditionalCall
-    bidirectionalCF = support.constructorBytecode(web3, BidirectionalCF, multisig.address, settlementPeriod)
-      .replace(/__ECRecovery____________________________/g, ecrecoveryAddress.replace('0x', ''))
-      .replace(/__BidirectionalCFLibrary________________/g, bidirectionalCFLibraryAddress.replace('0x', ''))
-      .replace(/__LibMultisig________________/g, multisigLibraryAddress.replace('0x', ''))
-      .replace(/__ProxyLibrary________________/g, proxyLibraryAddress.replace('0x', ''))
-      .replace(/__ConditionalCallLibrary________________/g, conditionalCallAddress.replace('0x', ''))
-      .replace(/__LibCommon_____________________________/g, libCommonCallAddress.replace('0x', ''))
+    bidirectionalCF = bytecodeManager.constructBytecode(BidirectionalCF, multisig.address, settlementPeriod)
 
     // TODO Change name of nonce arg to something else
     instBidirectionalCF = await counterFactory.call(registry.deploy.request(bidirectionalCF, '0x30'), nonceMultisig)
@@ -117,7 +108,7 @@ contract('HappyCase', accounts => {
     counterfactualAddressBidirectionalCF = await registry.counterfactualAddress(bidirectionalCF, '0x30')
 
     // Step 4
-    sharedState2 = support.constructorBytecode(web3, SharedState, sender, settlementPeriod, 0x3).replace(/__BidirectionalCFLibrary________________/g, bidirectionalCFLibraryAddress.replace('0x', ''))
+    sharedState2 = bytecodeManager.constructBytecode(SharedState, sender, settlementPeriod, 0x3)
     instSharedState2 = await counterFactory.call(registry.deploy.request(sharedState2, '0x40'), nonceMultisig)
 
     nonceBidirectional += 2

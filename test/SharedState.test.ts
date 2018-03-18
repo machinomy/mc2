@@ -18,7 +18,10 @@ contract('SharedState', accounts => {
 
   let sharedState: contracts.SharedState.Contract
 
+  const LibCommon = artifacts.require('LibCommon.sol')
+
   before(async () => {
+    SharedState.link(LibCommon)
     SharedState.link(ECRecovery)
     sharedState = await SharedState.new(sender, 100, 0x0)
   })
@@ -27,7 +30,7 @@ contract('SharedState', accounts => {
     let elements = [1, 2, 3].map(e => utils.sha3(e))
     let merkleTree = new MerkleTree(elements)
     await sharedState.update(42, utils.bufferToHex(merkleTree.root), {from: sender})
-    let nonce = await sharedState.nonce.call()
+    let nonce = (await sharedState.state())[1] // nonce()
     assert.equal(nonce.toNumber(), 42)
   })
 })

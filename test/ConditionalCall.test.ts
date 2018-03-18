@@ -9,7 +9,7 @@ import * as support from './support'
 
 import TestContractWrapper from '../build/wrappers/TestContract'
 import TestTokenWrapper from '../build/wrappers/TestToken'
-import { InstantiationFactory } from './support/index'
+import { InstantiationFactory, BytecodeManager } from './support/index'
 
 chai.use(asPromised)
 
@@ -44,8 +44,14 @@ contract('ConditionalCall', accounts => {
   let receiver = accounts[1]
   let alien = accounts[2]
 
+  let bytecodeManager: BytecodeManager
+
+  const LibCommon = artifacts.require('LibCommon.sol')
+  const LibMultisig = artifacts.require('LibMultisig.sol')
+
   before(async () => {
     Multisig.link(ECRecovery)
+    Multisig.link(LibMultisig)
     multisig = await Multisig.new(sender, receiver) // TxCheck
     registry = await PublicRegistry.deployed()
 
@@ -55,6 +61,9 @@ contract('ConditionalCall', accounts => {
     distributeEth = await DistributeEth.new()
     distributeToken = await DistributeToken.new()
     conditional = await ConditionalCall.new()
+
+    bytecodeManager = new BytecodeManager(web3)
+    bytecodeManager.addLink(LibCommon)
   })
 
   let registryNonce = util.bufferToHex(Buffer.from('secret'))
@@ -66,7 +75,7 @@ contract('ConditionalCall', accounts => {
 
     let codeHash = await conditional.callHash(testContract.address, new BigNumber.BigNumber(0), bytecode)
 
-    let stateBytecode = support.constructorBytecode(web3, SharedState, sender, 0, codeHash)
+    let stateBytecode = bytecodeManager.constructBytecode(SharedState, sender, 0, codeHash)
     let counterfactualAddress = await registry.counterfactualAddress(stateBytecode, registryNonce)
     let sharedStateInstantiation = await counterFactory.call(registry.deploy.request(stateBytecode, registryNonce))
 

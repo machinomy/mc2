@@ -21,7 +21,7 @@
   },
   "config": {
     "truffleTests": "test/HappyCase.test.js",
-    "wrappedArtifacts": "build/contracts/@(BidirectionalCF|Unidirectional|ConditionalCall|DistributeEth|DistributeToken|UnidirectionalCF|PublicRegistry|TestToken|Multisig|TransferToken|TestContract|Proxy|ECRecovery).json"
+    "wrappedArtifacts": "build/contracts/@(BidirectionalCF|Unidirectional|ConditionalCall|DistributeEth|DistributeToken|UnidirectionalCF|PublicRegistry|SharedState|TestToken|Multisig|TransferToken|TestContract|Proxy|ECRecovery).json"
   },
   "natspec": {
     "whitelist": [

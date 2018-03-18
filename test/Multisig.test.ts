@@ -9,7 +9,7 @@ import * as support from './support'
 
 import TestContractWrapper from '../build/wrappers/TestContract'
 import TestTokenWrapper from '../build/wrappers/TestToken'
-import { InstantiationFactory } from './support/index'
+import { InstantiationFactory, BytecodeManager } from './support/index'
 
 chai.use(asPromised)
 
@@ -51,9 +51,15 @@ contract('Multisig', accounts => {
   let sender = accounts[0]
   let receiver = accounts[1]
   let alien = accounts[2]
+  let bytecodeManager: BytecodeManager
+
+  const LibMultisig = artifacts.require('LibMultisig.sol')
+  const LibCommon = artifacts.require('LibCommon.sol')
 
   before(async () => {
     Multisig.link(ECRecovery)
+    Multisig.link(LibMultisig)
+    SharedState.link(LibCommon)
     multisig = await Multisig.new(sender, receiver) // TxCheck
     registry = await PublicRegistry.deployed()
     proxy = await Proxy.deployed()
@@ -61,13 +67,18 @@ contract('Multisig', accounts => {
     transferToken = await TransferToken.new()
     distributeEth = await DistributeEth.new()
     distributeToken = await DistributeToken.new()
+
+    bytecodeManager = new BytecodeManager(web3)
+    bytecodeManager.addLink(ECRecovery)
+    bytecodeManager.addLink(LibCommon)
+    bytecodeManager.addLink(LibMultisig)
   })
 
   let registryNonce = util.bufferToHex(Buffer.from('secret'))
 
   specify('can instantiate counterfactual contract', async () => {
     let probe = 42
-    let bytecode = support.constructorBytecode(web3, TestContract, 42)
+    let bytecode = bytecodeManager.constructBytecode(TestContract, 42)
     let counterfactualAddress = await registry.counterfactualAddress(bytecode, registryNonce)
 
     // Instantiate
@@ -85,7 +96,7 @@ contract('Multisig', accounts => {
     let toMultisig = new BigNumber.BigNumber(web3.toWei(1, 'ether'))
     let toTestContract = new BigNumber.BigNumber(12)
 
-    let bytecodeTestContract = support.constructorBytecode(web3, TestContract, 1)
+    let bytecodeTestContract = bytecodeManager.constructBytecode(TestContract, 1)
     let counterfactualAddress = await registry.counterfactualAddress(bytecodeTestContract, registryNonce)
 
     let instantiateTestContract = await counterFactory.call(registry.deploy.request(bytecodeTestContract, registryNonce))
@@ -127,7 +138,7 @@ contract('Multisig', accounts => {
     await token.finishMinting()
 
     // Deploy TestContract
-    let bytecodeTestContract = support.constructorBytecode(web3, TestContract, 1)
+    let bytecodeTestContract = bytecodeManager.constructBytecode(TestContract, 1)
     let counterfactualAddress = await registry.counterfactualAddress(bytecodeTestContract, registryNonce)
     let instantiateTestContract = await counterFactory.call(registry.deploy.request(bytecodeTestContract, registryNonce))
 
@@ -194,7 +205,7 @@ contract('Multisig', accounts => {
   specify('can instantiate SharedState', async () => {
     let ss = await SharedState.new(sender, 100, 0x0)
 
-    let sharedStateContract = support.constructorBytecode(web3, SharedState, multisig.address)
+    let sharedStateContract = bytecodeManager.constructBytecode(SharedState, multisig.address)
     let instSharedState = await counterFactory.call(registry.deploy.request(sharedStateContract, registryNonce))
     let counterfactualAddress = await registry.counterfactualAddress(sharedStateContract, registryNonce)
 
@@ -206,13 +217,13 @@ contract('Multisig', accounts => {
 
     let sharedStateAddress = await registry.resolve(counterfactualAddress)
     let sharedStateInstance = await SharedState.at(sharedStateAddress)
-    assert.equal((await sharedStateInstance.nonce()).toNumber(), 42)
+    assert.equal((await sharedStateInstance.state())[1].toNumber(), 42) // nonce()
   })
 
   specify('can send Ether conditionally on SharedState', async () => {
     let ss = await SharedState.new(sender, 100, 0x0)
 
-    let sharedStateContract = support.constructorBytecode(web3, SharedState, multisig.address)
+    let sharedStateContract = bytecodeManager.constructBytecode(SharedState, multisig.address)
     let instSharedState = await counterFactory.call(registry.deploy.request(sharedStateContract, registryNonce))
     let counterfactualAddress = await registry.counterfactualAddress(sharedStateContract, registryNonce)
 
@@ -224,6 +235,6 @@ contract('Multisig', accounts => {
 
     let sharedStateAddress = await registry.resolve(counterfactualAddress)
     let sharedStateInstance = await SharedState.at(sharedStateAddress)
-    assert.equal((await sharedStateInstance.nonce()).toNumber(), 42)
+    assert.equal((await sharedStateInstance.state())[1].toNumber(), 42) // nonce()
   })
 })

@@ -1,6 +1,5 @@
 pragma solidity ^0.4.19;
 
-import "zeppelin-solidity/contracts/math/SafeMath.sol";
 import "zeppelin-solidity/contracts/ECRecovery.sol";
 import "./Multisig.sol";
 

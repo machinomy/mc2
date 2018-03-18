@@ -1,7 +1,8 @@
 pragma solidity ^0.4.19;
 
-import "./LibMultisig.sol";
+import "zeppelin-solidity/contracts/math/SafeMath.sol";
 
+import "./LibMultisig.sol";
 
 contract Multisig {
     LibMultisig.State public state;

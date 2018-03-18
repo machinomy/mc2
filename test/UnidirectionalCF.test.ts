@@ -31,6 +31,8 @@ contract('UnidirectionalCF', accounts => {
   let sender = accounts[0]
   let receiver = accounts[1]
 
+  const LibMultisig = artifacts.require('LibMultisig.sol')
+
   async function paymentSignature (instance: contracts.UnidirectionalCF.Contract, sender: string, payment: BigNumber.BigNumber): Promise<string> {
     let digest = await instance.paymentDigest(payment)
     return web3.eth.sign(sender, digest)
@@ -38,6 +40,7 @@ contract('UnidirectionalCF', accounts => {
 
   before(async () => {
     Multisig.link(ECRecovery)
+    Multisig.link(LibMultisig)
     UnidirectionalCF.link(ECRecovery)
 
     multisig = await Multisig.new(sender, receiver) // TxCheck

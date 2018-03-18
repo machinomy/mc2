@@ -5,7 +5,7 @@ import "./LibCommon.sol";
 
 
 contract SharedState is ISharedState {
-    LibCommon.ShareStateState state;
+    LibCommon.ShareStateState public state;
 
     modifier restricted() {
         if (msg.sender == state.owner)
@@ -26,7 +26,7 @@ contract SharedState is ISharedState {
         state.lastUpdate = block.number;
     }
 
-    function isContained(bytes proof, bytes32 hashlock) internal view returns (bool) {
+    function isContained(bytes proof, bytes32 hashlock) public view returns (bool) {
         return LibCommon.isContained(state.lastUpdate, state.updatePeriod, proof, state.merkleRoot, hashlock);
     }
 }

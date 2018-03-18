@@ -168,3 +168,35 @@ export async function assertTokenBalance (token: TokenLike, address: Address, ex
   let actualBalance = await token.balanceOf(address)
   chai.assert.equal(actualBalance.toString(), expected.toString())
 }
+
+export class BytecodeManager {
+  private _web3: Web3
+  private _links: Map<string, string>
+
+  constructor (web3: Web3, links?: Map<string, string>) {
+    this._web3 = web3
+    this._links = links ? links : new Map()
+  }
+
+  public constructBytecode <A> (contract: truffle.TruffleContract<A>, ...params: any[]): string {
+    let bytecode = this._link(contract.bytecode)
+    return this._web3.eth.contract(contract.abi).getData(...params, {data: bytecode})
+  }
+
+  public async addLink <A> (contract: truffle.TruffleContract<A>, name?: string) {
+    let deployed = await contract.deployed()
+    if (name) {
+      this._links.set(name, deployed.address)
+    } else {
+      this._links.set(contract.contractName, deployed.address)
+    }
+  }
+
+  protected _link (bytecode: string) {
+    this._links.forEach((libraryAddress: string, libraryName: string) => {
+      let regex = new RegExp('__' + libraryName + '_+', 'g')
+      bytecode = bytecode.replace(regex, libraryAddress.replace('0x', ''))
+    })
+    return bytecode
+  }
+}
