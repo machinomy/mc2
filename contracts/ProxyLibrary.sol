@@ -2,6 +2,7 @@ pragma solidity ^0.4.19;
 
 import "./IRegistry.sol";
 
+
 library ProxyLibrary {
     function doCall(address _registry, bytes32 _destination, uint256 value, bytes data) public {
         address destination = findDestination(_registry, _destination);

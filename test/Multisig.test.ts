@@ -69,9 +69,9 @@ contract('Multisig', accounts => {
     distributeToken = await DistributeToken.new()
 
     bytecodeManager = new BytecodeManager(web3)
-    bytecodeManager.addLink(ECRecovery)
-    bytecodeManager.addLink(LibCommon)
-    bytecodeManager.addLink(LibMultisig)
+    await bytecodeManager.addLink(ECRecovery, 'ECRecovery')
+    await bytecodeManager.addLink(LibCommon, 'LibCommon')
+    await bytecodeManager.addLink(LibMultisig, 'LibMultisig')
   })
 
   let registryNonce = util.bufferToHex(Buffer.from('secret'))

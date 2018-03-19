@@ -4,6 +4,7 @@ import "zeppelin-solidity/contracts/math/SafeMath.sol";
 
 import "./LibMultisig.sol";
 
+
 contract Multisig {
     LibMultisig.State public state;
 

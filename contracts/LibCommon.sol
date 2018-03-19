@@ -1,5 +1,6 @@
 pragma solidity ^0.4.19;
 
+
 library LibCommon {
 
     // TODO Move it to the separate library
@@ -60,7 +61,7 @@ library LibCommon {
         }
 
         // Divide the signature in r, s and v variables
-        assembly {
+        assembly { // solium-disable-line security/no-inline-assembly
             r := mload(add(sig, 32))
             s := mload(add(sig, 64))
             v := byte(0, mload(add(sig, 96)))

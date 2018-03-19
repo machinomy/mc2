@@ -1,8 +1,8 @@
 pragma solidity ^0.4.19;
 
 import "zeppelin-solidity/contracts/math/SafeMath.sol";
-
 import "./LibCommon.sol";
+
 
 library LibMultisig {
     using SafeMath for uint256;

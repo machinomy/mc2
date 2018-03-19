@@ -5,6 +5,7 @@ import "./Multisig.sol";
 
 import "./BidirectionalCFLibrary.sol";
 
+
 /// @title Bidirectional Ether payment channels contract.
 contract BidirectionalCF {
     using SafeMath for uint256;

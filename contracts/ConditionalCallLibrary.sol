@@ -3,6 +3,7 @@ pragma solidity ^0.4.19;
 import "./ISharedState.sol";
 import "./IRegistry.sol";
 
+
 library ConditionalCallLibrary {
     function execute(address _registry, bytes32 _sharedStateCF, bytes _proof, address _destination, uint256 _value, bytes _data) public {
         IRegistry registry = IRegistry(_registry);

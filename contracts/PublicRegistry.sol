@@ -3,6 +3,7 @@ pragma solidity ^0.4.19;
 import "./IRegistry.sol";
 import "./PublicRegistryLibrary.sol";
 
+
 contract PublicRegistry is IRegistry {
     mapping (bytes32 => address) _contracts;
 

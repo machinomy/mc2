@@ -2,6 +2,7 @@ pragma solidity ^0.4.19;
 
 import "./IRegistry.sol";
 
+
 library PublicRegistryLibrary {
     event DidDeploy(bytes32 indexed id, address indexed deployed, address indexed owner);
 

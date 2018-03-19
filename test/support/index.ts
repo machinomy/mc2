@@ -7,23 +7,26 @@ import * as abi from 'ethereumjs-abi'
 import * as util from 'ethereumjs-util'
 
 const LOG_GAS_COST = Boolean(process.env.LOG_GAS_COST)
+const GAS_COST_IN_USD = 0.000012 // 1 ETH = 600 USD
 
 export async function logGas (name: string, promisedTx: Promise<truffle.TransactionResult>, forceLog: boolean = false) {
   let tx = await promisedTx
   if (LOG_GAS_COST || forceLog) {
     let gasCost = tx.receipt.gasUsed
-    console.log(`GAS: ${name}: `, gasCost)
+    console.log(`GAS: ${name}: ($${(gasCost * GAS_COST_IN_USD).toFixed(2)})`, gasCost)
   }
   return tx
 }
 
 export async function gasDiff<A> (name: string, web3: Web3, account: string, fn: () => A, forceLog: boolean = false) {
   let before = web3.eth.getBalance(account)
-  let result = await fn()
+
+  // tslint:disable-next-line:await-promise
+  let result = await fn() // TODO Do we need await here?
   let after = web3.eth.getBalance(account)
   if (LOG_GAS_COST || forceLog) {
     let gasCost = before.minus(after).div(web3.eth.gasPrice.div(0.2)).toString() // Beware of magic numbers
-    console.log(`GAS: ${name}: `, gasCost)
+    console.log(`GAS: ${name}: ($${(parseFloat(gasCost) * GAS_COST_IN_USD).toFixed(2)})`, gasCost)
   }
   return result
 }
@@ -183,13 +186,9 @@ export class BytecodeManager {
     return this._web3.eth.contract(contract.abi).getData(...params, {data: bytecode})
   }
 
-  public async addLink <A> (contract: truffle.TruffleContract<A>, name?: string) {
+  public async addLink <A> (contract: truffle.TruffleContract<A>, name: string) {
     let deployed = await contract.deployed()
-    if (name) {
-      this._links.set(name, deployed.address)
-    } else {
-      this._links.set(contract.contractName, deployed.address)
-    }
+    this._links.set(name, deployed.address)
   }
 
   protected _link (bytecode: string) {
