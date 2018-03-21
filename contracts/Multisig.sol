@@ -1,7 +1,5 @@
 pragma solidity ^0.4.19;
 
-import "zeppelin-solidity/contracts/math/SafeMath.sol";
-
 import "./LibMultisig.sol";
 
 

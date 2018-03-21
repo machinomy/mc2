@@ -10,6 +10,8 @@ import UnidirectionalCF from '../build/wrappers/UnidirectionalCF'
 import SharedState from '../build/wrappers/SharedState'
 import ConditionalCall from '../build/wrappers/ConditionalCall'
 import BidirectionalCF from '../build/wrappers/BidirectionalCF'
+import TestContract from '../build/wrappers/TestContract'
+import TestToken from '../build/wrappers/TestToken'
 import * as ethUtil from 'ethereumjs-util'
 
 export {
@@ -24,7 +26,9 @@ export {
   UnidirectionalCF,
   ConditionalCall,
   SharedState,
-  BidirectionalCF
+  BidirectionalCF,
+  TestContract,
+  TestToken
 }
 
 export function randomId (digits: number = 3) {
