@@ -6,7 +6,7 @@ library LibCommon {
     // TODO Move it to the separate library
     struct ShareStateState {
         address owner;
-        uint32 nonce;
+        uint256 nonce;
         bytes32 merkleRoot;
         uint256 updatePeriod;
         uint256 lastUpdate;

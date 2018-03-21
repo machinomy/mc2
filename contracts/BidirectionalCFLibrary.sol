@@ -9,14 +9,14 @@ library BidirectionalCFLibrary {
 
     struct State {
         Multisig multisig;
-        uint256  lastUpdate;
+        uint256 lastUpdate;
         uint256 settlementPeriod;
-        uint32  nonce;
+        uint256 nonce;
         uint256 toSender;
         uint256 toReceiver;
     }
 
-    function canUpdate(State storage self, uint32 _nonce, uint256 _toSender, uint256 _toReceiver, bytes _senderSig, bytes _receiverSig) public view returns (bool) {
+    function canUpdate(State storage self, uint256 _nonce, uint256 _toSender, uint256 _toReceiver, bytes _senderSig, bytes _receiverSig) public view returns (bool) {
         bool isNonceHigher = _nonce > self.nonce;
         bytes32 hash = LibCommon.recoveryDigest(keccak256(_nonce, _toSender, _toReceiver));
         address sender;
@@ -26,7 +26,7 @@ library BidirectionalCFLibrary {
         return isSettling(self.lastUpdate, self.settlementPeriod) && isNonceHigher && LibCommon.executeHashCheck(hash, _senderSig,  _receiverSig,  sender, receiver);
     }
 
-    function update(State storage bidiData, uint32 _nonce, uint256 _toSender, uint256 _toReceiver, bytes _senderSig, bytes _receiverSig) public view {
+    function update(State storage bidiData, uint256 _nonce, uint256 _toSender, uint256 _toReceiver, bytes _senderSig, bytes _receiverSig) public view {
         require(canUpdate(bidiData, _nonce, _toSender, _toReceiver, _senderSig, _receiverSig));
     }
 

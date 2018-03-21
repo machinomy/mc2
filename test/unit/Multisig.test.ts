@@ -456,7 +456,7 @@ contract('Multisig', accounts => {
 
     await support.logGas('instantiate SharedState', counterFactory.execute(instSharedState))
 
-    let bytecodeCall = ss.update.request(42, '0xdead').params[0].data
+    let bytecodeCall = ss.update.request(new BigNumber.BigNumber(42), '0xdead').params[0].data
     let updateSharedState = await counterFactory.delegatecall(proxy.doCall.request(registry.address, counterfactualAddress, new BigNumber.BigNumber(0), bytecodeCall))
     await support.logGas('update SharedState', counterFactory.execute(updateSharedState))
 
@@ -475,7 +475,7 @@ contract('Multisig', accounts => {
 
     await support.logGas('instantiate SharedState', counterFactory.execute(instSharedState))
 
-    let bytecodeCall = ss.update.request(42, '0xdead').params[0].data
+    let bytecodeCall = ss.update.request(new BigNumber.BigNumber(42), '0xdead').params[0].data
     let updateSharedState = await counterFactory.delegatecall(proxy.doCall.request(registry.address, counterfactualAddress, new BigNumber.BigNumber(0), bytecodeCall))
     await support.logGas('update SharedState', counterFactory.execute(updateSharedState))
 

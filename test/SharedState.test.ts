@@ -2,6 +2,7 @@ import * as chai from 'chai'
 import * as asPromised from 'chai-as-promised'
 import * as contracts from '../src/index'
 import { default as MerkleTree } from '../src/MerkleTree'
+import * as BigNumber from 'bignumber.js'
 import * as utils from 'ethereumjs-util'
 
 
@@ -29,7 +30,7 @@ contract('SharedState', accounts => {
   specify('SharedState::check update', async () => {
     let elements = [1, 2, 3].map(e => utils.sha3(e))
     let merkleTree = new MerkleTree(elements)
-    await sharedState.update(42, utils.bufferToHex(merkleTree.root), {from: sender})
+    await sharedState.update(new BigNumber.BigNumber(42), utils.bufferToHex(merkleTree.root), {from: sender})
     let nonce = (await sharedState.state())[1] // nonce()
     assert.equal(nonce.toNumber(), 42)
   })

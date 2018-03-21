@@ -18,7 +18,7 @@ contract SharedState is ISharedState {
         state.updatePeriod = _updatePeriod;
     }
 
-    function update(uint32 _nonce, bytes32 _merkleRoot) public restricted {
+    function update(uint256 _nonce, bytes32 _merkleRoot) public restricted {
         require(_nonce > state.nonce);
         // require(block.number <= lastUpdate + updatePeriod); TODO
         state.merkleRoot = _merkleRoot;

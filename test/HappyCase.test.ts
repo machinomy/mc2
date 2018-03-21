@@ -110,7 +110,7 @@ contract('HappyCase', accounts => {
 
     nonceBidirectional += 2
     // Step 5
-    let digest = await instanceForDigest.paymentDigest(nonceBidirectional, new BigNumber.BigNumber(9), new BigNumber.BigNumber(1))
+    let digest = await instanceForDigest.paymentDigest(new BigNumber.BigNumber(nonceBidirectional), new BigNumber.BigNumber(9), new BigNumber.BigNumber(1))
     let signedBySenderData = web3.eth.sign(sender, digest)
     let signedByReceiverData = web3.eth.sign(receiver, digest)
     let moveMoneyToBiDi = await counterFactory.delegatecall(proxy.doCall.request(registry.address, counterfactualAddressBidirectionalCF, new BigNumber.BigNumber(10), '0x00'), new BigNumber.BigNumber(nonceMultisig))
@@ -121,7 +121,7 @@ contract('HappyCase', accounts => {
     let counterfactualAddressUpdateBidirectionalCF = await registry.counterfactualAddress(bidirectionalCF, '0x30')
     let realAddress = await registry.resolve(counterfactualAddressUpdateBidirectionalCF)
     let instance = await BidirectionalCF.at(realAddress)
-    await instance.update(nonceBidirectional, new BigNumber.BigNumber(9), new BigNumber.BigNumber(1), signedBySenderData, signedByReceiverData)
+    await instance.update(new BigNumber.BigNumber(nonceBidirectional), new BigNumber.BigNumber(9), new BigNumber.BigNumber(1), signedBySenderData, signedByReceiverData)
     assert.equal((await instance.state())[3].toNumber(), nonceBidirectional) // .nonce()
     assert.equal((await instance.state())[4].toNumber(), 9) // .toSender()
     assert.equal((await instance.state())[5].toNumber(), 1) // .toReceiver()

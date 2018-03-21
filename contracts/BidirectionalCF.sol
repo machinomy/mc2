@@ -16,12 +16,12 @@ contract BidirectionalCF {
         state.multisig = Multisig(_multisig);
         state.lastUpdate = block.number;
         state.settlementPeriod = _settlementPeriod;
-        state.nonce = uint32(0);
+        state.nonce = uint256(0);
     }
 
     function () payable public {}
 
-    function update(uint32 _nonce, uint256 _toSender, uint256 _toReceiver, bytes _senderSig, bytes _receiverSig) public {
+    function update(uint256 _nonce, uint256 _toSender, uint256 _toReceiver, bytes _senderSig, bytes _receiverSig) public {
         BidirectionalCFLibrary.update(state, _nonce, _toSender, _toReceiver, _senderSig, _receiverSig);
         state.toSender = _toSender;
         state.toReceiver = _toReceiver;
@@ -45,7 +45,7 @@ contract BidirectionalCF {
 
     /*** CHANNEL STATE ***/
 
-    function paymentDigest(uint32 _nonce, uint256 _toSender, uint256 _toReceiver) public pure returns(bytes32) {
+    function paymentDigest(uint256 _nonce, uint256 _toSender, uint256 _toReceiver) public pure returns(bytes32) {
         return keccak256(_nonce, _toSender, _toReceiver); // TODO Use some contract-internal value
     }
 
