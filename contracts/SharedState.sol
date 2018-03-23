@@ -18,8 +18,10 @@ contract SharedState is ISharedState {
         state.updatePeriod = _updatePeriod;
     }
 
+    event TraceSS(uint256 _nonce, bytes32 _merkleRoot);
     function update(uint256 _nonce, bytes32 _merkleRoot) public restricted {
-        require(_nonce > state.nonce);
+        TraceSS(_nonce, _merkleRoot);
+        // require(_nonce > state.nonce);
         // require(block.number <= lastUpdate + updatePeriod); TODO
         state.merkleRoot = _merkleRoot;
         state.nonce = _nonce;

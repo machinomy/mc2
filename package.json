@@ -20,7 +20,7 @@
     "test": "test"
   },
   "config": {
-    "truffleTests": "test/HappyCase.test.js",
+    "truffleTests": "test/unit/PublicRegistry.test.js",
     "wrappedArtifacts": "build/contracts/@(BidirectionalCF|Unidirectional|ConditionalCall|DistributeEth|DistributeToken|UnidirectionalCF|PublicRegistry|SharedState|TestToken|Multisig|TransferToken|TestContract|Proxy|ECRecovery).json"
   },
   "natspec": {
@@ -84,8 +84,10 @@
   "dependencies": {
     "bignumber.js": "4.1.0",
     "buffer": "^5.0.7",
-    "ethereumjs-util": "^5.1.3",
+    "ethereumjs-util": "^5.1.5",
+    "keccak": "^1.4.0",
     "truffle-contract": "^3.0.0",
+    "utf8": "^3.0.0",
     "web3": "^0.20.1"
   }
 }

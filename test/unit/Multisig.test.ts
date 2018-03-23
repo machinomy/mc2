@@ -42,6 +42,7 @@ contract('Multisig', accounts => {
   let bytecodeManager: BytecodeManager
   let counterFactory: InstantiationFactory
   let instSharedState: Instantiation
+  let multisig: contracts.Multisig.Contract
   let proxy: contracts.Proxy.Contract
   let registry: contracts.PublicRegistry.Contract
   let transferToken: contracts.TransferToken.Contract
@@ -51,18 +52,9 @@ contract('Multisig', accounts => {
 
 
   before(async () => {
-    // TODO Make it ganache/testrpc independent
-    // Now we expect sender equals dd474263bd8dbabc6b21e9fe6f4c27b70b1b719e
-    // and receiver equals ee46ca1de27717a2901082f0614059a28fb04931
-    // and alien equals 293566aa12f93fbf1afa9b9d4b92c4cd2a51c501
-
     sender = accounts[0]
     receiver = accounts[1]
     alien = accounts[2]
-
-    console.log('Sender: ' + sender)
-    console.log('Receiver: ' + receiver)
-    console.log('Alien: ' + alien)
 
     settlementPeriod = 100
 
@@ -91,227 +83,212 @@ contract('Multisig', accounts => {
     registryNonce = util.bufferToHex(Buffer.from('secret'))
   })
 
-  specify('Multisig.new:must be not null', async () => {
-    let multisig = await Multisig.new(sender, receiver, {from: sender})
-    assert(multisig, 'multisig object must be not null after construction')
-  })
-
-  specify('Multisig.new:must have valid EVM address', async () => {
-    let multisig = await Multisig.new(sender, receiver, {from: sender})
-    assert(/^0x[0-9A-Fa-f]{40}/.test(multisig.address), 'multisig must have a valid EVM address after construction')
-  })
-
-  specify('Multisig.new:must have a valid sender', async () => {
-    let multisig = await Multisig.new(sender, receiver, {from: sender})
-    assert(sender === (await multisig.state())[0], 'multisig must have a valid sender after construction')
-  })
-
-  specify('Multisig.new:must have a valid receiver', async () => {
-    let multisig = await Multisig.new(sender, receiver, {from: sender})
-    assert(receiver === (await multisig.state())[1], 'multisig must have a valid receiver after construction')
-  })
-
-  specify('Multisig.new:must have a valid nonce', async () => {
-    let multisig = await Multisig.new(sender, receiver, {from: sender})
-    assert((await multisig.state())[2].equals(0), 'multisig must have a valid nonce after construction')
-  })
-
-  specify('Multisig.execute:All right', async () => {
-    let multisig = await Multisig.new(sender, receiver, {from: sender})
+  beforeEach(async () => {
+    multisig = await Multisig.new(sender, receiver, {from: sender})
     counterFactory = new InstantiationFactory(web3, multisig)
-    sharedState = bytecodeManager.constructBytecode(SharedState, sender, settlementPeriod, 0x0)
-    instSharedState = await counterFactory.call(registry.deploy.request(sharedState, '0x20'), 0)
-
-    try {
-      await multisig.execute(instSharedState.destination, instSharedState.value, instSharedState.callBytecode, instSharedState.senderSig, instSharedState.receiverSig)
-    } catch (e) {
-      assert(false, 'execute must return true')
-    }
   })
 
-  specify('Multisig.execute:Wrong bytecode', async () => {
-    let callBytecode = 'wrong-bytecode-here'
+  describe('.new', () => {
+    specify('have a valid sender', async () => {
+      assert.equal(sender, (await multisig.state())[0], 'multisig must have a valid sender after construction')
+    })
 
-    let multisig = await Multisig.new(sender, receiver, {from: sender})
-    counterFactory = new InstantiationFactory(web3, multisig)
-    sharedState = bytecodeManager.constructBytecode(SharedState, sender, settlementPeriod, 0x0)
-    instSharedState = await counterFactory.call(registry.deploy.request(sharedState, '0x20'), 0)
+    specify('have a valid receiver', async () => {
+      assert.equal(receiver, (await multisig.state())[1], 'multisig must have a valid receiver after construction')
+    })
 
-    instSharedState.callBytecode = callBytecode
-    try {
-      await multisig.execute(instSharedState.destination, instSharedState.value, instSharedState.callBytecode, instSharedState.senderSig, instSharedState.receiverSig)
-      assert(false, 'execute must return false')
-    } catch (e) {
-      // true
-    }
+    specify('have a valid nonce', async () => {
+      assert.equal((await multisig.state())[2].toNumber(), 0, 'multisig must have a valid nonce after construction')
+    })
   })
 
-  specify('Multisig.execute:Wrong destination', async () => {
-    let destination = 'wrong-destination-here'
+  describe('.execute', () => {
+    specify('All right', async () => {
+      sharedState = bytecodeManager.constructBytecode(SharedState, sender, settlementPeriod, 0x0)
+      instSharedState = await counterFactory.call(registry.deploy.request(sharedState, '0x20'), 0)
 
-    let multisig = await Multisig.new(sender, receiver, {from: sender})
-    counterFactory = new InstantiationFactory(web3, multisig)
-    sharedState = bytecodeManager.constructBytecode(SharedState, sender, settlementPeriod, 0x0)
-    instSharedState = await counterFactory.call(registry.deploy.request(sharedState, '0x20'), 0)
+      try {
+        await multisig.execute(instSharedState.destination, instSharedState.value, instSharedState.callBytecode, instSharedState.senderSig, instSharedState.receiverSig)
+      } catch (e) {
+        assert(false, 'execute must return true')
+      }
+    })
 
-    instSharedState.destination = destination
-    try {
-      await multisig.execute(instSharedState.destination, instSharedState.value, instSharedState.callBytecode, instSharedState.senderSig, instSharedState.receiverSig)
-      assert(false, 'execute must return false')
-    } catch (e) {
-      // true
-    }
+    specify('Wrong bytecode', async () => {
+      let callBytecode = 'wrong-bytecode-here'
+
+      sharedState = bytecodeManager.constructBytecode(SharedState, sender, settlementPeriod, 0x0)
+      instSharedState = await counterFactory.call(registry.deploy.request(sharedState, '0x20'), 0)
+
+      instSharedState.callBytecode = callBytecode
+      try {
+        await multisig.execute(instSharedState.destination, instSharedState.value, instSharedState.callBytecode, instSharedState.senderSig, instSharedState.receiverSig)
+        assert(false, 'execute must return false')
+      } catch (e) {
+        // true
+      }
+    })
+
+    specify('Wrong destination', async () => {
+      let destination = 'wrong-destination-here'
+
+      sharedState = bytecodeManager.constructBytecode(SharedState, sender, settlementPeriod, 0x0)
+      instSharedState = await counterFactory.call(registry.deploy.request(sharedState, '0x20'), 0)
+
+      instSharedState.destination = destination
+      try {
+        await multisig.execute(instSharedState.destination, instSharedState.value, instSharedState.callBytecode, instSharedState.senderSig, instSharedState.receiverSig)
+        assert(false, 'execute must return false')
+      } catch (e) {
+        // true
+      }
+    })
+
+    specify('Wrong value', async () => {
+      let value = new BigNumber.BigNumber(12345)
+
+      sharedState = bytecodeManager.constructBytecode(SharedState, sender, settlementPeriod, 0x0)
+      instSharedState = await counterFactory.call(registry.deploy.request(sharedState, '0x20'), 0)
+
+      instSharedState.value = value
+      try {
+        await multisig.execute(instSharedState.destination, instSharedState.value, instSharedState.callBytecode, instSharedState.senderSig, instSharedState.receiverSig)
+        assert(false, 'execute must return false')
+      } catch (e) {
+        // true
+      }
+    })
+
+    specify('Wrong senderSig', async () => {
+      let senderSig = 'wrong-senderSig-here'
+
+      sharedState = bytecodeManager.constructBytecode(SharedState, sender, settlementPeriod, 0x0)
+      instSharedState = await counterFactory.call(registry.deploy.request(sharedState, '0x20'), 0)
+
+      instSharedState.senderSig = senderSig
+      try {
+        await multisig.execute(instSharedState.destination, instSharedState.value, instSharedState.callBytecode, instSharedState.senderSig, instSharedState.receiverSig)
+        assert(false, 'execute must return false')
+      } catch (e) {
+        // true
+      }
+    })
+
+    specify('Wrong receiverSig', async () => {
+      let receiverSig = 'wrong-receiverSig-here'
+
+      sharedState = bytecodeManager.constructBytecode(SharedState, sender, settlementPeriod, 0x0)
+      instSharedState = await counterFactory.call(registry.deploy.request(sharedState, '0x20'), 0)
+
+      instSharedState.receiverSig = receiverSig
+      try {
+        await multisig.execute(instSharedState.destination, instSharedState.value, instSharedState.callBytecode, instSharedState.senderSig, instSharedState.receiverSig)
+        assert(false, 'execute must return false')
+      } catch (e) {
+        // true
+      }
+    })
+
   })
 
-  specify('Multisig.execute:Wrong value', async () => {
-    let value = new BigNumber.BigNumber(12345)
+  describe('.executeDelegate', () => {
+    specify('All right', async () => {
+      sharedState = bytecodeManager.constructBytecode(SharedState, sender, settlementPeriod, 0x0)
+      let address = '0x0a00000000000000000000000000000000000000'
+      let transferCall: support.Call = {
+        method: '',
+        value: new BigNumber.BigNumber(10),
+        params: [{
+          to: address,
+          data: ''
+        }]
+      }
+      web3.eth.sendTransaction({ from: sender, to: multisig.address, value: new BigNumber.BigNumber(10) })
+      instSharedState = await counterFactory.delegatecall(transferCall, 0)
 
-    let multisig = await Multisig.new(sender, receiver, {from: sender})
-    counterFactory = new InstantiationFactory(web3, multisig)
-    sharedState = bytecodeManager.constructBytecode(SharedState, sender, settlementPeriod, 0x0)
-    instSharedState = await counterFactory.call(registry.deploy.request(sharedState, '0x20'), 0)
-
-    instSharedState.value = value
-    try {
-      await multisig.execute(instSharedState.destination, instSharedState.value, instSharedState.callBytecode, instSharedState.senderSig, instSharedState.receiverSig)
-      assert(false, 'execute must return false')
-    } catch (e) {
-      // true
-    }
-  })
-
-  specify('Multisig.execute:Wrong senderSig', async () => {
-    let senderSig = 'wrong-senderSig-here'
-
-    let multisig = await Multisig.new(sender, receiver, {from: sender})
-    counterFactory = new InstantiationFactory(web3, multisig)
-    sharedState = bytecodeManager.constructBytecode(SharedState, sender, settlementPeriod, 0x0)
-    instSharedState = await counterFactory.call(registry.deploy.request(sharedState, '0x20'), 0)
-
-    instSharedState.senderSig = senderSig
-    try {
-      await multisig.execute(instSharedState.destination, instSharedState.value, instSharedState.callBytecode, instSharedState.senderSig, instSharedState.receiverSig)
-      assert(false, 'execute must return false')
-    } catch (e) {
-      // true
-    }
-  })
-
-  specify('Multisig.execute:Wrong receiverSig', async () => {
-    let receiverSig = 'wrong-receiverSig-here'
-
-    let multisig = await Multisig.new(sender, receiver, {from: sender})
-    counterFactory = new InstantiationFactory(web3, multisig)
-    sharedState = bytecodeManager.constructBytecode(SharedState, sender, settlementPeriod, 0x0)
-    instSharedState = await counterFactory.call(registry.deploy.request(sharedState, '0x20'), 0)
-
-    instSharedState.receiverSig = receiverSig
-    try {
-      await multisig.execute(instSharedState.destination, instSharedState.value, instSharedState.callBytecode, instSharedState.senderSig, instSharedState.receiverSig)
-      assert(false, 'execute must return false')
-    } catch (e) {
-      // true
-    }
-  })
-
-  specify('Multisig.executeDelegate:All right', async () => {
-    let multisig = await Multisig.new(sender, receiver, {from: sender})
-    counterFactory = new InstantiationFactory(web3, multisig)
-    sharedState = bytecodeManager.constructBytecode(SharedState, sender, settlementPeriod, 0x0)
-    instSharedState = await counterFactory.call(registry.deploy.request(sharedState, '0x20'), 0)
-
-    try {
+      console.log(instSharedState)
       await multisig.executeDelegate(instSharedState.destination, instSharedState.value, instSharedState.callBytecode, instSharedState.senderSig, instSharedState.receiverSig)
-    } catch (e) {
-      assert(false, 'executeDelegate must return true')
-    }
+      //assert.equal(web3.eth.getBalance(address).toString(), '10')
+    })
+
+    specify('Wrong bytecode', async () => {
+      let callBytecode = 'wrong-bytecode-here'
+
+      sharedState = bytecodeManager.constructBytecode(SharedState, sender, settlementPeriod, 0x0)
+      instSharedState = await counterFactory.call(registry.deploy.request(sharedState, '0x20'), 0)
+
+      instSharedState.callBytecode = callBytecode
+
+      try {
+        await multisig.executeDelegate(instSharedState.destination, instSharedState.value, instSharedState.callBytecode, instSharedState.senderSig, instSharedState.receiverSig)
+        assert(false, 'executeDelegate must return false')
+      } catch (e) {
+        // true
+      }
+    })
+
+    specify('Wrong destination', async () => {
+      let destination = 'wrong-destination-here'
+
+      sharedState = bytecodeManager.constructBytecode(SharedState, sender, settlementPeriod, 0x0)
+      instSharedState = await counterFactory.call(registry.deploy.request(sharedState, '0x20'), 0)
+
+      instSharedState.destination = destination
+      try {
+        await multisig.executeDelegate(instSharedState.destination, instSharedState.value, instSharedState.callBytecode, instSharedState.senderSig, instSharedState.receiverSig)
+        assert(false, 'executeDelegate must return false')
+      } catch (e) {
+        assert(true)
+      }
+    })
+
+    specify('Wrong value', async () => {
+      let value = new BigNumber.BigNumber(12345)
+
+      sharedState = bytecodeManager.constructBytecode(SharedState, sender, settlementPeriod, 0x0)
+      instSharedState = await counterFactory.call(registry.deploy.request(sharedState, '0x20'), 0)
+
+      instSharedState.value = value
+      try {
+        await multisig.executeDelegate(instSharedState.destination, instSharedState.value, instSharedState.callBytecode, instSharedState.senderSig, instSharedState.receiverSig)
+        assert(false, 'executeDelegate must return false')
+      } catch (e) {
+        assert(true)
+      }
+    })
+
+    specify('Wrong senderSig', async () => {
+      let senderSig = 'wrong-senderSig-here'
+
+      sharedState = bytecodeManager.constructBytecode(SharedState, sender, settlementPeriod, 0x0)
+      instSharedState = await counterFactory.call(registry.deploy.request(sharedState, '0x20'), 0)
+
+      instSharedState.senderSig = senderSig
+      try {
+        await multisig.executeDelegate(instSharedState.destination, instSharedState.value, instSharedState.callBytecode, instSharedState.senderSig, instSharedState.receiverSig)
+        assert(false, 'executeDelegate must return false')
+      } catch (e) {
+        // true
+      }
+    })
+
+    specify('Wrong receiverSig', async () => {
+      let receiverSig = 'wrong-receiverSig-here'
+
+      sharedState = bytecodeManager.constructBytecode(SharedState, sender, settlementPeriod, 0x0)
+      instSharedState = await counterFactory.call(registry.deploy.request(sharedState, '0x20'), 0)
+
+      instSharedState.receiverSig = receiverSig
+      try {
+        await multisig.executeDelegate(instSharedState.destination, instSharedState.value, instSharedState.callBytecode, instSharedState.senderSig, instSharedState.receiverSig)
+        assert(false, 'executeDelegate must return false')
+      } catch (e) {
+        // true
+      }
+    })
 
   })
 
-  specify('Multisig.executeDelegate:Wrong bytecode', async () => {
-    let callBytecode = 'wrong-bytecode-here'
-
-    let multisig = await Multisig.new(sender, receiver, {from: sender})
-    counterFactory = new InstantiationFactory(web3, multisig)
-    sharedState = bytecodeManager.constructBytecode(SharedState, sender, settlementPeriod, 0x0)
-    instSharedState = await counterFactory.call(registry.deploy.request(sharedState, '0x20'), 0)
-
-    instSharedState.callBytecode = callBytecode
-    try {
-      await multisig.executeDelegate(instSharedState.destination, instSharedState.value, instSharedState.callBytecode, instSharedState.senderSig, instSharedState.receiverSig)
-      assert(false, 'executeDelegate must return false')
-    } catch (e) {
-      // true
-    }
-  })
-
-  specify('Multisig.executeDelegate:Wrong destination', async () => {
-    let destination = 'wrong-destination-here'
-
-    let multisig = await Multisig.new(sender, receiver, {from: sender})
-    counterFactory = new InstantiationFactory(web3, multisig)
-    sharedState = bytecodeManager.constructBytecode(SharedState, sender, settlementPeriod, 0x0)
-    instSharedState = await counterFactory.call(registry.deploy.request(sharedState, '0x20'), 0)
-
-    instSharedState.destination = destination
-    try {
-      await multisig.executeDelegate(instSharedState.destination, instSharedState.value, instSharedState.callBytecode, instSharedState.senderSig, instSharedState.receiverSig)
-      assert(false, 'executeDelegate must return false')
-    } catch (e) {
-      // true
-    }
-  })
-
-  specify('Multisig.executeDelegate:Wrong value', async () => {
-    let value = new BigNumber.BigNumber(12345)
-
-    let multisig = await Multisig.new(sender, receiver, {from: sender})
-    counterFactory = new InstantiationFactory(web3, multisig)
-    sharedState = bytecodeManager.constructBytecode(SharedState, sender, settlementPeriod, 0x0)
-    instSharedState = await counterFactory.call(registry.deploy.request(sharedState, '0x20'), 0)
-
-    instSharedState.value = value
-    try {
-      await multisig.executeDelegate(instSharedState.destination, instSharedState.value, instSharedState.callBytecode, instSharedState.senderSig, instSharedState.receiverSig)
-      assert(false, 'executeDelegate must return false')
-    } catch (e) {
-      // true
-    }
-  })
-
-  specify('Multisig.executeDelegate:Wrong senderSig', async () => {
-    let senderSig = 'wrong-senderSig-here'
-
-    let multisig = await Multisig.new(sender, receiver, {from: sender})
-    counterFactory = new InstantiationFactory(web3, multisig)
-    sharedState = bytecodeManager.constructBytecode(SharedState, sender, settlementPeriod, 0x0)
-    instSharedState = await counterFactory.call(registry.deploy.request(sharedState, '0x20'), 0)
-
-    instSharedState.senderSig = senderSig
-    try {
-      await multisig.executeDelegate(instSharedState.destination, instSharedState.value, instSharedState.callBytecode, instSharedState.senderSig, instSharedState.receiverSig)
-      assert(false, 'executeDelegate must return false')
-    } catch (e) {
-      // true
-    }
-  })
-
-  specify('Multisig.executeDelegate:Wrong receiverSig', async () => {
-    let receiverSig = 'wrong-receiverSig-here'
-
-    let multisig = await Multisig.new(sender, receiver, {from: sender})
-    counterFactory = new InstantiationFactory(web3, multisig)
-    sharedState = bytecodeManager.constructBytecode(SharedState, sender, settlementPeriod, 0x0)
-    instSharedState = await counterFactory.call(registry.deploy.request(sharedState, '0x20'), 0)
-
-    instSharedState.receiverSig = receiverSig
-    try {
-      await multisig.executeDelegate(instSharedState.destination, instSharedState.value, instSharedState.callBytecode, instSharedState.senderSig, instSharedState.receiverSig)
-      assert(false, 'executeDelegate must return false')
-    } catch (e) {
-      // true
-    }
-  })
 
   specify('can instantiate counterfactual contract', async () => {
     let probe = 42
@@ -445,43 +422,4 @@ contract('Multisig', accounts => {
     await support.assertTokenBalance(token, sender, toSender)
     await support.assertTokenBalance(token, receiver, toReceiver)
   })
-
-  specify('can instantiate SharedState', async () => {
-    let multisig = await Multisig.new(sender, receiver, {from: sender})
-    let ss = await SharedState.new(sender, 100, 0x0)
-
-    let sharedStateContract = bytecodeManager.constructBytecode(SharedState, multisig.address)
-    let instSharedState = await counterFactory.call(registry.deploy.request(sharedStateContract, '0x1'))
-    let counterfactualAddress = await registry.counterfactualAddress(sharedStateContract, '0x1')
-
-    await support.logGas('instantiate SharedState', counterFactory.execute(instSharedState))
-
-    let bytecodeCall = ss.update.request(new BigNumber.BigNumber(42), '0xdead').params[0].data
-    let updateSharedState = await counterFactory.delegatecall(proxy.doCall.request(registry.address, counterfactualAddress, new BigNumber.BigNumber(0), bytecodeCall))
-    await support.logGas('update SharedState', counterFactory.execute(updateSharedState))
-
-    let sharedStateAddress = await registry.resolve(counterfactualAddress)
-    let sharedStateInstance = await SharedState.at(sharedStateAddress)
-    assert.equal((await sharedStateInstance.state())[1].toNumber(), 42) // nonce()
-  })
-
-  specify('can send Ether conditionally on SharedState', async () => {
-    let multisig = await Multisig.new(sender, receiver, {from: sender})
-    let ss = await SharedState.new(sender, 100, 0x0)
-
-    let sharedStateContract = bytecodeManager.constructBytecode(SharedState, multisig.address)
-    let instSharedState = await counterFactory.call(registry.deploy.request(sharedStateContract, registryNonce))
-    let counterfactualAddress = await registry.counterfactualAddress(sharedStateContract, registryNonce)
-
-    await support.logGas('instantiate SharedState', counterFactory.execute(instSharedState))
-
-    let bytecodeCall = ss.update.request(new BigNumber.BigNumber(42), '0xdead').params[0].data
-    let updateSharedState = await counterFactory.delegatecall(proxy.doCall.request(registry.address, counterfactualAddress, new BigNumber.BigNumber(0), bytecodeCall))
-    await support.logGas('update SharedState', counterFactory.execute(updateSharedState))
-
-    let sharedStateAddress = await registry.resolve(counterfactualAddress)
-    let sharedStateInstance = await SharedState.at(sharedStateAddress)
-    assert.equal((await sharedStateInstance.state())[1].toNumber(), 42) // nonce()
-  })
-
 })

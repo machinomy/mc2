@@ -5,6 +5,10 @@ import { Multisig, PublicRegistry } from '../../src/index'
 import * as chai from 'chai'
 import * as abi from 'ethereumjs-abi'
 import * as util from 'ethereumjs-util'
+import * as ethUnits from "ethereumjs-units"
+import {extendConfigurationFile} from "tslint/lib/configuration"
+
+const web3 = (global as any).web3 as Web3
 
 const LOG_GAS_COST = Boolean(process.env.LOG_GAS_COST)
 const GAS_COST_IN_USD = 0.000012 // 1 ETH = 600 USD
@@ -46,6 +50,7 @@ export interface CallParams {
 
 export interface Call {
   method: string
+  value?: BigNumber.BigNumber,
   params: Array<CallParams>
 }
 
@@ -72,14 +77,10 @@ export class InstantiationFactory {
   }
 
   async call (call: Call, _nonce?: BigNumber.BigNumber|number): Promise<Instantiation> {
-    if (_nonce) {
-      return this.build(call, new BigNumber.BigNumber(_nonce))
-    } else {
-      return this.build(call)
-    }
+    return this.build(call, _nonce)
   }
 
-  async delegatecall (call: Call, _nonce?: BigNumber.BigNumber): Promise<Instantiation> {
+  async delegatecall (call: Call, _nonce?: BigNumber.BigNumber|number): Promise<Instantiation> {
     return this.buildDelegate(call, _nonce)
   }
 
@@ -92,7 +93,7 @@ export class InstantiationFactory {
 
   }
 
-  private async build (call: Call, _nonce?: BigNumber.BigNumber): Promise<Instantiation> {
+  private async build (call: Call, _nonce?: BigNumber.BigNumber|number): Promise<Instantiation> {
     let params = call.params[0]
     let destination = params.to
     let callBytecode = params.data
@@ -100,7 +101,7 @@ export class InstantiationFactory {
     let _state = await this.multisig.state()
     let sender = _state[0]
     let receiver = _state[1]
-    let nonce = _nonce || _state[2]
+    let nonce = new BigNumber.BigNumber(_nonce || _state[2])
     let operationHash = util.bufferToHex(abi.soliditySHA3(
       ['address', 'address' , 'uint256', 'bytes', 'uint256'],
       [this.multisig.address, destination, value.toString(), util.toBuffer(callBytecode), nonce.toString()]
@@ -119,15 +120,15 @@ export class InstantiationFactory {
     })
   }
 
-  private async buildDelegate (call: Call, _nonce?: BigNumber.BigNumber): Promise<Instantiation> {
+  private async buildDelegate (call: Call, _nonce?: BigNumber.BigNumber|number): Promise<Instantiation> {
     let params = call.params[0]
     let destination = params.to
     let callBytecode = params.data
-    let value = new BigNumber.BigNumber(0)
+    let value = call.value || new BigNumber.BigNumber(0)
     let _state = await this.multisig.state()
     let sender = _state[0]
     let receiver = _state[1]
-    let nonce = _nonce || _state[2]
+    let nonce = new BigNumber.BigNumber(_nonce || _state[2])
     let _operationHash = util.bufferToHex(abi.soliditySHA3(
       ['address', 'address' , 'uint256', 'bytes', 'uint256'],
       [this.multisig.address, destination, value.toString(), util.toBuffer(callBytecode), nonce.toString()]
@@ -197,5 +198,101 @@ export class BytecodeManager {
       bytecode = bytecode.replace(regex, libraryAddress.replace('0x', ''))
     })
     return bytecode
+  }
+}
+
+
+export function solidityBytes32Converter (input: string|number): string {
+  let hexValue = Solidity.solidityConvertToBytes(input)
+  hexValue = hexValue.substring(2)
+
+  return hexValue.padEnd(64, '0')
+}
+
+
+
+
+
+export namespace Solidity {
+
+  export interface SolidityType {
+    _value: string
+    value (): string
+  }
+
+  export class Bytes implements SolidityType {
+    _value: string
+
+    constructor (other: string|number) {
+      if (other === undefined) {
+        this._value = '0x'
+      } else {
+        this._value = solidityConvertToBytes(other)
+      }
+    }
+
+    value (): string {
+      return this._value
+    }
+
+    toString (): string {
+      return this.value()
+    }
+  }
+
+  export class Bytes32 implements SolidityType {
+    _value: string
+
+    constructor (other: string|number) {
+      if (other === undefined) {
+        this._value = '0x'.padEnd(66, '0')
+      } else {
+        this._value = solidityConvertToBytes32(other)
+      }
+    }
+
+    value (): string {
+      return this._value
+    }
+
+    toString (): string {
+      return this.value()
+    }
+  }
+
+  export function solidityConvertToBytes (input: string|number, isHex: boolean = true): string {
+    if (isHex && input.toString().startsWith('0x')) {
+      input = input.toString().substring(2)
+    }
+    return util.addHexPrefix(Buffer.from(input.toString(), 'utf8').toString('hex'))
+  }
+
+  export function solidityConvertToBytes32 (input: string|number, isHex: boolean = true): string {
+    if (isHex && input.toString().startsWith('0x')) {
+      input = input.toString().substring(2)
+    }
+    return util.addHexPrefix(Buffer.from(input.toString(), 'utf8').toString('hex').padEnd(64, '0'))
+  }
+
+  export function keccak<T extends SolidityType> (...args: T[]): string {
+    let value = ''
+    if (args.length) {
+      if (!args[0].value().startsWith('0x')) {
+        value = '0x' + value
+      } else {
+        value += args[0]
+      }
+      args.shift()
+      for (let i = 0; i < args.length; i++) {
+        let arg: SolidityType = args[0]
+        if (arg.value().startsWith('0x')) {
+          value += arg.value().substring(2)
+        } else {
+          value += arg.value()
+        }
+      }
+    }
+console.log('INPUT SHA-3: ' + value)
+    return web3.sha3(value, {encoding: 'hex'})
   }
 }
