@@ -20,8 +20,8 @@
     "test": "test"
   },
   "config": {
-    "truffleTests": "test/unit/PublicRegistry.test.js",
-    "wrappedArtifacts": "build/contracts/@(BidirectionalCF|Unidirectional|ConditionalCall|DistributeEth|DistributeToken|UnidirectionalCF|PublicRegistry|SharedState|TestToken|Multisig|TransferToken|TestContract|Proxy|ECRecovery).json"
+    "truffleTests": "test/unit/*.test.js",
+    "wrappedArtifacts": "build/contracts/@(BidirectionalCF|Unidirectional|ConditionalCall|DistributeEth|DistributeToken|UnidirectionalCF|PublicRegistry|Lineup|TestToken|Multisig|TransferToken|TestContract|Proxy|ECRecovery).json"
   },
   "natspec": {
     "whitelist": [

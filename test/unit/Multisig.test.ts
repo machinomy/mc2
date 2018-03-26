@@ -19,7 +19,7 @@ contract('Multisig', accounts => {
   let receiver: string
   let alien: string
 
-  let sharedState: string
+  let lineup: string
   let registryNonce: string
   let settlementPeriod: number
 
@@ -32,7 +32,7 @@ contract('Multisig', accounts => {
   const PublicRegistry = artifacts.require<contracts.PublicRegistry.Contract>('PublicRegistry.sol')
   const Proxy = artifacts.require<contracts.Proxy.Contract>('Proxy.sol')
   const ProxyLibrary = artifacts.require('ProxyLibrary.sol')
-  const SharedState = artifacts.require<contracts.SharedState.Contract>('SharedState.sol')
+  const Lineup = artifacts.require<contracts.Lineup.Contract>('Lineup.sol')
   const TestContract = artifacts.require<contracts.TestContract.Contract>('TestContract.sol')
   const TestToken = artifacts.require<contracts.TestToken.Contract>('TestToken.sol')
   const TransferToken = artifacts.require<contracts.TransferToken.Contract>('TransferToken.sol')
@@ -41,7 +41,7 @@ contract('Multisig', accounts => {
 
   let bytecodeManager: BytecodeManager
   let counterFactory: InstantiationFactory
-  let instSharedState: Instantiation
+  let instLineup: Instantiation
   let multisig: contracts.Multisig.Contract
   let proxy: contracts.Proxy.Contract
   let registry: contracts.PublicRegistry.Contract
@@ -65,8 +65,8 @@ contract('Multisig', accounts => {
     BidirectionalCF.link(LibCommon)
     BidirectionalCF.link(BidirectionalCFLibrary)
     Proxy.link(ProxyLibrary)
-    SharedState.link(LibCommon)
-    SharedState.link(BidirectionalCFLibrary)
+    Lineup.link(LibCommon)
+    Lineup.link(BidirectionalCFLibrary)
 
     bytecodeManager = new BytecodeManager(web3)
     await bytecodeManager.addLink(ECRecovery, 'ECRecovery')
@@ -104,11 +104,11 @@ contract('Multisig', accounts => {
 
   describe('.execute', () => {
     specify('All right', async () => {
-      sharedState = bytecodeManager.constructBytecode(SharedState, sender, settlementPeriod, 0x0)
-      instSharedState = await counterFactory.call(registry.deploy.request(sharedState, '0x20'), 0)
+      lineup = bytecodeManager.constructBytecode(Lineup, sender, settlementPeriod, 0x0)
+      instLineup = await counterFactory.call(registry.deploy.request(lineup, '0x20'), 0)
 
       try {
-        await multisig.execute(instSharedState.destination, instSharedState.value, instSharedState.callBytecode, instSharedState.senderSig, instSharedState.receiverSig)
+        await multisig.execute(instLineup.destination, instLineup.value, instLineup.callBytecode, instLineup.senderSig, instLineup.receiverSig)
       } catch (e) {
         assert(false, 'execute must return true')
       }
@@ -117,12 +117,12 @@ contract('Multisig', accounts => {
     specify('Wrong bytecode', async () => {
       let callBytecode = 'wrong-bytecode-here'
 
-      sharedState = bytecodeManager.constructBytecode(SharedState, sender, settlementPeriod, 0x0)
-      instSharedState = await counterFactory.call(registry.deploy.request(sharedState, '0x20'), 0)
+      lineup = bytecodeManager.constructBytecode(Lineup, sender, settlementPeriod, 0x0)
+      instLineup = await counterFactory.call(registry.deploy.request(lineup, '0x20'), 0)
 
-      instSharedState.callBytecode = callBytecode
+      instLineup.callBytecode = callBytecode
       try {
-        await multisig.execute(instSharedState.destination, instSharedState.value, instSharedState.callBytecode, instSharedState.senderSig, instSharedState.receiverSig)
+        await multisig.execute(instLineup.destination, instLineup.value, instLineup.callBytecode, instLineup.senderSig, instLineup.receiverSig)
         assert(false, 'execute must return false')
       } catch (e) {
         // true
@@ -132,12 +132,12 @@ contract('Multisig', accounts => {
     specify('Wrong destination', async () => {
       let destination = 'wrong-destination-here'
 
-      sharedState = bytecodeManager.constructBytecode(SharedState, sender, settlementPeriod, 0x0)
-      instSharedState = await counterFactory.call(registry.deploy.request(sharedState, '0x20'), 0)
+      lineup = bytecodeManager.constructBytecode(Lineup, sender, settlementPeriod, 0x0)
+      instLineup = await counterFactory.call(registry.deploy.request(lineup, '0x20'), 0)
 
-      instSharedState.destination = destination
+      instLineup.destination = destination
       try {
-        await multisig.execute(instSharedState.destination, instSharedState.value, instSharedState.callBytecode, instSharedState.senderSig, instSharedState.receiverSig)
+        await multisig.execute(instLineup.destination, instLineup.value, instLineup.callBytecode, instLineup.senderSig, instLineup.receiverSig)
         assert(false, 'execute must return false')
       } catch (e) {
         // true
@@ -147,12 +147,12 @@ contract('Multisig', accounts => {
     specify('Wrong value', async () => {
       let value = new BigNumber.BigNumber(12345)
 
-      sharedState = bytecodeManager.constructBytecode(SharedState, sender, settlementPeriod, 0x0)
-      instSharedState = await counterFactory.call(registry.deploy.request(sharedState, '0x20'), 0)
+      lineup = bytecodeManager.constructBytecode(Lineup, sender, settlementPeriod, 0x0)
+      instLineup = await counterFactory.call(registry.deploy.request(lineup, '0x20'), 0)
 
-      instSharedState.value = value
+      instLineup.value = value
       try {
-        await multisig.execute(instSharedState.destination, instSharedState.value, instSharedState.callBytecode, instSharedState.senderSig, instSharedState.receiverSig)
+        await multisig.execute(instLineup.destination, instLineup.value, instLineup.callBytecode, instLineup.senderSig, instLineup.receiverSig)
         assert(false, 'execute must return false')
       } catch (e) {
         // true
@@ -162,12 +162,12 @@ contract('Multisig', accounts => {
     specify('Wrong senderSig', async () => {
       let senderSig = 'wrong-senderSig-here'
 
-      sharedState = bytecodeManager.constructBytecode(SharedState, sender, settlementPeriod, 0x0)
-      instSharedState = await counterFactory.call(registry.deploy.request(sharedState, '0x20'), 0)
+      lineup = bytecodeManager.constructBytecode(Lineup, sender, settlementPeriod, 0x0)
+      instLineup = await counterFactory.call(registry.deploy.request(lineup, '0x20'), 0)
 
-      instSharedState.senderSig = senderSig
+      instLineup.senderSig = senderSig
       try {
-        await multisig.execute(instSharedState.destination, instSharedState.value, instSharedState.callBytecode, instSharedState.senderSig, instSharedState.receiverSig)
+        await multisig.execute(instLineup.destination, instLineup.value, instLineup.callBytecode, instLineup.senderSig, instLineup.receiverSig)
         assert(false, 'execute must return false')
       } catch (e) {
         // true
@@ -177,12 +177,12 @@ contract('Multisig', accounts => {
     specify('Wrong receiverSig', async () => {
       let receiverSig = 'wrong-receiverSig-here'
 
-      sharedState = bytecodeManager.constructBytecode(SharedState, sender, settlementPeriod, 0x0)
-      instSharedState = await counterFactory.call(registry.deploy.request(sharedState, '0x20'), 0)
+      lineup = bytecodeManager.constructBytecode(Lineup, sender, settlementPeriod, 0x0)
+      instLineup = await counterFactory.call(registry.deploy.request(lineup, '0x20'), 0)
 
-      instSharedState.receiverSig = receiverSig
+      instLineup.receiverSig = receiverSig
       try {
-        await multisig.execute(instSharedState.destination, instSharedState.value, instSharedState.callBytecode, instSharedState.senderSig, instSharedState.receiverSig)
+        await multisig.execute(instLineup.destination, instLineup.value, instLineup.callBytecode, instLineup.senderSig, instLineup.receiverSig)
         assert(false, 'execute must return false')
       } catch (e) {
         // true
@@ -193,7 +193,7 @@ contract('Multisig', accounts => {
 
   describe('.executeDelegate', () => {
     specify('All right', async () => {
-      sharedState = bytecodeManager.constructBytecode(SharedState, sender, settlementPeriod, 0x0)
+      lineup = bytecodeManager.constructBytecode(Lineup, sender, settlementPeriod, 0x0)
       let address = '0x0a00000000000000000000000000000000000000'
       let transferCall: support.Call = {
         method: '',
@@ -204,23 +204,23 @@ contract('Multisig', accounts => {
         }]
       }
       web3.eth.sendTransaction({ from: sender, to: multisig.address, value: new BigNumber.BigNumber(10) })
-      instSharedState = await counterFactory.delegatecall(transferCall, 0)
+      instLineup = await counterFactory.delegatecall(transferCall, 0)
 
-      console.log(instSharedState)
-      await multisig.executeDelegate(instSharedState.destination, instSharedState.value, instSharedState.callBytecode, instSharedState.senderSig, instSharedState.receiverSig)
+      console.log(instLineup)
+      await multisig.executeDelegate(instLineup.destination, instLineup.value, instLineup.callBytecode, instLineup.senderSig, instLineup.receiverSig)
       //assert.equal(web3.eth.getBalance(address).toString(), '10')
     })
 
     specify('Wrong bytecode', async () => {
       let callBytecode = 'wrong-bytecode-here'
 
-      sharedState = bytecodeManager.constructBytecode(SharedState, sender, settlementPeriod, 0x0)
-      instSharedState = await counterFactory.call(registry.deploy.request(sharedState, '0x20'), 0)
+      lineup = bytecodeManager.constructBytecode(Lineup, sender, settlementPeriod, 0x0)
+      instLineup = await counterFactory.call(registry.deploy.request(lineup, '0x20'), 0)
 
-      instSharedState.callBytecode = callBytecode
+      instLineup.callBytecode = callBytecode
 
       try {
-        await multisig.executeDelegate(instSharedState.destination, instSharedState.value, instSharedState.callBytecode, instSharedState.senderSig, instSharedState.receiverSig)
+        await multisig.executeDelegate(instLineup.destination, instLineup.value, instLineup.callBytecode, instLineup.senderSig, instLineup.receiverSig)
         assert(false, 'executeDelegate must return false')
       } catch (e) {
         // true
@@ -230,12 +230,12 @@ contract('Multisig', accounts => {
     specify('Wrong destination', async () => {
       let destination = 'wrong-destination-here'
 
-      sharedState = bytecodeManager.constructBytecode(SharedState, sender, settlementPeriod, 0x0)
-      instSharedState = await counterFactory.call(registry.deploy.request(sharedState, '0x20'), 0)
+      lineup = bytecodeManager.constructBytecode(Lineup, sender, settlementPeriod, 0x0)
+      instLineup = await counterFactory.call(registry.deploy.request(lineup, '0x20'), 0)
 
-      instSharedState.destination = destination
+      instLineup.destination = destination
       try {
-        await multisig.executeDelegate(instSharedState.destination, instSharedState.value, instSharedState.callBytecode, instSharedState.senderSig, instSharedState.receiverSig)
+        await multisig.executeDelegate(instLineup.destination, instLineup.value, instLineup.callBytecode, instLineup.senderSig, instLineup.receiverSig)
         assert(false, 'executeDelegate must return false')
       } catch (e) {
         assert(true)
@@ -245,12 +245,12 @@ contract('Multisig', accounts => {
     specify('Wrong value', async () => {
       let value = new BigNumber.BigNumber(12345)
 
-      sharedState = bytecodeManager.constructBytecode(SharedState, sender, settlementPeriod, 0x0)
-      instSharedState = await counterFactory.call(registry.deploy.request(sharedState, '0x20'), 0)
+      lineup = bytecodeManager.constructBytecode(Lineup, sender, settlementPeriod, 0x0)
+      instLineup = await counterFactory.call(registry.deploy.request(lineup, '0x20'), 0)
 
-      instSharedState.value = value
+      instLineup.value = value
       try {
-        await multisig.executeDelegate(instSharedState.destination, instSharedState.value, instSharedState.callBytecode, instSharedState.senderSig, instSharedState.receiverSig)
+        await multisig.executeDelegate(instLineup.destination, instLineup.value, instLineup.callBytecode, instLineup.senderSig, instLineup.receiverSig)
         assert(false, 'executeDelegate must return false')
       } catch (e) {
         assert(true)
@@ -260,12 +260,12 @@ contract('Multisig', accounts => {
     specify('Wrong senderSig', async () => {
       let senderSig = 'wrong-senderSig-here'
 
-      sharedState = bytecodeManager.constructBytecode(SharedState, sender, settlementPeriod, 0x0)
-      instSharedState = await counterFactory.call(registry.deploy.request(sharedState, '0x20'), 0)
+      lineup = bytecodeManager.constructBytecode(Lineup, sender, settlementPeriod, 0x0)
+      instLineup = await counterFactory.call(registry.deploy.request(lineup, '0x20'), 0)
 
-      instSharedState.senderSig = senderSig
+      instLineup.senderSig = senderSig
       try {
-        await multisig.executeDelegate(instSharedState.destination, instSharedState.value, instSharedState.callBytecode, instSharedState.senderSig, instSharedState.receiverSig)
+        await multisig.executeDelegate(instLineup.destination, instLineup.value, instLineup.callBytecode, instLineup.senderSig, instLineup.receiverSig)
         assert(false, 'executeDelegate must return false')
       } catch (e) {
         // true
@@ -275,12 +275,12 @@ contract('Multisig', accounts => {
     specify('Wrong receiverSig', async () => {
       let receiverSig = 'wrong-receiverSig-here'
 
-      sharedState = bytecodeManager.constructBytecode(SharedState, sender, settlementPeriod, 0x0)
-      instSharedState = await counterFactory.call(registry.deploy.request(sharedState, '0x20'), 0)
+      lineup = bytecodeManager.constructBytecode(Lineup, sender, settlementPeriod, 0x0)
+      instLineup = await counterFactory.call(registry.deploy.request(lineup, '0x20'), 0)
 
-      instSharedState.receiverSig = receiverSig
+      instLineup.receiverSig = receiverSig
       try {
-        await multisig.executeDelegate(instSharedState.destination, instSharedState.value, instSharedState.callBytecode, instSharedState.senderSig, instSharedState.receiverSig)
+        await multisig.executeDelegate(instLineup.destination, instLineup.value, instLineup.callBytecode, instLineup.senderSig, instLineup.receiverSig)
         assert(false, 'executeDelegate must return false')
       } catch (e) {
         // true

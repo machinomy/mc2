@@ -1,6 +1,6 @@
 pragma solidity ^0.4.19;
 
 
-contract ISharedState {
+contract ILineup {
     function isContained(bytes proof, bytes32 hashlock) public view returns (bool);
 }

@@ -15,7 +15,7 @@ const assert = chai.assert
 
 const ECRecovery = artifacts.require<contracts.ECRecovery.Contract>('ECRecovery.sol')
 const PublicRegistry = artifacts.require<contracts.PublicRegistry.Contract>('PublicRegistry.sol')
-const SharedState = artifacts.require<contracts.SharedState.Contract>('SharedState.sol')
+const Lineup = artifacts.require<contracts.Lineup.Contract>('Lineup.sol')
 const Multisig = artifacts.require<contracts.Multisig.Contract>('Multisig.sol')
 const BidirectionalCF = artifacts.require<contracts.BidirectionalCF.Contract>('BidirectionalCF.sol')
 const Proxy = artifacts.require<contracts.Proxy.Contract>('Proxy.sol')
@@ -33,11 +33,11 @@ contract('HappyCase', accounts => {
   let proxy: contracts.Proxy.Contract
   let instanceForDigest: contracts.BidirectionalCF.Contract
 
-  let sharedState: string
+  let lineup: string
   let bidirectionalCF: string
-  let sharedState2: string
+  let lineup2: string
 
-  let instSharedState: Instantiation
+  let instLineup: Instantiation
   let instBidirectionalCF: Instantiation
 
   let counterfactualAddressBidirectionalCF: string
@@ -64,7 +64,7 @@ contract('HappyCase', accounts => {
     BidirectionalCF.link(BidirectionalCFLibrary)
     Proxy.link(ProxyLibrary)
     ConditionalCall.link(ConditionalCallLibrary)
-    SharedState.link(BidirectionalCFLibrary)
+    Lineup.link(BidirectionalCFLibrary)
 
     bytecodeManager = new BytecodeManager(web3)
     await bytecodeManager.addLink(ECRecovery, 'ECRecovery')
@@ -91,8 +91,8 @@ contract('HappyCase', accounts => {
     counterFactory = new InstantiationFactory(web3, multisig)
 
     // Step 2
-    sharedState = bytecodeManager.constructBytecode(SharedState, sender, settlementPeriod, 0x0)
-    instSharedState = await counterFactory.call(registry.deploy.request(sharedState, '0x20'), nonceMultisig)
+    lineup = bytecodeManager.constructBytecode(Lineup, sender, settlementPeriod, 0x0)
+    instLineup = await counterFactory.call(registry.deploy.request(lineup, '0x20'), nonceMultisig)
     nonceMultisig++
 
     // Step 3
@@ -105,8 +105,8 @@ contract('HappyCase', accounts => {
     counterfactualAddressBidirectionalCF = await registry.counterfactualAddress(bidirectionalCF, '0x30')
 
     // Step 4
-    sharedState2 = bytecodeManager.constructBytecode(SharedState, sender, settlementPeriod, 0x3)
-    await counterFactory.call(registry.deploy.request(sharedState2, '0x40'), nonceMultisig)
+    lineup2 = bytecodeManager.constructBytecode(Lineup, sender, settlementPeriod, 0x3)
+    await counterFactory.call(registry.deploy.request(lineup2, '0x40'), nonceMultisig)
 
     nonceBidirectional += 2
     // Step 5
@@ -115,7 +115,7 @@ contract('HappyCase', accounts => {
     let signedByReceiverData = web3.eth.sign(receiver, digest)
     let moveMoneyToBiDi = await counterFactory.delegatecall(proxy.doCall.request(registry.address, counterfactualAddressBidirectionalCF, new BigNumber.BigNumber(10), '0x00'), new BigNumber.BigNumber(nonceMultisig))
 
-    await support.logGas('instantiate shared state', counterFactory.execute(instSharedState))
+    await support.logGas('instantiate lineup', counterFactory.execute(instLineup))
     await support.logGas('instantiate BiDi', counterFactory.execute(instBidirectionalCF))
 
     let counterfactualAddressUpdateBidirectionalCF = await registry.counterfactualAddress(bidirectionalCF, '0x30')

@@ -7,7 +7,7 @@ import TransferToken from '../build/wrappers/TransferToken'
 import DistributeEth from '../build/wrappers/DistributeEth'
 import DistributeToken from '../build/wrappers/DistributeToken'
 import UnidirectionalCF from '../build/wrappers/UnidirectionalCF'
-import SharedState from '../build/wrappers/SharedState'
+import Lineup from '../build/wrappers/Lineup'
 import ConditionalCall from '../build/wrappers/ConditionalCall'
 import BidirectionalCF from '../build/wrappers/BidirectionalCF'
 import TestContract from '../build/wrappers/TestContract'
@@ -25,7 +25,7 @@ export {
   DistributeToken,
   UnidirectionalCF,
   ConditionalCall,
-  SharedState,
+  Lineup,
   BidirectionalCF,
   TestContract,
   TestToken

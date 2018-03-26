@@ -17,7 +17,7 @@ const assert = chai.assert
 const ECRecovery = artifacts.require<contracts.ECRecovery.Contract>('ECRecovery.sol')
 const PublicRegistry = artifacts.require<contracts.PublicRegistry.Contract>('PublicRegistry.sol')
 const Multisig = artifacts.require<contracts.Multisig.Contract>('Multisig.sol')
-const SharedState = artifacts.require<contracts.SharedState.Contract>('SharedState.sol')
+const Lineup = artifacts.require<contracts.Lineup.Contract>('Lineup.sol')
 const ConditionalCall = artifacts.require<contracts.ConditionalCall.Contract>('ConditionalCall.sol')
 
 const TestContract: truffle.TruffleContract<TestContractWrapper.Contract> = artifacts.require<TestContractWrapper.Contract>('TestContract.sol')
@@ -59,11 +59,11 @@ contract('ConditionalCall', accounts => {
 
     let codeHash = await conditional.callHash(testContract.address, new BigNumber.BigNumber(0), bytecode)
 
-    let stateBytecode = bytecodeManager.constructBytecode(SharedState, sender, 0, codeHash)
+    let stateBytecode = bytecodeManager.constructBytecode(Lineup, sender, 0, codeHash)
     let counterfactualAddress = await registry.counterfactualAddress(stateBytecode, registryNonce)
-    let sharedStateInstantiation = await counterFactory.call(registry.deploy.request(stateBytecode, registryNonce))
+    let lineupInstantiation = await counterFactory.call(registry.deploy.request(stateBytecode, registryNonce))
 
-    await counterFactory.execute(sharedStateInstantiation)
+    await counterFactory.execute(lineupInstantiation)
 
     // await testContract.updateNonce(new BigNumber.BigNumber(20))
     let proof = '0x0' // merkleTree.proof(codeHash)

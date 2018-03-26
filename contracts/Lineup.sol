@@ -1,10 +1,10 @@
 pragma solidity ^0.4.19;
 
-import "./ISharedState.sol";
+import "./ILineup.sol";
 import "./LibCommon.sol";
 
 
-contract SharedState is ISharedState {
+contract Lineup is ILineup {
     LibCommon.ShareStateState public state;
 
     modifier restricted() {
@@ -12,7 +12,7 @@ contract SharedState is ISharedState {
             _;
     }
 
-    function SharedState(address _owner, uint256 _updatePeriod, bytes32 _merkleRoot) public {
+    function Lineup(address _owner, uint256 _updatePeriod, bytes32 _merkleRoot) public {
         state.owner = _owner;
         state.merkleRoot = _merkleRoot;
         state.updatePeriod = _updatePeriod;

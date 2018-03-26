@@ -12,26 +12,26 @@ const assert = chai.assert
 
 const ECRecovery = artifacts.require<contracts.ECRecovery.Contract>('ECRecovery.sol')
 
-const SharedState = artifacts.require<contracts.SharedState.Contract>('SharedState.sol')
+const Lineup = artifacts.require<contracts.Lineup.Contract>('Lineup.sol')
 
-contract('SharedState', accounts => {
+contract('Lineup', accounts => {
   const sender = accounts[0]
 
-  let sharedState: contracts.SharedState.Contract
+  let lineup: contracts.Lineup.Contract
 
   const LibCommon = artifacts.require('LibCommon.sol')
 
   before(async () => {
-    SharedState.link(LibCommon)
-    SharedState.link(ECRecovery)
-    sharedState = await SharedState.new(sender, 100, 0x0)
+    Lineup.link(LibCommon)
+    Lineup.link(ECRecovery)
+    lineup = await Lineup.new(sender, 100, 0x0)
   })
 
-  specify('SharedState::check update', async () => {
+  specify('Lineup::check update', async () => {
     let elements = [1, 2, 3].map(e => utils.sha3(e))
     let merkleTree = new MerkleTree(elements)
-    await sharedState.update(new BigNumber.BigNumber(42), utils.bufferToHex(merkleTree.root), {from: sender})
-    let nonce = (await sharedState.state())[1] // nonce()
+    await lineup.update(new BigNumber.BigNumber(42), utils.bufferToHex(merkleTree.root), {from: sender})
+    let nonce = (await lineup.state())[1] // nonce()
     assert.equal(nonce.toNumber(), 42)
   })
 })
