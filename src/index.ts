@@ -7,9 +7,11 @@ import TransferToken from '../build/wrappers/TransferToken'
 import DistributeEth from '../build/wrappers/DistributeEth'
 import DistributeToken from '../build/wrappers/DistributeToken'
 import UnidirectionalCF from '../build/wrappers/UnidirectionalCF'
-import SharedState from '../build/wrappers/SharedState'
+import Lineup from '../build/wrappers/Lineup'
 import ConditionalCall from '../build/wrappers/ConditionalCall'
 import BidirectionalCF from '../build/wrappers/BidirectionalCF'
+import TestContract from '../build/wrappers/TestContract'
+import TestToken from '../build/wrappers/TestToken'
 import * as ethUtil from 'ethereumjs-util'
 
 export {
@@ -23,8 +25,10 @@ export {
   DistributeToken,
   UnidirectionalCF,
   ConditionalCall,
-  SharedState,
-  BidirectionalCF
+  Lineup,
+  BidirectionalCF,
+  TestContract,
+  TestToken
 }
 
 export function randomId (digits: number = 3) {

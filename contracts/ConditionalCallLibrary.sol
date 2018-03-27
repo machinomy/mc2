@@ -2,13 +2,10 @@ pragma solidity ^0.4.19;
 
 import "./ILineup.sol";
 import "./IRegistry.sol";
-import "./ConditionalCallLibrary.sol";
 
 
-contract ConditionalCall {
+library ConditionalCallLibrary {
     function execute(address _registry, bytes32 _lineupCF, bytes _proof, address _destination, uint256 _value, bytes _data) public {
-        // ConditionalCallLibrary.execute(_registry, _lineupCF, _proof, _destination, _value, _data);
-
         IRegistry registry = IRegistry(_registry);
         address lineupAddress = registry.resolve(_lineupCF);
         ILineup lineup = ILineup(lineupAddress);

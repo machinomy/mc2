@@ -31,28 +31,40 @@ contract UnidirectionalCF {
 
     function settle() public {
         require(canSettle());
-        selfdestruct(multisig.sender());
+        address sender;
+        address receiver;
+        uint256 __nonce;
+        (sender, receiver, __nonce) = multisig.state();
+        selfdestruct(sender);
     }
 
     function canWithdraw(uint256 payment, address origin, bytes signature) public view returns (bool) {
-        bool isReceiver = origin == multisig.receiver();
+        address sender;
+        address receiver;
+        uint256 __nonce;
+        (sender, receiver, __nonce) = multisig.state();
+        bool isReceiver = origin == receiver;
         bytes32 hash = recoveryPaymentDigest(payment);
-        bool isSigned = multisig.sender() == ECRecovery.recover(hash, signature);
+        bool isSigned = sender == ECRecovery.recover(hash, signature);
 
         return isReceiver && isSigned;
     }
 
     function withdraw(uint256 payment, bytes signature) public {
         require(canWithdraw(payment, msg.sender, signature));
+        address sender;
+        address receiver;
+        uint256 __nonce;
+        (sender, receiver, __nonce) = multisig.state();
 
         if (payment >= this.balance) {
-            multisig.receiver().transfer(payment);
+            receiver.transfer(payment);
         } else {
-            multisig.receiver().transfer(payment);
-            multisig.sender().transfer(this.balance.sub(payment));
+            receiver.transfer(payment);
+            sender.transfer(this.balance.sub(payment));
         }
 
-        selfdestruct(multisig.sender());
+        selfdestruct(sender);
     }
 
     /*** CHANNEL STATE ***/
