@@ -1,0 +1,10 @@
+{{#each wrappers}}
+import {{name}} from '{{path}}'
+{{/each}}
+
+
+export {
+{{#each wrappers}}
+  {{name}}{{#unless @last}},{{/unless}}
+{{/each}}
+}
