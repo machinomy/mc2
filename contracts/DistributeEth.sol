@@ -2,8 +2,8 @@ pragma solidity ^0.4.19;
 
 
 contract DistributeEth {
-    function execute(address sender, address receiver, uint256 toSender, uint256 toReceiver) public {
-        sender.transfer(toSender);
-        receiver.transfer(toReceiver);
+    function execute(address a, address b, uint256 amountA, uint256 amountB) public {
+        a.transfer(amountA);
+        b.transfer(amountB);
     }
 }
