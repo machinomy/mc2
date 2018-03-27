@@ -112,7 +112,7 @@ export class InstantiationFactory {
 
   }
 
-  async raw (destination: Address, value: BigNumber.BigNumber, callBytecode: HexString, nonce: BigNumber.BigNumber) {
+  async raw (destination: Address, value: BigNumber.BigNumber, callBytecode: HexString, nonce: BigNumber.BigNumber, operation: number) {
     let _state = await this.multisig.state()
     let sender = _state[0]
     let receiver = _state[1]
@@ -127,8 +127,8 @@ export class InstantiationFactory {
     return Promise.resolve({
       destination,
       callBytecode,
-      value: new BigNumber.BigNumber(value),
-      operation: 0,
+      value,
+      operation,
       senderSig,
       receiverSig,
       nonce
@@ -137,56 +137,20 @@ export class InstantiationFactory {
 
   private async build (call: Call, _nonce?: BigNumber.BigNumber|number): Promise<Instantiation> {
     let params = call.params[0]
-    let destination = params.to
-    let callBytecode = params.data
     let value = new BigNumber.BigNumber(0)
     let _state = await this.multisig.state()
-    let sender = _state[0]
-    let receiver = _state[1]
     let nonce = new BigNumber.BigNumber(_nonce || _state[2])
-    let operationHash = util.bufferToHex(abi.soliditySHA3(
-      ['address', 'address' , 'uint256', 'bytes', 'uint256'],
-      [this.multisig.address, destination, value.toString(), util.toBuffer(callBytecode), nonce.toString()]
-    )) // TODO Make it different for call and delegatecall
-    let senderSig = this.web3.eth.sign(sender, operationHash)
-    let receiverSig = this.web3.eth.sign(receiver, operationHash)
 
-    return Promise.resolve({
-      destination,
-      callBytecode,
-      value,
-      operation: 0,
-      senderSig,
-      receiverSig,
-      nonce
-    })
+    return this.raw(params.to, value, params.data, nonce, 0)
   }
 
   private async buildDelegate (call: Call, _nonce?: BigNumber.BigNumber|number): Promise<Instantiation> {
     let params = call.params[0]
-    let destination = params.to
-    let callBytecode = params.data
     let value = call.value || new BigNumber.BigNumber(0)
     let _state = await this.multisig.state()
-    let sender = _state[0]
-    let receiver = _state[1]
     let nonce = new BigNumber.BigNumber(_nonce || _state[2])
-    let _operationHash = util.bufferToHex(abi.soliditySHA3(
-      ['address', 'address' , 'uint256', 'bytes', 'uint256'],
-      [this.multisig.address, destination, value.toString(), util.toBuffer(callBytecode), nonce.toString()]
-    )) // TODO Make it different for call and delegatecall
-    let senderSig = this.web3.eth.sign(sender, _operationHash)
-    let receiverSig = this.web3.eth.sign(receiver, _operationHash)
 
-    return Promise.resolve({
-      destination,
-      callBytecode,
-      value,
-      operation: 1,
-      senderSig,
-      receiverSig,
-      nonce
-    })
+    return this.raw(params.to, value, params.data, nonce, 1)
   }
 }
 
