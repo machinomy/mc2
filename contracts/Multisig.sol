@@ -13,7 +13,7 @@ contract Multisig {
 
     function () payable external {}
 
-    function execute(
+    function doCall(
         address destination,
         uint256 value,
         bytes data,
@@ -21,7 +21,7 @@ contract Multisig {
         bytes receiverSig
     ) external
     {
-        LibMultisig.execute(
+        LibMultisig.doCall(
             address(this),
             destination,
             value,
@@ -33,18 +33,16 @@ contract Multisig {
         require(destination.call.value(value)(data)); // solium-disable-line security/no-call-value
     }
 
-    function executeDelegate(
+    function doDelegate(
         address destination,
-        uint256 value,
         bytes data,
         bytes senderSig,
         bytes receiverSig
     ) external
     {
-        LibMultisig.executeDelegate(
+        LibMultisig.doDelegatecall(
             address(this),
             destination,
-            value,
             data,
             senderSig,
             receiverSig,

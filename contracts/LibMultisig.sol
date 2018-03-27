@@ -19,40 +19,56 @@ library LibMultisig {
         uint256 _value,
         bytes _data,
         uint256 _nonce
-    ) public pure returns(bytes32)
+    ) internal pure returns(bytes32)
     {
         return LibCommon.recoveryDigest(keccak256(_self, _destination, _value, _data, _nonce));
     }
 
-    function isUnanimous(bytes32 hash, bytes senderSig, bytes receiverSig, address sender, address receiver) public pure returns(bool) {
-        return sender == LibCommon.recover(hash, senderSig) && receiver == LibCommon.recover(hash, receiverSig);
+    function delegateDigest(
+        address _self,
+        address _destination,
+        bytes _data,
+        uint256 _nonce
+    ) internal pure returns(bytes32)
+    {
+        return LibCommon.recoveryDigest(keccak256(_self, _destination, _data, _nonce));
     }
 
-    function execute(
-        address thisAddress,
+    function isUnanimous(
+        bytes32 hash,
+        bytes senderSig,
+        bytes receiverSig,
+        State storage state
+    ) internal view returns(bool)
+    {
+        return state.sender == LibCommon.recover(hash, senderSig) &&
+            state.receiver == LibCommon.recover(hash, receiverSig);
+    }
+
+    function doCall(
+        address self,
         address destination,
         uint256 value,
         bytes data,
         bytes senderSig,
         bytes receiverSig,
         State storage state
-    ) public
+    ) public view
     {
-        require(isUnanimous(callDigest(thisAddress, destination, value, data, state.nonce), senderSig, receiverSig, state.sender, state.receiver));
+        require(isUnanimous(callDigest(self, destination, value, data, state.nonce), senderSig, receiverSig, state));
         state.nonce.add(1);
     }
 
-    function executeDelegate(
-        address thisAddress,
+    function doDelegatecall(
+        address self,
         address destination,
-        uint256 value,
         bytes data,
         bytes senderSig,
         bytes receiverSig,
         State storage state
-    ) public
+    ) public view
     {
-        require(isUnanimous(callDigest(thisAddress, destination, value, data, state.nonce), senderSig, receiverSig, state.sender, state.receiver));
+        require(isUnanimous(delegateDigest(self, destination, data, state.nonce), senderSig, receiverSig, state));
         state.nonce.add(1);
     }
 }

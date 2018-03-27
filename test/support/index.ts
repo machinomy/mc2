@@ -113,9 +113,9 @@ export class InstantiationFactory {
 
   async execute (i: Instantiation, options?: Web3.TxData): Promise<truffle.TransactionResult> {
     if (i.operation === 0) {
-      return this.multisig.execute(i.destination, i.value, i.callBytecode, i.senderSig, i.receiverSig, options)
+      return this.multisig.doCall(i.destination, i.value, i.callBytecode, i.senderSig, i.receiverSig, options)
     } else {
-      return this.multisig.executeDelegate(i.destination, i.value, i.callBytecode, i.senderSig, i.receiverSig, options)
+      return this.multisig.doDelegate(i.destination, i.callBytecode, i.senderSig, i.receiverSig, options)
     }
 
   }
@@ -157,8 +157,28 @@ export class InstantiationFactory {
     let value = call.value || new BigNumber.BigNumber(0)
     let _state = await this.multisig.state()
     let nonce = new BigNumber.BigNumber(_nonce || _state[2])
+    let destination = params.to
+    let callBytecode = params.data
+    let operation = 1
+    let sender = _state[0]
+    let receiver = _state[1]
 
-    return this.raw(params.to, value, params.data, nonce, 1)
+    let operationHash = util.bufferToHex(abi.soliditySHA3(
+      ['address', 'address' , 'bytes', 'uint256'],
+      [this.multisig.address, destination, util.toBuffer(callBytecode), nonce.toString()]
+    )) // TODO Make it different for call and delegatecall
+    let senderSig = this.web3.eth.sign(sender, operationHash)
+    let receiverSig = this.web3.eth.sign(receiver, operationHash)
+
+    return Promise.resolve({
+      destination,
+      callBytecode,
+      value,
+      operation,
+      senderSig,
+      receiverSig,
+      nonce
+    })
   }
 }
 

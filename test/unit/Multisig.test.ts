@@ -82,24 +82,24 @@ contract('Multisig', accounts => {
       web3.eth.sendTransaction({from: sender, to: multisig.address, value: amount})
 
       let transfer = await counterFactory.raw(FAKE_ADDRESS_A, amount, '0x', new BigNumber.BigNumber(0), 0)
-      let execution = multisig.execute(transfer.destination, transfer.value, transfer.callBytecode, transfer.senderSig, transfer.receiverSig)
+      let execution = multisig.doCall(transfer.destination, transfer.value, transfer.callBytecode, transfer.senderSig, transfer.receiverSig)
       await assert.isFulfilled(gaser.logGas('Multisig.execute: Transfer Ether', execution), 'transfer transaction')
       assert.equal(web3.eth.getBalance(FAKE_ADDRESS_A).toString(), amount.toString())
     })
 
     specify('not if wrong bytecode', async () => {
       let t = await counterFactory.raw(FAKE_ADDRESS_A, amount, '0xdead', new BigNumber.BigNumber(0), 0)
-      await assert.isRejected(multisig.execute(t.destination, t.value, t.callBytecode, t.senderSig, t.receiverSig))
+      await assert.isRejected(multisig.doCall(t.destination, t.value, t.callBytecode, t.senderSig, t.receiverSig))
     })
 
     specify('not if wrong senderSig', async () => {
       let t = await counterFactory.raw(FAKE_ADDRESS_A, amount, '0x', new BigNumber.BigNumber(0), 0)
-      await assert.isRejected(multisig.execute(t.destination, t.value, t.callBytecode, '0xdead', t.receiverSig))
+      await assert.isRejected(multisig.doCall(t.destination, t.value, t.callBytecode, '0xdead', t.receiverSig))
     })
 
     specify('not if wrong receiverSig', async () => {
       let t = await counterFactory.raw(FAKE_ADDRESS_A, amount, '0x', new BigNumber.BigNumber(0), 0)
-      await assert.isRejected(multisig.execute(t.destination, t.value, t.callBytecode, t.senderSig, t.receiverSig))
+      await assert.isRejected(multisig.doCall(t.destination, t.value, t.callBytecode, t.senderSig, t.receiverSig))
     })
   })
 
@@ -123,8 +123,8 @@ contract('Multisig', accounts => {
       let command = await counterFactory.delegatecall(transfer)
       let beforeA = web3.eth.getBalance(FAKE_ADDRESS_A)
       let beforeB = web3.eth.getBalance(FAKE_ADDRESS_B)
-      let execution = multisig.executeDelegate(command.destination, command.value, command.callBytecode, command.senderSig, command.receiverSig)
-      await assert.isFulfilled(gaser.logGas('Multisig.executeDelegate: DistributeEth.execute', execution))
+      let execution = multisig.doDelegate(command.destination, command.callBytecode, command.senderSig, command.receiverSig)
+      await assert.isFulfilled(gaser.logGas('multisig.doDelegate: DistributeEth.execute', execution))
       let afterA = web3.eth.getBalance(FAKE_ADDRESS_A)
       let afterB = web3.eth.getBalance(FAKE_ADDRESS_B)
       assert.equal(afterA.minus(beforeA).toString(), amountA.toString())
@@ -135,7 +135,7 @@ contract('Multisig', accounts => {
       let call = testDelegatecall.execute.request(amountA, amountB)
       let command = await counterFactory.delegatecall(call)
 
-      await assert.isRejected(multisig.executeDelegate(command.destination, command.value, command.callBytecode, command.senderSig, command.receiverSig))
+      await assert.isRejected(multisig.doDelegate(command.destination, command.callBytecode, command.senderSig, command.receiverSig))
     })
 
     specify('not if wrong bytecode', async () => {
@@ -143,7 +143,7 @@ contract('Multisig', accounts => {
       call.params[0].data = '0xdead'
       let command = await counterFactory.delegatecall(call)
 
-      await assert.isRejected(multisig.executeDelegate(command.destination, command.value, command.callBytecode, command.senderSig, command.receiverSig))
+      await assert.isRejected(multisig.doDelegate(command.destination, command.callBytecode, command.senderSig, command.receiverSig))
     })
 
     specify('not if wrong signature', async () => {
@@ -151,7 +151,7 @@ contract('Multisig', accounts => {
       let command = await counterFactory.delegatecall(call)
       command.callBytecode = '0xdead'
 
-      await assert.isRejected(multisig.executeDelegate(command.destination, command.value, command.callBytecode, command.senderSig, command.receiverSig))
+      await assert.isRejected(multisig.doDelegate(command.destination, command.callBytecode, command.senderSig, command.receiverSig))
     })
   })
 })
