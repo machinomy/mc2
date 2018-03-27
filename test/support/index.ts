@@ -20,15 +20,23 @@ export class Gaser {
 
   async gasDiff<A> (name: string, account: string, fn: () => A, forceLog: boolean = false) {
     let before = web3.eth.getBalance(account)
-
-    // tslint:disable-next-line:await-promise
-    let result = await fn() // TODO Do we need await here?
+    let result = await fn()
     let after = web3.eth.getBalance(account)
-    if (LOG_GAS_COST || forceLog) {
-      let gasCost = before.minus(after).div(this.web3.eth.gasPrice.div(0.2)).toString() // Beware of magic numbers
-      console.log(`GAS: ${name}: ($${(parseFloat(gasCost) * GAS_COST_IN_USD).toFixed(2)})`, gasCost)
-    }
+    let gasCost = before.minus(after).div(this.web3.eth.gasPrice.div(0.2)).toNumber()
+    this.log(gasCost, name, forceLog)
     return result
+  }
+
+  async logGas (name: string, promisedTx: Promise<truffle.TransactionResult>, forceLog: boolean = false) {
+    let tx = await promisedTx
+    this.log(tx.receipt.gasUsed, name, forceLog)
+    return tx
+  }
+
+  private log (gasCost: number, name: string, forceLog: boolean = false) {
+    if (LOG_GAS_COST || forceLog) {
+      console.log(`GAS: ${name}: ($${(gasCost * GAS_COST_IN_USD).toFixed(2)})`, gasCost)
+    }
   }
 }
 

@@ -83,8 +83,7 @@ contract('Multisig', accounts => {
 
       let transfer = await counterFactory.raw(FAKE_ADDRESS_A, amount, '0x', new BigNumber.BigNumber(0), 0)
       let execution = multisig.execute(transfer.destination, transfer.value, transfer.callBytecode, transfer.senderSig, transfer.receiverSig)
-
-      await assert.isFulfilled(execution, 'transfer transaction')
+      await assert.isFulfilled(gaser.logGas('Multisig.execute: Transfer Ether', execution), 'transfer transaction')
       assert.equal(web3.eth.getBalance(FAKE_ADDRESS_A).toString(), amount.toString())
     })
 
@@ -124,7 +123,8 @@ contract('Multisig', accounts => {
       let command = await counterFactory.delegatecall(transfer)
       let beforeA = web3.eth.getBalance(FAKE_ADDRESS_A)
       let beforeB = web3.eth.getBalance(FAKE_ADDRESS_B)
-      await assert.isFulfilled(multisig.executeDelegate(command.destination, command.value, command.callBytecode, command.senderSig, command.receiverSig))
+      let execution = multisig.executeDelegate(command.destination, command.value, command.callBytecode, command.senderSig, command.receiverSig)
+      await assert.isFulfilled(gaser.logGas('Multisig.executeDelegate: DistributeEth.execute', execution))
       let afterA = web3.eth.getBalance(FAKE_ADDRESS_A)
       let afterB = web3.eth.getBalance(FAKE_ADDRESS_B)
       assert.equal(afterA.minus(beforeA).toString(), amountA.toString())
