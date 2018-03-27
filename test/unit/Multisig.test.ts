@@ -1,7 +1,7 @@
 import * as chai from 'chai'
 import * as Web3 from 'web3'
 import * as asPromised from 'chai-as-promised'
-import { BytecodeManager, Instantiation, InstantiationFactory } from '../support/index'
+import { Address, BytecodeManager, Instantiation, InstantiationFactory } from '../support/index'
 import * as support from '../support/index'
 import * as BigNumber from 'bignumber.js'
 import * as contracts from '../../src/index'
@@ -13,6 +13,8 @@ chai.use(asPromised)
 const web3 = (global as any).web3 as Web3
 const assert = chai.assert
 const gaser = new support.Gaser(web3)
+
+const FAKE_ADDRESS: Address = '0x0a00000000000000000000000000000000000000'
 
 contract('Multisig', accounts => {
   let sender: string
@@ -114,19 +116,19 @@ contract('Multisig', accounts => {
 
     before(async () => {
       lineupC = bytecodeManager.constructBytecode(Lineup, sender, settlementPeriod, 0x0)
+    })
+
+    beforeEach(async () => {
       lineupI = await counterFactory.call(registry.deploy.request(lineupC, '0x20'), 0)
     })
 
-    specify('All right', async () => {
-      await assert.isFulfilled(multisig.execute(lineupI.destination, lineupI.value, lineupI.callBytecode, lineupI.senderSig, lineupI.receiverSig))
+    specify('deploy a transaction', async () => {
+      let execution = multisig.execute(lineupI.destination, lineupI.value, lineupI.callBytecode, lineupI.senderSig, lineupI.receiverSig)
+      await assert.isFulfilled(execution, 'execute must return true')
     })
 
     specify('Wrong bytecode', async () => {
-      const callBytecode = 'wrong-bytecode-here'
-
-      let lineupI = await counterFactory.call(registry.deploy.request(lineupC, '0x20'), 0)
-
-      lineupI.callBytecode = callBytecode
+      lineupI.callBytecode = 'wrong-bytecode-here'
       try {
         await multisig.execute(lineupI.destination, lineupI.value, lineupI.callBytecode, lineupI.senderSig, lineupI.receiverSig)
         assert(false, 'execute must return false')
