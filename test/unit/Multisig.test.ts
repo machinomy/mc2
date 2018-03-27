@@ -12,7 +12,7 @@ chai.use(asPromised)
 
 const web3 = (global as any).web3 as Web3
 const assert = chai.assert
-
+const gaser = new support.Gaser(web3)
 
 contract('Multisig', accounts => {
   let sender: string
@@ -90,15 +90,21 @@ contract('Multisig', accounts => {
 
   describe('.new', () => {
     specify('have a valid sender', async () => {
-      assert.equal(sender, (await multisig.state())[0], 'multisig must have a valid sender after construction')
+      let _multisig = await gaser.gasDiff('Multisig.new', sender, async () => {
+        return await Multisig.new(sender, receiver, { from: sender })
+      })
+      let actualSender = (await _multisig.state())[0]
+      assert.equal(actualSender, sender, 'multisig must have a valid sender after construction')
     })
 
     specify('have a valid receiver', async () => {
-      assert.equal(receiver, (await multisig.state())[1], 'multisig must have a valid receiver after construction')
+      let actualReceiver = (await multisig.state())[1]
+      assert.equal(actualReceiver, receiver, 'multisig must have a valid receiver after construction')
     })
 
     specify('have a valid nonce', async () => {
-      assert.equal((await multisig.state())[2].toNumber(), 0, 'multisig must have a valid nonce after construction')
+      let actualNonce = (await multisig.state())[2].toNumber()
+      assert.equal(actualNonce, 0, 'multisig must have a valid nonce after construction')
     })
   })
 

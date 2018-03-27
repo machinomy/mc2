@@ -11,6 +11,27 @@ const web3 = (global as any).web3 as Web3
 const LOG_GAS_COST = Boolean(process.env.LOG_GAS_COST)
 const GAS_COST_IN_USD = 0.000012 // 1 ETH = 600 USD
 
+export class Gaser {
+  web3: Web3
+
+  constructor (_web3: Web3) {
+    this.web3 = _web3
+  }
+
+  async gasDiff<A> (name: string, account: string, fn: () => A, forceLog: boolean = false) {
+    let before = web3.eth.getBalance(account)
+
+    // tslint:disable-next-line:await-promise
+    let result = await fn() // TODO Do we need await here?
+    let after = web3.eth.getBalance(account)
+    if (LOG_GAS_COST || forceLog) {
+      let gasCost = before.minus(after).div(this.web3.eth.gasPrice.div(0.2)).toString() // Beware of magic numbers
+      console.log(`GAS: ${name}: ($${(parseFloat(gasCost) * GAS_COST_IN_USD).toFixed(2)})`, gasCost)
+    }
+    return result
+  }
+}
+
 export async function logGas (name: string, promisedTx: Promise<truffle.TransactionResult>, forceLog: boolean = false) {
   let tx = await promisedTx
   if (LOG_GAS_COST || forceLog) {
