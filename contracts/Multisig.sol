@@ -21,7 +21,15 @@ contract Multisig {
         bytes receiverSig
     ) external
     {
-        LibMultisig.execute(address(this), destination, value, data, senderSig, receiverSig, state);
+        LibMultisig.execute(
+            address(this),
+            destination,
+            value,
+            data,
+            senderSig,
+            receiverSig,
+            state
+        );
         require(destination.call.value(value)(data)); // solium-disable-line security/no-call-value
     }
 
@@ -33,7 +41,15 @@ contract Multisig {
         bytes receiverSig
     ) external
     {
-        LibMultisig.executeDelegate(address(this), destination, value, data, senderSig, receiverSig, state);
+        LibMultisig.executeDelegate(
+            address(this),
+            destination,
+            value,
+            data,
+            senderSig,
+            receiverSig,
+            state
+        );
         require(destination.delegatecall(data)); // solium-disable-line security/no-low-level-calls
     }
 }

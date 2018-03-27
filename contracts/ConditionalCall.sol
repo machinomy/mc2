@@ -6,8 +6,15 @@ import "./ConditionalCallLibrary.sol";
 
 
 contract ConditionalCall {
-    function execute(address _registry, bytes32 _lineupCF, bytes _proof, address _destination, uint256 _value, bytes _data) public {
-        // ConditionalCallLibrary.execute(_registry, _lineupCF, _proof, _destination, _value, _data);
+    function execute(
+        address _registry,
+        bytes32 _lineupCF,
+        bytes _proof,
+        address _destination,
+        uint256 _value,
+        bytes _data
+    ) public
+    {
 
         IRegistry registry = IRegistry(_registry);
         address lineupAddress = registry.resolve(_lineupCF);

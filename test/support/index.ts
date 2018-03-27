@@ -5,8 +5,6 @@ import { Multisig, PublicRegistry } from '../../src/index'
 import * as chai from 'chai'
 import * as abi from 'ethereumjs-abi'
 import * as util from 'ethereumjs-util'
-import * as ethUnits from "ethereumjs-units"
-import {extendConfigurationFile} from "tslint/lib/configuration"
 
 const web3 = (global as any).web3 as Web3
 
@@ -202,17 +200,6 @@ export class BytecodeManager {
 }
 
 
-export function solidityBytes32Converter (input: string|number): string {
-  let hexValue = Solidity.solidityConvertToBytes(input)
-  hexValue = hexValue.substring(2)
-
-  return hexValue.padEnd(64, '0')
-}
-
-
-
-
-
 export namespace Solidity {
 
   export interface SolidityType {
@@ -292,7 +279,7 @@ export namespace Solidity {
         }
       }
     }
-console.log('INPUT SHA-3: ' + value)
+    console.log('INPUT SHA-3: ' + value)
     return web3.sha3(value, {encoding: 'hex'})
   }
 }

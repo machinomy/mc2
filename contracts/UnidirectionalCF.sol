@@ -33,16 +33,16 @@ contract UnidirectionalCF {
         require(canSettle());
         address sender;
         address receiver;
-        uint256 __nonce;
-        (sender, receiver, __nonce) = multisig.state();
+        uint256 _nonce;
+        (sender, receiver, _nonce) = multisig.state();
         selfdestruct(sender);
     }
 
     function canWithdraw(uint256 payment, address origin, bytes signature) public view returns (bool) {
         address sender;
         address receiver;
-        uint256 __nonce;
-        (sender, receiver, __nonce) = multisig.state();
+        uint256 _nonce;
+        (sender, receiver, _nonce) = multisig.state();
         bool isReceiver = origin == receiver;
         bytes32 hash = recoveryPaymentDigest(payment);
         bool isSigned = sender == ECRecovery.recover(hash, signature);
@@ -54,8 +54,8 @@ contract UnidirectionalCF {
         require(canWithdraw(payment, msg.sender, signature));
         address sender;
         address receiver;
-        uint256 __nonce;
-        (sender, receiver, __nonce) = multisig.state();
+        uint256 _nonce;
+        (sender, receiver, _nonce) = multisig.state();
 
         if (payment >= this.balance) {
             receiver.transfer(payment);

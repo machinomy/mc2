@@ -16,7 +16,15 @@ library BidirectionalCFLibrary {
         uint256 toReceiver;
     }
 
-    function canUpdate(State storage self, uint256 _nonce, uint256 _toSender, uint256 _toReceiver, bytes _senderSig, bytes _receiverSig) public view returns (bool) {
+    function canUpdate(
+        State storage self,
+        uint256 _nonce,
+        uint256 _toSender,
+        uint256 _toReceiver,
+        bytes _senderSig,
+        bytes _receiverSig
+    ) public view returns (bool)
+    {
         bool isNonceHigher = _nonce > self.nonce;
         bytes32 hash = LibCommon.recoveryDigest(keccak256(_nonce, _toSender, _toReceiver));
         address sender;
@@ -26,29 +34,72 @@ library BidirectionalCFLibrary {
         return isSettling(self.lastUpdate, self.settlementPeriod) && isNonceHigher && LibCommon.executeHashCheck(hash, _senderSig,  _receiverSig,  sender, receiver);
     }
 
-    function update(State storage bidiData, uint256 _nonce, uint256 _toSender, uint256 _toReceiver, bytes _senderSig, bytes _receiverSig) public view {
-        require(canUpdate(bidiData, _nonce, _toSender, _toReceiver, _senderSig, _receiverSig));
+    function update(
+        State storage bidiData,
+        uint256 _nonce,
+        uint256 _toSender,
+        uint256 _toReceiver,
+        bytes _senderSig,
+        bytes _receiverSig
+    ) public view
+    {
+        var can = canUpdate(
+            bidiData,
+            _nonce,
+            _toSender,
+            _toReceiver,
+            _senderSig,
+            _receiverSig
+        );
+        require(can);
     }
 
-    function canClose(Multisig multisig, uint256 lastUpdate, uint256 settlementPeriod, uint256 _toSender, uint256 _toReceiver, bytes _senderSig, bytes _receiverSig) public view returns (bool) {
+    function canClose(
+        Multisig multisig,
+        uint256 lastUpdate,
+        uint256 settlementPeriod,
+        uint256 _toSender,
+        uint256 _toReceiver,
+        bytes _senderSig,
+        bytes _receiverSig
+    ) public view returns (bool)
+    {
         bytes32 hash = LibCommon.recoveryDigest(keccak256("close", _toSender, _toReceiver));
 
         address sender;
         address receiver;
-        uint256 __nonce;
-        (sender, receiver, __nonce) = multisig.state();
+        uint256 _nonce;
+        (sender, receiver, _nonce) = multisig.state();
         return isSettling(lastUpdate, settlementPeriod) && LibCommon.executeHashCheck(hash, _senderSig,  _receiverSig,  sender, receiver);
     }
 
-    function closeCheck(Multisig multisig, uint256 lastUpdate, uint256 settlementPeriod, uint256 _toSender, uint256 _toReceiver, bytes _senderSig, bytes _receiverSig) public view {
-        require(canClose(multisig, lastUpdate, settlementPeriod, _toSender, _toReceiver, _senderSig, _receiverSig));
+    function closeCheck(
+        Multisig multisig,
+        uint256 lastUpdate,
+        uint256 settlementPeriod,
+        uint256 _toSender,
+        uint256 _toReceiver,
+        bytes _senderSig,
+        bytes _receiverSig
+    ) public view
+    {
+        var canDo = canClose(
+            multisig,
+            lastUpdate,
+            settlementPeriod,
+            _toSender,
+            _toReceiver,
+            _senderSig,
+            _receiverSig
+        );
+        require(canDo);
     }
 
     function closeTransfer(Multisig multisig, uint256 toSender, uint256 toReceiver) public {
         address sender;
         address receiver;
-        uint256 __nonce;
-        (sender, receiver, __nonce) = multisig.state();
+        uint256 _nonce;
+        (sender, receiver, _nonce) = multisig.state();
         receiver.transfer(toReceiver);
 
         sender.transfer(toSender);

@@ -1,20 +1,13 @@
-import * as Web3 from 'web3'
 import * as chai from 'chai'
 import * as BigNumber from 'bignumber.js'
 import * as asPromised from 'chai-as-promised'
 import * as contracts from '../../src/index'
 import * as util from 'ethereumjs-util'
 import * as support from '../support'
-import TestContractWrapper from '../../build/wrappers/TestContract'
-const createKeccakHash = require('keccak')
 
 chai.use(asPromised)
 
-const web3 = (global as any).web3 as Web3
-const assert = chai.assert
-
 const PublicRegistry = artifacts.require<contracts.PublicRegistry.Contract>('PublicRegistry.sol')
-const TestContract = artifacts.require<TestContractWrapper.Contract>('TestContract.sol')
 
 contract('PublicRegistry', accounts => {
   let instance: contracts.PublicRegistry.Contract
@@ -29,8 +22,6 @@ contract('PublicRegistry', accounts => {
 
   let nonce = 1
   let nonceHex = getNonceInHex(nonce)
-  let probe = 42
-  // let bytecode = support.constructorBytecode(web3, TestContract, probe)
   let bytecode = '5'
 
 

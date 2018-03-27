@@ -21,8 +21,22 @@ contract BidirectionalCF {
 
     function () payable public {}
 
-    function update(uint256 _nonce, uint256 _toSender, uint256 _toReceiver, bytes _senderSig, bytes _receiverSig) public {
-        BidirectionalCFLibrary.update(state, _nonce, _toSender, _toReceiver, _senderSig, _receiverSig);
+    function update(
+        uint256 _nonce,
+        uint256 _toSender,
+        uint256 _toReceiver,
+        bytes _senderSig,
+        bytes _receiverSig
+    ) public
+    {
+        BidirectionalCFLibrary.update(
+            state,
+            _nonce,
+            _toSender,
+            _toReceiver,
+            _senderSig,
+            _receiverSig
+        );
         state.toSender = _toSender;
         state.toReceiver = _toReceiver;
         state.nonce = _nonce;
@@ -30,7 +44,15 @@ contract BidirectionalCF {
     }
 
     function close(uint256 _toSender, uint256 _toReceiver, bytes _senderSig, bytes _receiverSig) public {
-        BidirectionalCFLibrary.closeCheck(state.multisig, state.lastUpdate, state.settlementPeriod, _toSender, _toReceiver, _senderSig, _receiverSig);
+        BidirectionalCFLibrary.closeCheck(
+            state.multisig,
+            state.lastUpdate,
+            state.settlementPeriod,
+            _toSender,
+            _toReceiver,
+            _senderSig,
+            _receiverSig
+        );
         BidirectionalCFLibrary.closeTransfer(state.multisig, state.toSender, state.toReceiver);
 
         selfdestruct(state.multisig);

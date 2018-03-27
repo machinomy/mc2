@@ -208,7 +208,7 @@ contract('Multisig', accounts => {
 
       console.log(instLineup)
       await multisig.executeDelegate(instLineup.destination, instLineup.value, instLineup.callBytecode, instLineup.senderSig, instLineup.receiverSig)
-      //assert.equal(web3.eth.getBalance(address).toString(), '10')
+      // assert.equal(web3.eth.getBalance(address).toString(), '10')
     })
 
     specify('Wrong bytecode', async () => {
