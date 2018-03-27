@@ -112,6 +112,29 @@ export class InstantiationFactory {
 
   }
 
+  async raw (destination: Address, value: BigNumber.BigNumber, callBytecode: HexString, nonce: BigNumber.BigNumber) {
+    let _state = await this.multisig.state()
+    let sender = _state[0]
+    let receiver = _state[1]
+
+    let operationHash = util.bufferToHex(abi.soliditySHA3(
+      ['address', 'address' , 'uint256', 'bytes', 'uint256'],
+      [this.multisig.address, destination, value.toString(), util.toBuffer(callBytecode), nonce.toString()]
+    )) // TODO Make it different for call and delegatecall
+    let senderSig = this.web3.eth.sign(sender, operationHash)
+    let receiverSig = this.web3.eth.sign(receiver, operationHash)
+
+    return Promise.resolve({
+      destination,
+      callBytecode,
+      value: new BigNumber.BigNumber(value),
+      operation: 0,
+      senderSig,
+      receiverSig,
+      nonce
+    })
+  }
+
   private async build (call: Call, _nonce?: BigNumber.BigNumber|number): Promise<Instantiation> {
     let params = call.params[0]
     let destination = params.to

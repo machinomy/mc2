@@ -41,7 +41,7 @@ contract('Multisig', accounts => {
 
   let bytecodeManager: BytecodeManager
   let counterFactory: InstantiationFactory
-  let instLineup: Instantiation
+  let lineupI: Instantiation
   let multisig: contracts.Multisig.Contract
   let proxy: contracts.Proxy.Contract
   let registry: contracts.PublicRegistry.Contract
@@ -109,26 +109,26 @@ contract('Multisig', accounts => {
   })
 
   describe('.execute', () => {
-    specify('All right', async () => {
-      lineup = bytecodeManager.constructBytecode(Lineup, sender, settlementPeriod, 0x0)
-      instLineup = await counterFactory.call(registry.deploy.request(lineup, '0x20'), 0)
+    let lineupC: string
+    let lineupI: Instantiation
 
-      try {
-        await multisig.execute(instLineup.destination, instLineup.value, instLineup.callBytecode, instLineup.senderSig, instLineup.receiverSig)
-      } catch (e) {
-        assert(false, 'execute must return true')
-      }
+    before(async () => {
+      lineupC = bytecodeManager.constructBytecode(Lineup, sender, settlementPeriod, 0x0)
+      lineupI = await counterFactory.call(registry.deploy.request(lineupC, '0x20'), 0)
+    })
+
+    specify('All right', async () => {
+      await assert.isFulfilled(multisig.execute(lineupI.destination, lineupI.value, lineupI.callBytecode, lineupI.senderSig, lineupI.receiverSig))
     })
 
     specify('Wrong bytecode', async () => {
-      let callBytecode = 'wrong-bytecode-here'
+      const callBytecode = 'wrong-bytecode-here'
 
-      lineup = bytecodeManager.constructBytecode(Lineup, sender, settlementPeriod, 0x0)
-      instLineup = await counterFactory.call(registry.deploy.request(lineup, '0x20'), 0)
+      let lineupI = await counterFactory.call(registry.deploy.request(lineupC, '0x20'), 0)
 
-      instLineup.callBytecode = callBytecode
+      lineupI.callBytecode = callBytecode
       try {
-        await multisig.execute(instLineup.destination, instLineup.value, instLineup.callBytecode, instLineup.senderSig, instLineup.receiverSig)
+        await multisig.execute(lineupI.destination, lineupI.value, lineupI.callBytecode, lineupI.senderSig, lineupI.receiverSig)
         assert(false, 'execute must return false')
       } catch (e) {
         // true
@@ -138,12 +138,11 @@ contract('Multisig', accounts => {
     specify('Wrong destination', async () => {
       let destination = 'wrong-destination-here'
 
-      lineup = bytecodeManager.constructBytecode(Lineup, sender, settlementPeriod, 0x0)
-      instLineup = await counterFactory.call(registry.deploy.request(lineup, '0x20'), 0)
+      lineupI = await counterFactory.call(registry.deploy.request(lineupC, '0x20'), 0)
 
-      instLineup.destination = destination
+      lineupI.destination = destination
       try {
-        await multisig.execute(instLineup.destination, instLineup.value, instLineup.callBytecode, instLineup.senderSig, instLineup.receiverSig)
+        await multisig.execute(lineupI.destination, lineupI.value, lineupI.callBytecode, lineupI.senderSig, lineupI.receiverSig)
         assert(false, 'execute must return false')
       } catch (e) {
         // true
@@ -153,12 +152,11 @@ contract('Multisig', accounts => {
     specify('Wrong value', async () => {
       let value = new BigNumber.BigNumber(12345)
 
-      lineup = bytecodeManager.constructBytecode(Lineup, sender, settlementPeriod, 0x0)
-      instLineup = await counterFactory.call(registry.deploy.request(lineup, '0x20'), 0)
+      lineupI = await counterFactory.call(registry.deploy.request(lineupC, '0x20'), 0)
 
-      instLineup.value = value
+      lineupI.value = value
       try {
-        await multisig.execute(instLineup.destination, instLineup.value, instLineup.callBytecode, instLineup.senderSig, instLineup.receiverSig)
+        await multisig.execute(lineupI.destination, lineupI.value, lineupI.callBytecode, lineupI.senderSig, lineupI.receiverSig)
         assert(false, 'execute must return false')
       } catch (e) {
         // true
@@ -169,11 +167,11 @@ contract('Multisig', accounts => {
       let senderSig = 'wrong-senderSig-here'
 
       lineup = bytecodeManager.constructBytecode(Lineup, sender, settlementPeriod, 0x0)
-      instLineup = await counterFactory.call(registry.deploy.request(lineup, '0x20'), 0)
+      lineupI = await counterFactory.call(registry.deploy.request(lineup, '0x20'), 0)
 
-      instLineup.senderSig = senderSig
+      lineupI.senderSig = senderSig
       try {
-        await multisig.execute(instLineup.destination, instLineup.value, instLineup.callBytecode, instLineup.senderSig, instLineup.receiverSig)
+        await multisig.execute(lineupI.destination, lineupI.value, lineupI.callBytecode, lineupI.senderSig, lineupI.receiverSig)
         assert(false, 'execute must return false')
       } catch (e) {
         // true
@@ -184,11 +182,11 @@ contract('Multisig', accounts => {
       let receiverSig = 'wrong-receiverSig-here'
 
       lineup = bytecodeManager.constructBytecode(Lineup, sender, settlementPeriod, 0x0)
-      instLineup = await counterFactory.call(registry.deploy.request(lineup, '0x20'), 0)
+      lineupI = await counterFactory.call(registry.deploy.request(lineup, '0x20'), 0)
 
-      instLineup.receiverSig = receiverSig
+      lineupI.receiverSig = receiverSig
       try {
-        await multisig.execute(instLineup.destination, instLineup.value, instLineup.callBytecode, instLineup.senderSig, instLineup.receiverSig)
+        await multisig.execute(lineupI.destination, lineupI.value, lineupI.callBytecode, lineupI.senderSig, lineupI.receiverSig)
         assert(false, 'execute must return false')
       } catch (e) {
         // true
@@ -210,10 +208,10 @@ contract('Multisig', accounts => {
         }]
       }
       web3.eth.sendTransaction({ from: sender, to: multisig.address, value: new BigNumber.BigNumber(10) })
-      instLineup = await counterFactory.delegatecall(transferCall, 0)
+      lineupI = await counterFactory.delegatecall(transferCall, 0)
 
-      console.log(instLineup)
-      await multisig.executeDelegate(instLineup.destination, instLineup.value, instLineup.callBytecode, instLineup.senderSig, instLineup.receiverSig)
+      console.log(lineupI)
+      await multisig.executeDelegate(lineupI.destination, lineupI.value, lineupI.callBytecode, lineupI.senderSig, lineupI.receiverSig)
       // assert.equal(web3.eth.getBalance(address).toString(), '10')
     })
 
@@ -221,12 +219,12 @@ contract('Multisig', accounts => {
       let callBytecode = 'wrong-bytecode-here'
 
       lineup = bytecodeManager.constructBytecode(Lineup, sender, settlementPeriod, 0x0)
-      instLineup = await counterFactory.call(registry.deploy.request(lineup, '0x20'), 0)
+      lineupI = await counterFactory.call(registry.deploy.request(lineup, '0x20'), 0)
 
-      instLineup.callBytecode = callBytecode
+      lineupI.callBytecode = callBytecode
 
       try {
-        await multisig.executeDelegate(instLineup.destination, instLineup.value, instLineup.callBytecode, instLineup.senderSig, instLineup.receiverSig)
+        await multisig.executeDelegate(lineupI.destination, lineupI.value, lineupI.callBytecode, lineupI.senderSig, lineupI.receiverSig)
         assert(false, 'executeDelegate must return false')
       } catch (e) {
         // true
@@ -237,11 +235,11 @@ contract('Multisig', accounts => {
       let destination = 'wrong-destination-here'
 
       lineup = bytecodeManager.constructBytecode(Lineup, sender, settlementPeriod, 0x0)
-      instLineup = await counterFactory.call(registry.deploy.request(lineup, '0x20'), 0)
+      lineupI = await counterFactory.call(registry.deploy.request(lineup, '0x20'), 0)
 
-      instLineup.destination = destination
+      lineupI.destination = destination
       try {
-        await multisig.executeDelegate(instLineup.destination, instLineup.value, instLineup.callBytecode, instLineup.senderSig, instLineup.receiverSig)
+        await multisig.executeDelegate(lineupI.destination, lineupI.value, lineupI.callBytecode, lineupI.senderSig, lineupI.receiverSig)
         assert(false, 'executeDelegate must return false')
       } catch (e) {
         assert(true)
@@ -252,11 +250,11 @@ contract('Multisig', accounts => {
       let value = new BigNumber.BigNumber(12345)
 
       lineup = bytecodeManager.constructBytecode(Lineup, sender, settlementPeriod, 0x0)
-      instLineup = await counterFactory.call(registry.deploy.request(lineup, '0x20'), 0)
+      lineupI = await counterFactory.call(registry.deploy.request(lineup, '0x20'), 0)
 
-      instLineup.value = value
+      lineupI.value = value
       try {
-        await multisig.executeDelegate(instLineup.destination, instLineup.value, instLineup.callBytecode, instLineup.senderSig, instLineup.receiverSig)
+        await multisig.executeDelegate(lineupI.destination, lineupI.value, lineupI.callBytecode, lineupI.senderSig, lineupI.receiverSig)
         assert(false, 'executeDelegate must return false')
       } catch (e) {
         assert(true)
@@ -267,11 +265,11 @@ contract('Multisig', accounts => {
       let senderSig = 'wrong-senderSig-here'
 
       lineup = bytecodeManager.constructBytecode(Lineup, sender, settlementPeriod, 0x0)
-      instLineup = await counterFactory.call(registry.deploy.request(lineup, '0x20'), 0)
+      lineupI = await counterFactory.call(registry.deploy.request(lineup, '0x20'), 0)
 
-      instLineup.senderSig = senderSig
+      lineupI.senderSig = senderSig
       try {
-        await multisig.executeDelegate(instLineup.destination, instLineup.value, instLineup.callBytecode, instLineup.senderSig, instLineup.receiverSig)
+        await multisig.executeDelegate(lineupI.destination, lineupI.value, lineupI.callBytecode, lineupI.senderSig, lineupI.receiverSig)
         assert(false, 'executeDelegate must return false')
       } catch (e) {
         // true
@@ -282,11 +280,11 @@ contract('Multisig', accounts => {
       let receiverSig = 'wrong-receiverSig-here'
 
       lineup = bytecodeManager.constructBytecode(Lineup, sender, settlementPeriod, 0x0)
-      instLineup = await counterFactory.call(registry.deploy.request(lineup, '0x20'), 0)
+      lineupI = await counterFactory.call(registry.deploy.request(lineup, '0x20'), 0)
 
-      instLineup.receiverSig = receiverSig
+      lineupI.receiverSig = receiverSig
       try {
-        await multisig.executeDelegate(instLineup.destination, instLineup.value, instLineup.callBytecode, instLineup.senderSig, instLineup.receiverSig)
+        await multisig.executeDelegate(lineupI.destination, lineupI.value, lineupI.callBytecode, lineupI.senderSig, lineupI.receiverSig)
         assert(false, 'executeDelegate must return false')
       } catch (e) {
         // true
