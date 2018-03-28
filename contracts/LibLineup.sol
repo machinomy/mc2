@@ -12,7 +12,7 @@ library LibLineup {
     function update(State storage _self, uint256 _nonce, bytes32 _merkleRoot) internal {
         // require(msg.sender == state.owner); FIXME Ownership vs signatures
         // require(_nonce > state.nonce);
-        // require(block.number <= state.lastUpdate + state.updatePeriod);
+        require(block.number <= _self.lastUpdate + _self.updatePeriod);
 
         _self.merkleRoot = _merkleRoot;
         _self.nonce = _nonce;

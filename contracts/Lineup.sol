@@ -16,7 +16,6 @@ contract Lineup {
     }
 
     function isContained(bytes proof, bytes32 hashlock) public view returns (bool) {
-        // return LibLineup.isContained(state.lastUpdate, state.updatePeriod, proof, state.merkleRoot, hashlock);
         return LibLineup.isContained(state, proof, hashlock);
     }
 }

@@ -32,9 +32,10 @@ contract('Lineup', accounts => {
   })
 
   describe('.update', async () => {
+    let nonce = new BigNumber.BigNumber(42)
+    let merkleRoot = util.bufferToHex(merkleTree.root)
+
     specify('set new state', async () => {
-      let nonce = new BigNumber.BigNumber(42)
-      let merkleRoot = util.bufferToHex(merkleTree.root)
       await gaser.gasDiff('Lineup.update', sender, async () => {
         await lineup.update(nonce, merkleRoot, {from: sender})
       })
@@ -43,7 +44,11 @@ contract('Lineup', accounts => {
       let updatedMerkleRoot = (await lineup.state())[1]
       assert.equal(updatedMerkleRoot.toString(), merkleRoot)
     })
-    specify('not if late')
+    specify('not if late', async () => {
+      let lineup = await Lineup.new(0x0, 0)
+      web3.eth.sendTransaction({from: sender, to: accounts[1], value: 1}) // 1 block
+      await assert.isRejected(lineup.update(nonce, merkleRoot, {from: sender}))
+    })
     specify('not if earlier nonce')
     specify('not if not multisig participant')
   })
