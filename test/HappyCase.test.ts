@@ -17,7 +17,7 @@ const ECRecovery = artifacts.require<contracts.ECRecovery.Contract>('ECRecovery.
 const PublicRegistry = artifacts.require<contracts.PublicRegistry.Contract>('PublicRegistry.sol')
 const Lineup = artifacts.require<contracts.Lineup.Contract>('Lineup.sol')
 const Multisig = artifacts.require<contracts.Multisig.Contract>('Multisig.sol')
-const BidirectionalCF = artifacts.require<contracts.BidirectionalCF.Contract>('BidirectionalCF.sol')
+const BidirectionalCF = artifacts.require<contracts.Bidirectional.Contract>('BidirectionalCF.sol')
 const Proxy = artifacts.require<contracts.Proxy.Contract>('Proxy.sol')
 const ConditionalCall = artifacts.require<contracts.ConditionalCall.Contract>('ConditionalCall.sol')
 
@@ -31,7 +31,7 @@ contract('HappyCase', accounts => {
   let registry: contracts.PublicRegistry.Contract
   let counterFactory: support.InstantiationFactory
   let proxy: contracts.Proxy.Contract
-  let instanceForDigest: contracts.BidirectionalCF.Contract
+  let instanceForDigest: contracts.Bidirectional.Contract
 
   let lineup: string
   let bidirectionalCF: string
@@ -110,9 +110,8 @@ contract('HappyCase', accounts => {
 
     nonceBidirectional += 2
     // Step 5
-    let digest = await instanceForDigest.paymentDigest(new BigNumber.BigNumber(nonceBidirectional), new BigNumber.BigNumber(9), new BigNumber.BigNumber(1))
-    let signedBySenderData = web3.eth.sign(sender, digest)
-    let signedByReceiverData = web3.eth.sign(receiver, digest)
+    let signedBySenderData = await support.bidirectionalSign(sender, new BigNumber.BigNumber(nonceBidirectional), new BigNumber.BigNumber(9), new BigNumber.BigNumber(1))
+    let signedByReceiverData = await support.bidirectionalSign(receiver, new BigNumber.BigNumber(nonceBidirectional), new BigNumber.BigNumber(9), new BigNumber.BigNumber(1))
     let moveMoneyToBiDi = await counterFactory.delegatecall(proxy.doCall.request(registry.address, counterfactualAddressBidirectionalCF, new BigNumber.BigNumber(10), '0x00'), new BigNumber.BigNumber(nonceMultisig))
 
     await support.logGas('instantiate lineup', counterFactory.execute(instLineup))

@@ -74,7 +74,23 @@ export function lineupSign (account: string, merkleRoot: HexString, nonce: BigNu
   let operationHash = util.bufferToHex(abi.soliditySHA3(
     ['bytes32', 'uint256'],
     [merkleRoot, nonce.toString()]
-  )) // TODO Make it different for call and delegatecall
+  ))
+  return web3.eth.sign(account, operationHash)
+}
+
+export function bidirectionalSign (account: string, nonce: BigNumber.BigNumber, toSender: BigNumber.BigNumber, toReceiver: BigNumber.BigNumber) {
+  let operationHash = util.bufferToHex(abi.soliditySHA3(
+    ['uint256', 'uint256', 'uint256'],
+    [nonce.toString(), toSender.toString(), toReceiver.toString()]
+  ))
+  return web3.eth.sign(account, operationHash)
+}
+
+export function bidirectionalCloseSign (account: string, toSender: BigNumber.BigNumber, toReceiver: BigNumber.BigNumber) {
+  let operationHash = util.bufferToHex(abi.soliditySHA3(
+    ['string', 'uint256', 'uint256'],
+    ['c', toSender.toString(), toReceiver.toString()]
+  ))
   return web3.eth.sign(account, operationHash)
 }
 

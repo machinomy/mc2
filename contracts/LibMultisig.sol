@@ -19,7 +19,7 @@ library LibMultisig {
         uint256 _value,
         bytes _data,
         uint256 _nonce
-    ) internal pure returns(bytes32)
+    ) public pure returns(bytes32)
     {
         return LibCommon.recoveryDigest(keccak256(_self, _destination, _value, _data, _nonce));
     }
@@ -29,7 +29,7 @@ library LibMultisig {
         address _destination,
         bytes _data,
         uint256 _nonce
-    ) internal pure returns(bytes32)
+    ) public pure returns(bytes32)
     {
         return LibCommon.recoveryDigest(keccak256(_self, _destination, _data, _nonce));
     }
@@ -39,7 +39,7 @@ library LibMultisig {
         bytes32 hash,
         bytes senderSig,
         bytes receiverSig
-    ) internal view returns(bool)
+    ) public view returns(bool)
     {
         return state.sender == LibCommon.recover(hash, senderSig) &&
             state.receiver == LibCommon.recover(hash, receiverSig);
