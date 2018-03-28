@@ -49,7 +49,9 @@ contract('Lineup', accounts => {
       web3.eth.sendTransaction({from: sender, to: accounts[1], value: 1}) // 1 block
       await assert.isRejected(lineup.update(nonce, merkleRoot, {from: sender}))
     })
-    specify('not if earlier nonce')
+    specify('not if earlier nonce', async () => {
+      await assert.isRejected(lineup.update(nonce.minus(1), merkleRoot, {from: sender}))
+    })
     specify('not if not multisig participant')
   })
 
