@@ -3,7 +3,7 @@ pragma solidity ^0.4.19;
 import "zeppelin-solidity/contracts/math/SafeMath.sol";
 import "zeppelin-solidity/contracts/ECRecovery.sol";
 import "./Multisig.sol";
-import "./IRegistry.sol";
+import "./PublicRegistry.sol";
 
 
 /// @title Unidirectional Ether payment channels contract.
@@ -11,14 +11,14 @@ contract UnidirectionalCF {
     using SafeMath for uint256;
 
     Multisig multisig;
-    IRegistry registry; // TODO Remove that, not needed
+    PublicRegistry registry; // TODO Remove that, not needed
     uint256 settlingUntil;
 
     bytes32 id;
 
     function UnidirectionalCF(address _multisig, address _registry, uint32 _settlementPeriod) public payable {
         multisig = Multisig(_multisig);
-        registry = IRegistry(_registry);
+        registry = PublicRegistry(_registry);
         settlingUntil = block.number + _settlementPeriod;
     }
 

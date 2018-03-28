@@ -1,6 +1,6 @@
 pragma solidity ^0.4.19;
 
-// import "./IRegistry.sol";
+import "./PublicRegistry.sol";
 import "./ProxyLibrary.sol";
 
 
@@ -21,7 +21,7 @@ contract Proxy {
 
     function findDestination(address _registry, bytes32 _destination) internal view returns (address destination) {
         // ProxyLibrary.findDestination(_registry, _destination);
-        IRegistry registry = IRegistry(_registry);
+        PublicRegistry registry = PublicRegistry(_registry);
         destination = registry.resolve(_destination);
         require(destination != address(0x0));
     }

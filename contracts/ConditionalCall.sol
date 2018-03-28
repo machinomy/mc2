@@ -1,7 +1,7 @@
 pragma solidity ^0.4.19;
 
 import "./ILineup.sol";
-import "./IRegistry.sol";
+import "./PublicRegistry.sol";
 import "./ConditionalCallLibrary.sol";
 
 
@@ -16,7 +16,7 @@ contract ConditionalCall {
     ) public
     {
 
-        IRegistry registry = IRegistry(_registry);
+        PublicRegistry registry = PublicRegistry(_registry);
         address lineupAddress = registry.resolve(_lineupCF);
         ILineup lineup = ILineup(lineupAddress);
 
