@@ -19,6 +19,8 @@ const PublicRegistry = artifacts.require<contracts.PublicRegistry.Contract>('Pub
 const Multisig = artifacts.require<contracts.Multisig.Contract>('Multisig.sol')
 const Lineup = artifacts.require<contracts.Lineup.Contract>('Lineup.sol')
 const ConditionalCall = artifacts.require<contracts.ConditionalCall.Contract>('ConditionalCall.sol')
+const LibCommon = artifacts.require('LibCommon.sol')
+const LibMultisig = artifacts.require('LibMultisig.sol')
 
 const TestContract: truffle.TruffleContract<TestContractWrapper.Contract> = artifacts.require<TestContractWrapper.Contract>('TestContract.sol')
 
@@ -28,14 +30,10 @@ contract('ConditionalCall', accounts => {
   let conditional: contracts.ConditionalCall.Contract
   let multisig: contracts.Multisig.Contract
   let counterFactory: InstantiationFactory
+  let bytecodeManager: BytecodeManager
 
   let sender = accounts[0]
   let receiver = accounts[1]
-
-  let bytecodeManager: BytecodeManager
-
-  const LibCommon = artifacts.require('LibCommon.sol')
-  const LibMultisig = artifacts.require('LibMultisig.sol')
 
   before(async () => {
     Multisig.link(ECRecovery)

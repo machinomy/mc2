@@ -80,8 +80,8 @@ export default class MerkleTree {
     this.layers = getLayers(this.elements)
   }
 
-  static verify (proof: Array<Buffer>, root: Buffer, element: Buffer): boolean {
-    return root.equals(proof.reduce((hash, pair) => combinedHash(hash, pair), element))
+  verify (proof: Array<Buffer>, element: Buffer): boolean {
+    return this.root.equals(proof.reduce((hash, pair) => combinedHash(hash, pair), element))
   }
 
   proof (element: Buffer): Array<Buffer> {

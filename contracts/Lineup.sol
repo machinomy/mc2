@@ -1,34 +1,22 @@
 pragma solidity ^0.4.19;
 
-import "./ILineup.sol";
-import "./LibCommon.sol";
+import "./LibLineup.sol";
 
+// Optimisation Idea: Use shared Lineup.
+contract Lineup {
+    LibLineup.State public state;
 
-contract Lineup is ILineup {
-    LibCommon.ShareStateState public state;
-
-    modifier restricted() {
-        if (msg.sender == state.owner)
-            _;
-    }
-
-    function Lineup(address _owner, uint256 _updatePeriod, bytes32 _merkleRoot) public {
-        state.owner = _owner;
+    function Lineup(bytes32 _merkleRoot, uint256 _updatePeriod) public {
         state.merkleRoot = _merkleRoot;
         state.updatePeriod = _updatePeriod;
     }
 
-    event TraceSS(uint256 _nonce, bytes32 _merkleRoot);
-    function update(uint256 _nonce, bytes32 _merkleRoot) public restricted {
-        TraceSS(_nonce, _merkleRoot);
-        // require(_nonce > state.nonce);
-        // require(block.number <= lastUpdate + updatePeriod); TODO
-        state.merkleRoot = _merkleRoot;
-        state.nonce = _nonce;
-        state.lastUpdate = block.number;
+    function update(uint256 _nonce, bytes32 _merkleRoot) external {
+        LibLineup.update(state, _nonce, _merkleRoot);
     }
 
     function isContained(bytes proof, bytes32 hashlock) public view returns (bool) {
-        return LibCommon.isContained(state.lastUpdate, state.updatePeriod, proof, state.merkleRoot, hashlock);
+        // return LibLineup.isContained(state.lastUpdate, state.updatePeriod, proof, state.merkleRoot, hashlock);
+        return LibLineup.isContained(state, proof, hashlock);
     }
 }
