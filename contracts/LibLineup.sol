@@ -1,5 +1,7 @@
 pragma solidity ^0.4.19;
 
+import "./Multisig.sol";
+import "./LibCommon.sol";
 
 library LibLineup {
     struct State {
@@ -7,10 +9,12 @@ library LibLineup {
         bytes32 merkleRoot;
         uint256 updatePeriod;
         uint256 lastUpdate;
+        Multisig multisig;
     }
 
-    function update(State storage _self, uint256 _nonce, bytes32 _merkleRoot) internal {
-        // require(msg.sender == state.owner); FIXME Ownership vs signatures
+    function update(State storage _self, uint256 _nonce, bytes32 _merkleRoot, bytes _senderSig, bytes _receiverSig) internal {
+        var hash = keccak256(_merkleRoot, _nonce);
+        require(_self.multisig.isUnanimous(LibCommon.recoveryDigest(hash), _senderSig, _receiverSig));
         require(_nonce > _self.nonce);
         require(block.number <= _self.lastUpdate + _self.updatePeriod);
 

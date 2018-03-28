@@ -35,10 +35,10 @@ library LibMultisig {
     }
 
     function isUnanimous(
+        State storage state,
         bytes32 hash,
         bytes senderSig,
-        bytes receiverSig,
-        State storage state
+        bytes receiverSig
     ) internal view returns(bool)
     {
         return state.sender == LibCommon.recover(hash, senderSig) &&
@@ -55,7 +55,7 @@ library LibMultisig {
         State storage state
     ) public view
     {
-        require(isUnanimous(callDigest(self, destination, value, data, state.nonce), senderSig, receiverSig, state));
+        require(isUnanimous(state, callDigest(self, destination, value, data, state.nonce), senderSig, receiverSig));
         state.nonce.add(1);
     }
 
@@ -68,7 +68,7 @@ library LibMultisig {
         State storage state
     ) public view
     {
-        require(isUnanimous(delegateDigest(self, destination, data, state.nonce), senderSig, receiverSig, state));
+        require(isUnanimous(state, delegateDigest(self, destination, data, state.nonce), senderSig, receiverSig));
         state.nonce.add(1);
     }
 }

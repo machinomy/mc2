@@ -23,7 +23,6 @@ const Multisig = artifacts.require<contracts.Multisig.Contract>('Multisig.sol')
 const LibMultisig = artifacts.require('LibMultisig.sol')
 const DistributeEth = artifacts.require<contracts.DistributeEth.Contract>('DistributeEth.sol')
 
-Multisig.link(ECRecovery)
 Multisig.link(LibCommon)
 Multisig.link(LibMultisig)
 
