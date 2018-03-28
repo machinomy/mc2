@@ -28,7 +28,7 @@ library LibLineup {
         bytes32 cursor = _hashlock;
         bool result = false;
 
-        if (block.number > _self.lastUpdate + _self.updatePeriod) {
+        if (block.number >= _self.lastUpdate + _self.updatePeriod) {
             for (uint256 i = 32; i <= _proof.length; i += 32) {
                 assembly { proofElement := mload(add(_proof, i)) } // solium-disable-line security/no-inline-assembly
 

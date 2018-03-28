@@ -6,8 +6,6 @@ import * as util from 'ethereumjs-util'
 import * as contracts from '../../src/index'
 import * as support from '../support'
 import MerkleTree from '../../src/MerkleTree'
-import * as abi from 'ethereumjs-abi'
-import { HexString } from '../support/index'
 
 chai.use(asPromised)
 
@@ -36,6 +34,10 @@ contract('Lineup', accounts => {
   const sender = accounts[0]
   const receiver = accounts[1]
 
+  function oneBlock () {
+    web3.eth.sendTransaction({from: sender, to: receiver, value: 1}) // 1 block
+  }
+
   before(async () => {
     multisig = await Multisig.new(sender, receiver, {from: sender})
     lineup = await gaser.gasDiff('Lineup.new', sender, async () => {
@@ -60,7 +62,7 @@ contract('Lineup', accounts => {
     })
     specify('not if late', async () => {
       let lineup = await Lineup.new(0x0, 0, multisig.address)
-      web3.eth.sendTransaction({from: sender, to: accounts[1], value: 1}) // 1 block
+      oneBlock()
       await assert.isRejected(lineup.update(nonce, merkleRoot, senderSig, receiverSig))
     })
     specify('not if earlier nonce', async () => {
@@ -72,19 +74,31 @@ contract('Lineup', accounts => {
     })
   })
 
-  describe('.isContained', async () => {
+  describe('.isContained', () => {
+    let updatePeriod = new BigNumber.BigNumber(0)
+    let merkleRoot = util.bufferToHex(merkleTree.root)
+    let element = elements[0]
+    let proof = util.bufferToHex(Buffer.concat(merkleTree.proof(element)))
+
+    let lineup: contracts.Lineup.Contract
+
+    beforeEach(async () => {
+      lineup = await Lineup.new(merkleRoot, updatePeriod, multisig.address)
+    })
+
     specify('ok if contained', async () => {
-      let updatePeriod = new BigNumber.BigNumber(0)
-      let merkleRoot = util.bufferToHex(merkleTree.root)
-      let element = elements[0]
-      let proof = util.bufferToHex(Buffer.concat(merkleTree.proof(element)))
-
-      let lineup = await Lineup.new(merkleRoot, updatePeriod, multisig.address)
-
       assert.isTrue(merkleTree.verify(merkleTree.proof(element), element))
       assert.isTrue(await lineup.isContained(proof, util.bufferToHex(element)))
     })
-    specify('not if late')
-    specify('not if wrong proof')
+    specify('not if early', async () => {
+      let lineup = await Lineup.new(merkleRoot, updatePeriod.plus(10), multisig.address)
+      assert.isTrue(merkleTree.verify(merkleTree.proof(element), element))
+      assert.isFalse(await lineup.isContained(proof, util.bufferToHex(element)))
+    })
+    specify('not if wrong proof', async () => {
+      let fakeProof = util.toBuffer('0xdead')
+      assert.isFalse(merkleTree.verify([fakeProof], element))
+      assert.isFalse(await lineup.isContained(util.bufferToHex(fakeProof), util.bufferToHex(element)))
+    })
   })
 })
