@@ -70,6 +70,14 @@ export function constructorBytecode <A> (web3: Web3, contract: truffle.TruffleCo
   return web3.eth.contract(contract.abi).getData(...params, {data: contract.bytecode})
 }
 
+export function lineupSign (account: string, merkleRoot: HexString, nonce: BigNumber.BigNumber) {
+  let operationHash = util.bufferToHex(abi.soliditySHA3(
+    ['bytes32', 'uint256'],
+    [merkleRoot, nonce.toString()]
+  )) // TODO Make it different for call and delegatecall
+  return web3.eth.sign(account, operationHash)
+}
+
 export interface CallParams {
   to: string
   data: string

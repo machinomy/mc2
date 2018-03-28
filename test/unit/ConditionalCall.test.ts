@@ -2,12 +2,13 @@ import * as Web3 from 'web3'
 import * as chai from 'chai'
 import * as BigNumber from 'bignumber.js'
 import * as asPromised from 'chai-as-promised'
-import * as contracts from '../src/index'
+import * as contracts from '../../src/index'
 import * as util from 'ethereumjs-util'
 import * as truffle from 'truffle-contract'
 
-import TestContractWrapper from '../build/wrappers/TestContract'
-import { InstantiationFactory, BytecodeManager } from './support/index'
+import TestContractWrapper from '../../build/wrappers/TestContract'
+import { InstantiationFactory, BytecodeManager } from '../support/index'
+import MerkleTree from '../../src/MerkleTree'
 
 chai.use(asPromised)
 
@@ -37,6 +38,7 @@ contract('ConditionalCall', accounts => {
 
   before(async () => {
     Multisig.link(ECRecovery)
+    Multisig.link(LibCommon)
     Multisig.link(LibMultisig)
     multisig = await Multisig.new(sender, receiver) // TxCheck
     registry = await PublicRegistry.deployed()
@@ -50,23 +52,26 @@ contract('ConditionalCall', accounts => {
 
   let registryNonce = util.bufferToHex(Buffer.from('secret'))
 
-  specify('calls deployed contract', async () => {
-    let newNonce = new BigNumber.BigNumber(10)
-    let testContract = await TestContract.new(42)
-    let bytecode = testContract.updateNonce.request(newNonce).params[0].data
+  describe('.execute', () => {
+    specify('call deployed contract', async () => {
+      let testContract = await TestContract.new(1)
+      assert.equal((await testContract.nonce()).toNumber(), 1)
+      let newNonce = new BigNumber.BigNumber(10)
 
-    let codeHash = await conditional.callHash(testContract.address, new BigNumber.BigNumber(0), bytecode)
+      let bytecode = testContract.updateNonce.request(newNonce).params[0].data
+      let codeHash = await conditional.callHash(testContract.address, new BigNumber.BigNumber(0), bytecode)
 
-    let stateBytecode = bytecodeManager.constructBytecode(Lineup, sender, 0, codeHash)
-    let counterfactualAddress = await registry.counterfactualAddress(stateBytecode, registryNonce)
-    let lineupInstantiation = await counterFactory.call(registry.deploy.request(stateBytecode, registryNonce))
+      let merkleTree = new MerkleTree([util.toBuffer(codeHash)])
 
-    await counterFactory.execute(lineupInstantiation)
+      let lineupB = bytecodeManager.constructBytecode(Lineup, util.bufferToHex(merkleTree.root), 0, multisig.address)
+      let lineupCAddress = await registry.counterfactualAddress(lineupB, registryNonce)
+      let lineupI = await counterFactory.call(registry.deploy.request(lineupB, registryNonce))
+      await counterFactory.execute(lineupI)
 
-    // await testContract.updateNonce(new BigNumber.BigNumber(20))
-    let proof = '0x0' // merkleTree.proof(codeHash)
-    await conditional.execute(registry.address, counterfactualAddress, proof, testContract.address, new BigNumber.BigNumber(0), bytecode)
-    let actualNonce = await testContract.nonce()
-    assert.equal(actualNonce.toNumber(), newNonce.toNumber())
+      let proof = Buffer.concat(merkleTree.proof(util.toBuffer(codeHash))) // merkleTree.proof(codeHash)
+      await conditional.execute(registry.address, lineupCAddress, util.bufferToHex(proof), testContract.address, new BigNumber.BigNumber(0), bytecode)
+      let actualNonce = await testContract.nonce()
+      assert.equal(actualNonce.toNumber(), newNonce.toNumber())
+    })
   })
 })
