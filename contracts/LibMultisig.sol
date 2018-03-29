@@ -53,10 +53,10 @@ library LibMultisig {
         bytes senderSig,
         bytes receiverSig,
         State storage state
-    ) public view
+    ) public
     {
         require(isUnanimous(state, callDigest(self, destination, value, data, state.nonce), senderSig, receiverSig));
-        state.nonce.add(1);
+        state.nonce = state.nonce.add(1);
     }
 
     function doDelegatecall(
@@ -66,9 +66,9 @@ library LibMultisig {
         bytes senderSig,
         bytes receiverSig,
         State storage state
-    ) public view
+    ) public
     {
         require(isUnanimous(state, delegateDigest(self, destination, data, state.nonce), senderSig, receiverSig));
-        state.nonce.add(1);
+        state.nonce = state.nonce.add(1);
     }
 }
