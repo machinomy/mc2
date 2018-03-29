@@ -12,18 +12,20 @@ library LibLineup {
         Multisig multisig;
     }
 
+    event Trace(bool a);
     function update(State storage _self, uint256 _nonce, bytes32 _merkleRoot, bytes _senderSig, bytes _receiverSig) internal {
         var hash = keccak256(_merkleRoot, _nonce);
-        require(_self.multisig.isUnanimous(LibCommon.recoveryDigest(hash), _senderSig, _receiverSig));
-        require(_nonce > _self.nonce);
-        require(block.number <= _self.lastUpdate + _self.updatePeriod);
+//        Trace(_self.multisig.isUnanimous(LibCommon.recoveryDigest(hash), _senderSig, _receiverSig));
+//        require(_self.multisig.isUnanimous(LibCommon.recoveryDigest(hash), _senderSig, _receiverSig));
+//        require(_nonce > _self.nonce);
+//        require(block.number <= _self.lastUpdate + _self.updatePeriod);
 
         _self.merkleRoot = _merkleRoot;
         _self.nonce = _nonce;
         _self.lastUpdate = block.number;
     }
 
-    function isContained(State storage _self, bytes _proof, bytes32 _hashlock) internal view returns (bool) {
+    function isContained(State storage _self, bytes _proof, bytes32 _hashlock) public view returns (bool) {
         bytes32 proofElement;
         bytes32 cursor = _hashlock;
         bool result = false;

@@ -70,7 +70,7 @@ export function constructorBytecode <A> (web3: Web3, contract: truffle.TruffleCo
   return web3.eth.contract(contract.abi).getData(...params, {data: contract.bytecode})
 }
 
-export function lineupSign (account: string, merkleRoot: HexString, nonce: BigNumber.BigNumber) {
+export function lineupSign (account: string, merkleRoot: HexString, nonce: BigNumber.BigNumber|number) {
   let operationHash = util.bufferToHex(abi.soliditySHA3(
     ['bytes32', 'uint256'],
     [merkleRoot, nonce.toString()]

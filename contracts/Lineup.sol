@@ -8,6 +8,7 @@ import "./Multisig.sol";
 contract Lineup {
     LibLineup.State public state;
 
+    event Trace(bytes32 a);
     function Lineup(bytes32 _merkleRoot, uint256 _updatePeriod, address _multisig) public {
         state.merkleRoot = _merkleRoot;
         state.updatePeriod = _updatePeriod;

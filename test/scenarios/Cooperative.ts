@@ -1,18 +1,17 @@
 import * as chai from 'chai'
 import * as Web3 from 'web3'
 import * as asPromised from 'chai-as-promised'
-import * as contracts from '../src/index'
-import * as support from './support'
+import * as contracts from '../../src/index'
+import * as support from '../support/index'
 import * as BigNumber from 'bignumber.js'
-import * as wrappers from '../build/wrappers'
-import { InstantiationFactory } from './support/index'
+import * as wrappers from '../../build/wrappers/index'
+import { InstantiationFactory } from '../support/index'
 
 
 chai.use(asPromised)
 
 const web3 = (global as any).web3 as Web3
 const assert = chai.assert
-
 
 const ECRecovery = artifacts.require<contracts.ECRecovery.Contract>('ECRecovery.sol')
 const Multisig = artifacts.require<contracts.Multisig.Contract>('Multisig.sol')
@@ -24,12 +23,10 @@ const DistributeEth = artifacts.require<contracts.DistributeEth.Contract>('Distr
 const TestToken = artifacts.require<wrappers.TestToken.Contract>('TestToken.sol')
 const DistributeToken = artifacts.require<contracts.DistributeToken.Contract>('DistributeToken.sol')
 
-
-
 const amountA = new BigNumber.BigNumber(10)
 const amountB = new BigNumber.BigNumber(20)
 
-contract('Cooperative', accounts => {
+contract('Cooperative Behaviour', accounts => {
   let addressA = accounts[4]
   let addressB = accounts[5]
 
