@@ -15,10 +15,9 @@ library LibLineup {
     event Trace(bool a);
     function update(State storage _self, uint256 _nonce, bytes32 _merkleRoot, bytes _senderSig, bytes _receiverSig) internal {
         var hash = keccak256(_merkleRoot, _nonce);
-//        Trace(_self.multisig.isUnanimous(LibCommon.recoveryDigest(hash), _senderSig, _receiverSig));
-//        require(_self.multisig.isUnanimous(LibCommon.recoveryDigest(hash), _senderSig, _receiverSig));
-//        require(_nonce > _self.nonce);
-//        require(block.number <= _self.lastUpdate + _self.updatePeriod);
+        require(_self.multisig.isUnanimous(LibCommon.recoveryDigest(hash), _senderSig, _receiverSig));
+        require(_nonce > _self.nonce);
+        require(block.number <= _self.lastUpdate + _self.updatePeriod);
 
         _self.merkleRoot = _merkleRoot;
         _self.nonce = _nonce;

@@ -39,32 +39,34 @@ LibLineup.link(LibCommon)
 Lineup.link(LibLineup)
 Lineup.link(LibCommon)
 
-interface LineuUpdate {
+interface LineupUpdate {
   nonce: BigNumber.BigNumber
   merkleRoot: HexString
   senderSig: HexString
-  receiverSig: HexString
+  receiverSig: HexString,
+  tree: MerkleTree
 }
 
-function updateLineup (nonce: BigNumber.BigNumber | number, elements: Array<HexString>, sender: Address, receiver: Address): LineuUpdate {
-  let r = root(elements)
+let _lineupNonce = 0
+let _lineupElements: Array<HexString> = []
+function updateLineup (element: HexString|null, sender: Address, receiver: Address): LineupUpdate {
+  if (element) _lineupElements.push(element)
+  let tree = new MerkleTree(_lineupElements.map(util.toBuffer))
+  _lineupNonce += 1
+  let r = util.bufferToHex(tree.root)
   return {
-    nonce: new BigNumber.BigNumber(nonce),
+    nonce: new BigNumber.BigNumber(_lineupNonce),
     merkleRoot: r,
-    senderSig: support.lineupSign(sender, r, nonce),
-    receiverSig: support.lineupSign(receiver, r, nonce)
+    senderSig: support.lineupSign(sender, r, _lineupNonce),
+    receiverSig: support.lineupSign(receiver, r, _lineupNonce),
+    tree: tree
   }
 }
 
-function proof (elements: Array<HexString>, e: HexString): HexString {
-  let tree = new MerkleTree(elements.map(e => util.toBuffer(e)))
+function proof (lineupU: LineupUpdate, e: HexString): HexString {
+  let tree = lineupU.tree
   let p = Buffer.concat(tree.proof(util.toBuffer(e)))
   return util.bufferToHex(p)
-}
-
-function root (elements: Array<HexString>): HexString {
-  let tree = new MerkleTree(elements.map(e => util.toBuffer(e)))
-  return util.bufferToHex(tree.root)
 }
 
 contract('Uncooperative Behaviour', accounts => {
@@ -119,45 +121,31 @@ contract('Uncooperative Behaviour', accounts => {
     const lineupSettlementPeriod = 1
     // let instanceForDigest = await Bidirectional.new(multisig.address, settlementPeriod)
 
-    let lineupElements: Array<HexString> = []
-
     // // 2: Counterfactually deploy Lineup
-    let lineupNonce = 0
-    let lineupB = bytecodeManager.constructBytecode(Lineup, '0x', lineupSettlementPeriod, multisig.address)
+    let lineupU = updateLineup(null, sender, receiver)
+    let lineupB = bytecodeManager.constructBytecode(Lineup, 0x0, lineupSettlementPeriod, multisig.address)
     let lineupA = await registry.counterfactualAddress(lineupB, REGISTRY_NONCE)
-    let lineupI = await counterFactory.call(registry.deploy.request(lineupB, REGISTRY_NONCE), lineupNonce)
+    let lineupI = await counterFactory.call(registry.deploy.request(lineupB, REGISTRY_NONCE))
 
-    // 3: Prepare conditional counterfactual deployment of Bidirectional, and update Lineup
+    // 3: Prepare counterfactual deployment of Bidirectional, and update Lineup
     let bidirectionalB = bytecodeManager.constructBytecode(Bidirectional, multisig.address, settlementPeriod)
     let bidirectionalA = await registry.counterfactualAddress(bidirectionalB, REGISTRY_NONCE)
     let bidirectionalDeployment = registry.deploy.request(bidirectionalB, REGISTRY_NONCE).params[0].data
     let bidirectionalCodehash = await conditional.callHash(registry.address, new BigNumber.BigNumber(0), bidirectionalDeployment)
+    lineupU = updateLineup(bidirectionalCodehash, sender, receiver)
 
-    // Update Lineup
-    lineupElements.push(bidirectionalCodehash)
-    let lineupUpdateSenderSig = support.lineupSign(sender, root(lineupElements), lineupNonce)
-    let lineupUpdateReceiverSig = support.lineupSign(receiver, root(lineupElements), lineupNonce)
-
-    await counterFactory.execute(lineupI)
-    let lineup = await Lineup.at(await registry.resolve(lineupA))
-    await lineup.update(new BigNumber.BigNumber(lineupNonce), root(lineupElements), lineupUpdateSenderSig, lineupUpdateReceiverSig)
-
-    // FIXME Add signed update to Lineup
-    // lineupElements.push(bidirectionalCodehash)
-    // lineupB = bytecodeManager.constructBytecode(Lineup, root(lineupElements), lineupSettlementPeriod, multisig.address)
-    // lineupI = await counterFactory.call(registry.deploy.request(lineupB, REGISTRY_NONCE), lineupNonce)
-    // lineupA = await registry.counterfactualAddress(lineupB, REGISTRY_NONCE)
+    // 4. Prepare counterfactual transfer
+    let transferB = proxy.doCall.request(registry.address, bidirectionalA, depositA, '0x').params[0].data
+    let transferCodehash = await conditional.callHash(proxy.address, new BigNumber.BigNumber(0), transferB)
+    lineupU = updateLineup(transferCodehash, sender, receiver)
 
     // 5: Conditionally counterfactually deploy Bidirectional
-    let conditionalBidirectionalB = conditional.execute.request(registry.address, lineupA, proof(lineupElements, bidirectionalCodehash), registry.address, new BigNumber.BigNumber(0), bidirectionalDeployment)
+    let conditionalBidirectionalB = conditional.execute.request(registry.address, lineupA, proof(lineupU, bidirectionalCodehash), registry.address, new BigNumber.BigNumber(0), bidirectionalDeployment)
     let conditionalBidirectionalI = await counterFactory.call(conditionalBidirectionalB, 1)
 
     // 5. Conditionally counterfactually move money to deployed Bidirectional, and update Lineup
-    let transferB = proxy.doCall.request(registry.address, bidirectionalA, depositA, '0x').params[0].data
-    let transferCodehash = await conditional.callHash(proxy.address, new BigNumber.BigNumber(0), transferB)
-    let conditionalTransferB = conditional.execute.request(registry.address, lineupA, '0x', proxy.address, new BigNumber.BigNumber(0), transferB)
+    let conditionalTransferB = conditional.execute.request(registry.address, lineupA, proof(lineupU, transferCodehash), proxy.address, new BigNumber.BigNumber(0), transferB)
     let conditionalTransferI = await counterFactory.delegatecall(conditionalTransferB, 2)
-    // lineupElements.push(transferCodehash)
 
     // 6. Do deposit to Multisig
     web3.eth.sendTransaction({from: addressA, to: multisig.address, value: depositA})
@@ -172,6 +160,17 @@ contract('Uncooperative Behaviour', accounts => {
     //
     // 7. Resolve the dispute on Bidirectional
 
+    await counterFactory.execute(lineupI)
+    let lineup = await Lineup.at(await registry.resolve(lineupA))
+    await lineup.update(lineupU.nonce, lineupU.merkleRoot, lineupU.senderSig, lineupU.receiverSig)
+
+    web3.eth.sendTransaction({from: addressA, to: addressA, value: depositA})
+    web3.eth.sendTransaction({from: addressA, to: addressA, value: depositA})
+
+    await counterFactory.execute(conditionalBidirectionalI)
+    await counterFactory.execute(conditionalTransferI)
+    console.log(multisig.address)
+    assert(false)
     // await conditional.execute(registry.address, lineupCAddress, util.bufferToHex(proof), testContract.address, new BigNumber.BigNumber(0), bytecode)
     // let call = await counterFactory.call(registry.deploy.request(bidirectionalB, REGISTRY_NONCE), lineupNonce + 1)
     // await counterFactory.execute(call)

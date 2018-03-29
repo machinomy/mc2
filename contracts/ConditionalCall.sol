@@ -2,8 +2,6 @@ pragma solidity ^0.4.19;
 
 import "./ILineup.sol";
 import "./PublicRegistry.sol";
-import "./ConditionalCallLibrary.sol";
-
 
 contract ConditionalCall {
     function execute(
