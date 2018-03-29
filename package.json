@@ -20,7 +20,7 @@
     "test": "test"
   },
   "config": {
-    "truffleTests": "test/unit/*.test.js",
+    "truffleTests": "test/**/*.test.js",
     "wrappedArtifacts": "build/contracts/@(Test*|Bidirectional|Unidirectional|ConditionalCall|DistributeEth|DistributeToken|UnidirectionalCF|PublicRegistry|Lineup|TestToken|Multisig|TransferToken|TestContract|Proxy|ECRecovery).json"
   },
   "natspec": {
