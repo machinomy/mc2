@@ -8,7 +8,7 @@ import DistributeEth from '../build/wrappers/DistributeEth'
 import DistributeToken from '../build/wrappers/DistributeToken'
 import UnidirectionalCF from '../build/wrappers/UnidirectionalCF'
 import Lineup from '../build/wrappers/Lineup'
-import ConditionalCall from '../build/wrappers/ConditionalCall'
+import Conditional from '../build/wrappers/Conditional'
 import Bidirectional from '../build/wrappers/Bidirectional'
 import TestContract from '../build/wrappers/TestContract'
 import TestToken from '../build/wrappers/TestToken'
@@ -24,7 +24,7 @@ export {
   DistributeEth,
   DistributeToken,
   UnidirectionalCF,
-  ConditionalCall,
+  Conditional,
   Lineup,
   Bidirectional,
   TestContract,

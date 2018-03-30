@@ -1,7 +1,7 @@
 import * as Deployer from 'truffle-deployer'
 
-const ConditionalCall = artifacts.require('ConditionalCall')
+const Conditional = artifacts.require('Conditional')
 
 module.exports = function (deployer: Deployer) {
-  return deployer.deploy(ConditionalCall)
+  return deployer.deploy(Conditional)
 }

@@ -19,16 +19,17 @@ const ECRecovery = artifacts.require<contracts.ECRecovery.Contract>('ECRecovery.
 const PublicRegistry = artifacts.require<contracts.PublicRegistry.Contract>('PublicRegistry.sol')
 const Multisig = artifacts.require<contracts.Multisig.Contract>('Multisig.sol')
 const Lineup = artifacts.require<contracts.Lineup.Contract>('Lineup.sol')
-const ConditionalCall = artifacts.require<contracts.ConditionalCall.Contract>('ConditionalCall.sol')
+const Conditional = artifacts.require<contracts.Conditional.Contract>('Conditional.sol')
 const LibCommon = artifacts.require('LibCommon.sol')
 const LibMultisig = artifacts.require('LibMultisig.sol')
+const LibLineup = artifacts.require('LibLineup.sol')
 
 const TestContract: truffle.TruffleContract<TestContractWrapper.Contract> = artifacts.require<TestContractWrapper.Contract>('TestContract.sol')
 
 
 contract('ConditionalCall', accounts => {
   let registry: contracts.PublicRegistry.Contract
-  let conditional: contracts.ConditionalCall.Contract
+  let conditional: contracts.Conditional.Contract
   let multisig: contracts.Multisig.Contract
   let counterFactory: InstantiationFactory
   let bytecodeManager: BytecodeManager
@@ -44,10 +45,11 @@ contract('ConditionalCall', accounts => {
     registry = await PublicRegistry.deployed()
 
     counterFactory = new InstantiationFactory(web3, multisig)
-    conditional = await ConditionalCall.new()
+    conditional = await Conditional.new()
 
     bytecodeManager = new BytecodeManager(web3)
     await bytecodeManager.addLink(LibCommon, 'LibCommon')
+    await bytecodeManager.addLink(LibLineup, 'LibLineup')
   })
 
   let registryNonce = util.bufferToHex(Buffer.from('secret'))
@@ -69,7 +71,7 @@ contract('ConditionalCall', accounts => {
       await counterFactory.execute(lineupI)
 
       let proof = Buffer.concat(merkleTree.proof(util.toBuffer(codeHash))) // merkleTree.proof(codeHash)
-      await conditional.execute(registry.address, lineupCAddress, util.bufferToHex(proof), testContract.address, new BigNumber.BigNumber(0), bytecode)
+      await conditional.doCall(registry.address, lineupCAddress, util.bufferToHex(proof), testContract.address, new BigNumber.BigNumber(0), bytecode)
       let actualNonce = await testContract.nonce()
       assert.equal(actualNonce.toNumber(), newNonce.toNumber())
     })
