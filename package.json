@@ -21,7 +21,7 @@
   },
   "config": {
     "truffleTests": "test/scenarios/Dispute.test.js",
-    "wrappedArtifacts": "build/contracts/@(Test*|Bidirectional|Unidirectional|ConditionalCall|DistributeEth|DistributeToken|UnidirectionalCF|PublicRegistry|Lineup|TestToken|Multisig|TransferToken|TestContract|Proxy|ECRecovery).json"
+    "wrappedArtifacts": "build/contracts/@(Test*|Bidirectional|Unidirectional|ConditionalCall|Conditional|DistributeEth|DistributeToken|UnidirectionalCF|PublicRegistry|Lineup|TestToken|Multisig|TransferToken|TestContract|Proxy|ECRecovery).json"
   },
   "natspec": {
     "whitelist": [

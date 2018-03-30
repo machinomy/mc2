@@ -4,9 +4,10 @@ import * as asPromised from 'chai-as-promised'
 import * as contracts from '../../src/index'
 import * as support from '../support/index'
 import * as BigNumber from 'bignumber.js'
-import {Instantiation, InstantiationFactory, BytecodeManager, HexString, Address} from '../support/index'
-import * as util from "ethereumjs-util";
-import MerkleTree from "../../src/MerkleTree";
+import { InstantiationFactory, BytecodeManager, HexString, Address } from '../support/index'
+import * as util from 'ethereumjs-util'
+import MerkleTree from '../../src/MerkleTree'
+import * as wrappers from '../../build/wrappers'
 
 
 chai.use(asPromised)
@@ -22,7 +23,7 @@ const LibLineup = artifacts.require<contracts.Lineup.Contract>('LibLineup.sol')
 const Multisig = artifacts.require<contracts.Multisig.Contract>('Multisig.sol')
 const Bidirectional = artifacts.require<contracts.Bidirectional.Contract>('Bidirectional.sol')
 const Proxy = artifacts.require<contracts.Proxy.Contract>('Proxy.sol')
-const ConditionalCall = artifacts.require<contracts.ConditionalCall.Contract>('ConditionalCall.sol')
+const Conditional = artifacts.require<wrappers.Conditional.Contract>('Conditional.sol')
 const LibBidirectional = artifacts.require('LibBidirectional.sol')
 const LibMultisig = artifacts.require('LibMultisig.sol')
 const LibCommon = artifacts.require('LibCommon.sol')
@@ -69,27 +70,22 @@ function proof (lineupU: LineupUpdate, e: HexString): HexString {
   return util.bufferToHex(p)
 }
 
-contract('Uncooperative Behaviour', accounts => {
-  let sender = accounts[0]
-  let receiver = accounts[1]
+const lineupSettlementPeriod = 1 // Hint: Set to 0 to test lineup update period
+const bidirectionalSettlementPeriod = 10
 
-  let settlementPeriod = 10
+const REGISTRY_NONCE = '0x20'
+const depositA = new BigNumber.BigNumber(100)
+let amountA = new BigNumber.BigNumber(10)
+let amountB = new BigNumber.BigNumber(90)
+
+contract('Uncooperative Behaviour', accounts => {
+  const addressA = accounts[3]
+  const addressB = accounts[4]
+
+  let lineupU = updateLineup(null, addressA, addressB)
 
   let registry: contracts.PublicRegistry.Contract
-  let counterFactory: support.InstantiationFactory
   let proxy: contracts.Proxy.Contract
-  let instanceForDigest: contracts.Bidirectional.Contract
-
-  let bidirectionalCF: string
-  let lineup2: string
-
-  let instLineup: Instantiation
-  let instBidirectionalCF: Instantiation
-
-  let counterfactualAddressBidirectionalCF: string
-
-  let nonceBidirectional: number
-  let nonceMultisig: number
 
   let bytecodeManager: BytecodeManager
 
@@ -101,120 +97,79 @@ contract('Uncooperative Behaviour', accounts => {
     await bytecodeManager.addLink(LibMultisig, 'LibMultisig')
     await bytecodeManager.addLink(LibLineup, 'LibLineup')
 
-    nonceBidirectional = 0
-    nonceMultisig = 0
-
     registry = await PublicRegistry.deployed()
     proxy = await Proxy.deployed()
   })
 
   specify('resolve dispute about Ether', async () => {
-    const REGISTRY_NONCE = '0x20'
-    const depositA = new BigNumber.BigNumber(10)
-    const addressA = sender
-
     // 1: Deploy Multisig
-    let multisig = await Multisig.new(sender, receiver)
+    let multisig = await Multisig.new(addressA, addressB)
     let counterFactory = new InstantiationFactory(web3, multisig)
-    let conditional = await ConditionalCall.new()
-
-    const lineupSettlementPeriod = 1
-    // let instanceForDigest = await Bidirectional.new(multisig.address, settlementPeriod)
+    let conditional = await Conditional.new()
 
     // // 2: Counterfactually deploy Lineup
-    let lineupU = updateLineup(null, sender, receiver)
     let lineupB = bytecodeManager.constructBytecode(Lineup, 0x0, lineupSettlementPeriod, multisig.address)
     let lineupA = await registry.counterfactualAddress(lineupB, REGISTRY_NONCE)
     let lineupI = await counterFactory.call(registry.deploy.request(lineupB, REGISTRY_NONCE))
 
     // 3: Prepare counterfactual deployment of Bidirectional, and update Lineup
-    let bidirectionalB = bytecodeManager.constructBytecode(Bidirectional, multisig.address, settlementPeriod)
+    let bidirectionalB = bytecodeManager.constructBytecode(Bidirectional, multisig.address, bidirectionalSettlementPeriod)
     let bidirectionalA = await registry.counterfactualAddress(bidirectionalB, REGISTRY_NONCE)
     let bidirectionalDeployment = registry.deploy.request(bidirectionalB, REGISTRY_NONCE).params[0].data
     let bidirectionalCodehash = await conditional.callHash(registry.address, new BigNumber.BigNumber(0), bidirectionalDeployment)
-    lineupU = updateLineup(bidirectionalCodehash, sender, receiver)
+    lineupU = updateLineup(bidirectionalCodehash, addressA, addressB)
 
-    // 4. Prepare counterfactual transfer
+    // 4. Prepare counterfactual transfer, and update Lineup
     let transferB = proxy.doCall.request(registry.address, bidirectionalA, depositA, '0x').params[0].data
-    let transferCodehash = await conditional.callHash(proxy.address, new BigNumber.BigNumber(0), transferB)
-    lineupU = updateLineup(transferCodehash, sender, receiver)
+    let transferCodehash = await conditional.callHash(proxy.address, depositA, transferB)
+    lineupU = updateLineup(transferCodehash, addressA, addressB)
 
     // 5: Conditionally counterfactually deploy Bidirectional
-    let conditionalBidirectionalB = conditional.execute.request(registry.address, lineupA, proof(lineupU, bidirectionalCodehash), registry.address, new BigNumber.BigNumber(0), bidirectionalDeployment)
+    let conditionalBidirectionalB = conditional.doCall.request(registry.address, lineupA, proof(lineupU, bidirectionalCodehash), registry.address, new BigNumber.BigNumber(0), bidirectionalDeployment)
     let conditionalBidirectionalI = await counterFactory.call(conditionalBidirectionalB, 1)
 
-    // 5. Conditionally counterfactually move money to deployed Bidirectional, and update Lineup
-    let conditionalTransferB = conditional.execute.request(registry.address, lineupA, proof(lineupU, transferCodehash), proxy.address, new BigNumber.BigNumber(0), transferB)
+    // 5. Conditionally counterfactually move money to deployed Bidirectional
+    let conditionalTransferB = conditional.doDelegate.request(registry.address, lineupA, proof(lineupU, transferCodehash), proxy.address, depositA, transferB)
     let conditionalTransferI = await counterFactory.delegatecall(conditionalTransferB, 2)
 
-    // 6. Do deposit to Multisig
+    // 6. Deposit to Multisig
     web3.eth.sendTransaction({from: addressA, to: multisig.address, value: depositA})
 
-    // 5. Do exchanges on Bidirectional channel
+    // 5. Do exchanges on Bidirectional Eth channel
+    let nonce = new BigNumber.BigNumber(10)
+    let sigA = support.bidirectionalSign(addressA, nonce, amountA, amountB)
+    let sigB = support.bidirectionalSign(addressB, nonce, amountA, amountB)
 
-    // 6. Deploy the contracts to the blockchain
-    // await counterFactory.execute(lineupI)
-    // let lineup = await Lineup.at(await registry.resolve(lineupA))
-    // await lineup.update(new BigNumber.BigNumber(lineupNonce), root(lineupElements), lineupUpdateSenderSig, lineupUpdateReceiverSig)
-    // await counterFactory.execute(conditionalBidirectionalI)
-    //
-    // 7. Resolve the dispute on Bidirectional
+    // 5.1 And close transaction for Bidirectional Eth channel
+    let closeSigA = support.bidirectionalCloseSign(addressA, amountA, amountB)
+    let closeSigB = support.bidirectionalCloseSign(addressB, amountA, amountB)
 
+    // ****** And now Resolve the dispute for Bidirectional ****** \\
+    // 6. Deploy Lineup
     await counterFactory.execute(lineupI)
     let lineup = await Lineup.at(await registry.resolve(lineupA))
+    // 6.1 Optionally update Lineup
     await lineup.update(lineupU.nonce, lineupU.merkleRoot, lineupU.senderSig, lineupU.receiverSig)
 
-    web3.eth.sendTransaction({from: addressA, to: addressA, value: depositA})
-    web3.eth.sendTransaction({from: addressA, to: addressA, value: depositA})
-
+    // 7 Deploy Bidirectional channel
     await counterFactory.execute(conditionalBidirectionalI)
-    await counterFactory.execute(conditionalTransferI)
-    console.log(multisig.address)
-    assert(false)
-    // await conditional.execute(registry.address, lineupCAddress, util.bufferToHex(proof), testContract.address, new BigNumber.BigNumber(0), bytecode)
-    // let call = await counterFactory.call(registry.deploy.request(bidirectionalB, REGISTRY_NONCE), lineupNonce + 1)
-    // await counterFactory.execute(call)
 
-    // // Step 3: Construct Bidirectional Call
-    // // FIXME ConditionalCall
-    // // bidirectionalCF = bytecodeManager.constructBytecode(Bidirectional, multisig.address, settlementPeriod)
-    //
-    // // TODO Change name of nonce arg to something else
-    // instBidirectionalCF = await counterFactory.call(registry.deploy.request(bidirectionalCF, '0x30'), nonceMultisig)
-    // nonceMultisig++
-    // counterfactualAddressBidirectionalCF = await registry.counterfactualAddress(bidirectionalCF, '0x30')
-    //
-    // // Step 4
-    // lineup2 = bytecodeManager.constructBytecode(Lineup, sender, settlementPeriod, 0x3)
-    // // await counterFactory.call(registry.deploy.request(lineup2, '0x40'), nonceMultisig)
-    //
-    // nonceBidirectional += 2
-    // // Step 5
-    // let signedBySenderData = await support.bidirectionalSign(sender, new BigNumber.BigNumber(nonceBidirectional), new BigNumber.BigNumber(9), new BigNumber.BigNumber(1))
-    // let signedByReceiverData = await support.bidirectionalSign(receiver, new BigNumber.BigNumber(nonceBidirectional), new BigNumber.BigNumber(9), new BigNumber.BigNumber(1))
-    // let moveMoneyToBiDi = await counterFactory.delegatecall(proxy.doCall.request(registry.address, counterfactualAddressBidirectionalCF, new BigNumber.BigNumber(10), '0x00'), new BigNumber.BigNumber(nonceMultisig))
-    //
-    // // await support.logGas('instantiate lineup', counterFactory.execute(instLineup))
-    // // await support.logGas('instantiate BiDi', counterFactory.execute(instBidirectionalCF))
-    //
-    // let counterfactualAddressUpdateBidirectionalCF = await registry.counterfactualAddress(bidirectionalCF, '0x30')
-    // let realAddress = await registry.resolve(counterfactualAddressUpdateBidirectionalCF)
-    // // let instance = await Bidirectional.at(realAddress)
-    // // await instance.update(new BigNumber.BigNumber(nonceBidirectional), new BigNumber.BigNumber(9), new BigNumber.BigNumber(1), signedBySenderData, signedByReceiverData)
-    // // assert.equal((await instance.state())[3].toNumber(), nonceBidirectional) // .nonce()
-    // // assert.equal((await instance.state())[4].toNumber(), 9) // .toSender()
-    // // assert.equal((await instance.state())[5].toNumber(), 1) // .toReceiver()
-    // // Step 6
-    // web3.eth.sendTransaction({ from: sender, to: multisig.address, value: new BigNumber.BigNumber(14) })
-    //
-    // // await support.logGas('instantiate move money to BiDi', counterFactory.execute(moveMoneyToBiDi))
-    // let balanceOfSender = web3.eth.getBalance(sender)
-    // let balanceOfReceiver = web3.eth.getBalance(receiver)
-    // // let bytecodeWithdrawCall = instance.withdraw.request().params[0].data
-    // // await counterFactory.delegatecall(proxy.doCall.request(registry.address, counterfactualAddressUpdateBidirectionalCF, new BigNumber.BigNumber(0), bytecodeWithdrawCall))
-    //
-    // // assert.equal(web3.eth.getBalance(multisig.address).toNumber(), new BigNumber.BigNumber(4).toNumber())
-    // // assert.equal(web3.eth.getBalance(sender).toNumber(), new BigNumber.BigNumber(9).plus(balanceOfSender).toNumber())
-    // // assert.equal(web3.eth.getBalance(receiver).toNumber(), new BigNumber.BigNumber(1).plus(balanceOfReceiver).toNumber())
+    // 8 Move money to Bidirectional
+    await counterFactory.execute(conditionalTransferI)
+    assert.equal(web3.eth.getBalance(multisig.address).toNumber(), 0, 'Multisig balance')
+
+    // 9 Close Bidirectional channel
+    let bidirectional = await Bidirectional.at(await registry.resolve(bidirectionalA))
+    assert.equal(web3.eth.getBalance(bidirectional.address).toNumber(), depositA.toNumber(), 'Bidirectional balance')
+
+    let addressABefore = web3.eth.getBalance(addressA)
+    let addressBBefore = web3.eth.getBalance(addressB)
+    await bidirectional.close(amountA, amountB, closeSigA, closeSigB)
+    let addressAAfter = web3.eth.getBalance(addressA)
+    let addressBAfter = web3.eth.getBalance(addressB)
+    // Ensure the funds are distributed correctly
+    assert.equal(web3.eth.getBalance(bidirectional.address).toNumber(), 0, 'Bidirectional balance after close')
+    assert.equal(addressAAfter.minus(addressABefore).toNumber(), amountA.toNumber(), 'balance of addressA after close')
+    assert.equal(addressBAfter.minus(addressBBefore).toNumber(), amountB.toNumber(), 'balance of addressB after close')
   })
 })

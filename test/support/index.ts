@@ -11,6 +11,8 @@ const web3 = (global as any).web3 as Web3
 const LOG_GAS_COST = Boolean(process.env.LOG_GAS_COST)
 const GAS_COST_IN_USD = 0.000012 // 1 ETH = 600 USD
 
+export type Number = BigNumber.BigNumber | number
+
 export class Gaser {
   web3: Web3
 
@@ -70,7 +72,7 @@ export function constructorBytecode <A> (web3: Web3, contract: truffle.TruffleCo
   return web3.eth.contract(contract.abi).getData(...params, {data: contract.bytecode})
 }
 
-export function lineupSign (account: string, merkleRoot: HexString, nonce: BigNumber.BigNumber|number) {
+export function lineupSign (account: string, merkleRoot: HexString, nonce: Number) {
   let operationHash = util.bufferToHex(abi.soliditySHA3(
     ['bytes32', 'uint256'],
     [merkleRoot, nonce.toString()]
@@ -78,7 +80,7 @@ export function lineupSign (account: string, merkleRoot: HexString, nonce: BigNu
   return web3.eth.sign(account, operationHash)
 }
 
-export function bidirectionalSign (account: string, nonce: BigNumber.BigNumber, toSender: BigNumber.BigNumber, toReceiver: BigNumber.BigNumber) {
+export function bidirectionalSign (account: string, nonce: Number, toSender: Number, toReceiver: Number) {
   let operationHash = util.bufferToHex(abi.soliditySHA3(
     ['uint256', 'uint256', 'uint256'],
     [nonce.toString(), toSender.toString(), toReceiver.toString()]
@@ -86,7 +88,7 @@ export function bidirectionalSign (account: string, nonce: BigNumber.BigNumber, 
   return web3.eth.sign(account, operationHash)
 }
 
-export function bidirectionalCloseSign (account: string, toSender: BigNumber.BigNumber, toReceiver: BigNumber.BigNumber) {
+export function bidirectionalCloseSign (account: string, toSender: Number, toReceiver: Number) {
   let operationHash = util.bufferToHex(abi.soliditySHA3(
     ['string', 'uint256', 'uint256'],
     ['c', toSender.toString(), toReceiver.toString()]
