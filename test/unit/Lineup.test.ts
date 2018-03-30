@@ -63,13 +63,17 @@ contract('Lineup', accounts => {
     specify('not if late', async () => {
       let lineup = await Lineup.new(0x0, 0, multisig.address)
       oneBlock()
+      // tslint:disable-next-line:await-promise
       await assert.isRejected(lineup.update(nonce, merkleRoot, senderSig, receiverSig))
     })
     specify('not if earlier nonce', async () => {
+      // tslint:disable-next-line:await-promise
       await assert.isRejected(lineup.update(nonce.minus(1), merkleRoot, senderSig, receiverSig))
     })
     specify('not if not signed', async () => {
+      // tslint:disable-next-line:await-promise
       await assert.isRejected(lineup.update(nonce.plus(1), merkleRoot, '0xdead', receiverSig))
+      // tslint:disable-next-line:await-promise
       await assert.isRejected(lineup.update(nonce.plus(1), merkleRoot, senderSig, '0xdead'))
     })
   })

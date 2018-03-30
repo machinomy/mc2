@@ -4,7 +4,6 @@ import * as BigNumber from 'bignumber.js'
 import * as asPromised from 'chai-as-promised'
 import * as contracts from '../../src/index'
 import * as support from '../support'
-import { InstantiationFactory } from '../support'
 
 chai.use(asPromised)
 
@@ -12,9 +11,7 @@ const web3 = (global as any).web3 as Web3
 const assert = chai.assert
 const gaser = new support.Gaser(web3)
 
-const PublicRegistry = artifacts.require<contracts.PublicRegistry.Contract>('PublicRegistry.sol')
 const Multisig = artifacts.require<contracts.Multisig.Contract>('Multisig.sol')
-const Proxy = artifacts.require<contracts.Proxy.Contract>('Proxy.sol')
 const LibMultisig = artifacts.require('LibMultisig.sol')
 const LibCommon = artifacts.require('LibCommon.sol')
 const Bidirectional = artifacts.require<contracts.Bidirectional.Contract>('Bidirectional.sol')
@@ -29,9 +26,6 @@ let settlementPeriod = new BigNumber.BigNumber(10)
 
 contract('Bidirectional', accounts => {
   let multisig: contracts.Multisig.Contract
-  let registry: contracts.PublicRegistry.Contract
-  let proxy: contracts.Proxy.Contract
-  let counterFactory: support.InstantiationFactory
   let instance: contracts.Bidirectional.Contract
 
   let sender = accounts[2]
@@ -39,14 +33,8 @@ contract('Bidirectional', accounts => {
   let toSender = new BigNumber.BigNumber(10)
   let toReceiver = new BigNumber.BigNumber(20)
 
-  before(async () => {
-    registry = await PublicRegistry.deployed()
-    proxy = await Proxy.deployed()
-  })
-
   beforeEach(async () => {
     multisig = await Multisig.new(sender, receiver)
-    counterFactory = new InstantiationFactory(web3, multisig)
     instance = await Bidirectional.new(multisig.address, settlementPeriod)
   })
 
@@ -83,6 +71,7 @@ contract('Bidirectional', accounts => {
       let nonce = (await instance.state())[3]
       let senderSig = support.bidirectionalSign(sender, nonce, toSender, toReceiver)
       let receiverSig = support.bidirectionalSign(receiver, nonce, toSender, toReceiver)
+      // tslint:disable-next-line:await-promise
       await assert.isRejected(instance.update(nonce, toSender, toReceiver, senderSig, receiverSig))
     })
     specify('not if late', async () => {
@@ -91,6 +80,7 @@ contract('Bidirectional', accounts => {
       let senderSig = support.bidirectionalSign(sender, nonce, toSender, toReceiver)
       let receiverSig = support.bidirectionalSign(receiver, nonce, toSender, toReceiver)
       web3.eth.sendTransaction({from: sender, to: receiver, value: 10})
+      // tslint:disable-next-line:await-promise
       await assert.isRejected(instance.update(nonce, toSender, toReceiver, senderSig, receiverSig))
     })
     specify('not if wrong signature', async () => {
@@ -98,7 +88,9 @@ contract('Bidirectional', accounts => {
       let senderSig = support.bidirectionalSign(sender, nonce, toSender, toReceiver)
       let receiverSig = support.bidirectionalSign(receiver, nonce, toSender, toReceiver)
       web3.eth.sendTransaction({from: sender, to: receiver, value: 10})
+      // tslint:disable-next-line:await-promise
       await assert.isRejected(instance.update(nonce, toSender, toReceiver, '0xdead', receiverSig))
+      // tslint:disable-next-line:await-promise
       await assert.isRejected(instance.update(nonce, toSender, toReceiver, senderSig, '0xdead'))
     })
   })
@@ -132,13 +124,16 @@ contract('Bidirectional', accounts => {
     specify('not if no funds', async () => {
       let senderSig = support.bidirectionalCloseSign(sender, toSender, toReceiver)
       let receiverSig = support.bidirectionalCloseSign(receiver, toSender, toReceiver)
+      // tslint:disable-next-line:await-promise
       await assert.isRejected(instance.close(toSender, toReceiver, senderSig, receiverSig))
     })
     specify('not if wrong signature', async () => {
       let senderSig = support.bidirectionalCloseSign(receiver, toSender, toReceiver)
       let receiverSig = support.bidirectionalCloseSign(receiver, toSender, toReceiver)
       web3.eth.sendTransaction({from: sender, to: instance.address, value: toSender.plus(toReceiver)})
+      // tslint:disable-next-line:await-promise
       await assert.isRejected(gaser.logGas('Bidirectional.close', instance.close(toSender, toReceiver, '0xdead', receiverSig)))
+      // tslint:disable-next-line:await-promise
       await assert.isRejected(gaser.logGas('Bidirectional.close', instance.close(toSender, toReceiver, senderSig, '0xdead')))
     })
   })
