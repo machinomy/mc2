@@ -1,6 +1,6 @@
 pragma solidity ^0.4.19;
 
-import "./ILineup.sol";
+import "./Lineup.sol";
 import "./PublicRegistry.sol";
 
 contract Conditional {
@@ -16,7 +16,7 @@ contract Conditional {
 
         PublicRegistry registry = PublicRegistry(_registry);
         address lineupAddress = registry.resolve(_lineupCF);
-        ILineup lineup = ILineup(lineupAddress);
+        Lineup lineup = Lineup(lineupAddress);
 
         bytes32 hash = callHash(_destination, _value, _data);
         require(lineup.isContained(_proof, hash));
@@ -35,7 +35,7 @@ contract Conditional {
 
         PublicRegistry registry = PublicRegistry(_registry);
         address lineupAddress = registry.resolve(_lineupCF);
-        ILineup lineup = ILineup(lineupAddress);
+        Lineup lineup = Lineup(lineupAddress);
 
         bytes32 hash = callHash(_destination, _value, _data);
         require(lineup.isContained(_proof, hash));
