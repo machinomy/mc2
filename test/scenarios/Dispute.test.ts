@@ -136,9 +136,9 @@ contract('Uncooperative Behaviour', accounts => {
     web3.eth.sendTransaction({from: addressA, to: multisig.address, value: depositA})
 
     // 5. Do exchanges on Bidirectional Eth channel
-    let nonce = new BigNumber.BigNumber(10)
-    let sigA = support.bidirectionalSign(addressA, nonce, amountA, amountB)
-    let sigB = support.bidirectionalSign(addressB, nonce, amountA, amountB)
+    // let nonce = new BigNumber.BigNumber(10)
+    // let sigA = support.bidirectionalSign(addressA, nonce, amountA, amountB)
+    // let sigB = support.bidirectionalSign(addressB, nonce, amountA, amountB)
 
     // 5.1 And close transaction for Bidirectional Eth channel
     let closeSigA = support.bidirectionalCloseSign(addressA, amountA, amountB)

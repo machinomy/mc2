@@ -22,7 +22,7 @@ export class Gaser {
 
   async gasDiff<A> (name: string, account: string, fn: () => A, forceLog: boolean = false) {
     let before = web3.eth.getBalance(account)
-    let result = await fn()
+    let result = fn()
     let after = web3.eth.getBalance(account)
     let gasCost = before.minus(after).div(this.web3.eth.gasPrice.div(0.2)).toNumber()
     this.log(gasCost, name, forceLog)
@@ -258,90 +258,5 @@ export class BytecodeManager {
       bytecode = bytecode.replace(regex, libraryAddress.replace('0x', ''))
     })
     return bytecode
-  }
-}
-
-
-export namespace Solidity {
-
-  export interface SolidityType {
-    _value: string
-    value (): string
-  }
-
-  export class Bytes implements SolidityType {
-    _value: string
-
-    constructor (other: string|number) {
-      if (other === undefined) {
-        this._value = '0x'
-      } else {
-        this._value = solidityConvertToBytes(other)
-      }
-    }
-
-    value (): string {
-      return this._value
-    }
-
-    toString (): string {
-      return this.value()
-    }
-  }
-
-  export class Bytes32 implements SolidityType {
-    _value: string
-
-    constructor (other: string|number) {
-      if (other === undefined) {
-        this._value = '0x'.padEnd(66, '0')
-      } else {
-        this._value = solidityConvertToBytes32(other)
-      }
-    }
-
-    value (): string {
-      return this._value
-    }
-
-    toString (): string {
-      return this.value()
-    }
-  }
-
-  export function solidityConvertToBytes (input: string|number, isHex: boolean = true): string {
-    if (isHex && input.toString().startsWith('0x')) {
-      input = input.toString().substring(2)
-    }
-    return util.addHexPrefix(Buffer.from(input.toString(), 'utf8').toString('hex'))
-  }
-
-  export function solidityConvertToBytes32 (input: string|number, isHex: boolean = true): string {
-    if (isHex && input.toString().startsWith('0x')) {
-      input = input.toString().substring(2)
-    }
-    return util.addHexPrefix(Buffer.from(input.toString(), 'utf8').toString('hex').padEnd(64, '0'))
-  }
-
-  export function keccak<T extends SolidityType> (...args: T[]): string {
-    let value = ''
-    if (args.length) {
-      if (!args[0].value().startsWith('0x')) {
-        value = '0x' + value
-      } else {
-        value += args[0]
-      }
-      args.shift()
-      for (let i = 0; i < args.length; i++) {
-        let arg: SolidityType = args[0]
-        if (arg.value().startsWith('0x')) {
-          value += arg.value().substring(2)
-        } else {
-          value += arg.value()
-        }
-      }
-    }
-    console.log('INPUT SHA-3: ' + value)
-    return web3.sha3(value, {encoding: 'hex'})
   }
 }

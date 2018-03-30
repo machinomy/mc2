@@ -1,5 +1,6 @@
 pragma solidity ^0.4.19;
 
+
 contract PublicRegistry {
     mapping (bytes32 => address) _contracts;
 

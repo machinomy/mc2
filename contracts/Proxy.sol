@@ -2,6 +2,7 @@ pragma solidity ^0.4.19;
 
 import "./PublicRegistry.sol";
 
+
 // @title Proxy call via counterfactual address.
 // @dev This may really suck. TODO Check output types
 contract Proxy {

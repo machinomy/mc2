@@ -3,6 +3,7 @@ pragma solidity ^0.4.19;
 import "./Multisig.sol";
 import "./LibCommon.sol";
 
+
 library LibLineup {
     struct State {
         uint256 nonce;

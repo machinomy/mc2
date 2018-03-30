@@ -38,7 +38,7 @@ contract Bidirectional {
 
     function close(uint256 _toSender, uint256 _toReceiver, bytes _senderSig, bytes _receiverSig) public {
         require(LibBidirectional.canClose(state, _toSender, _toReceiver, _senderSig, _receiverSig));
-        var (sender, receiver, _nonce) = state.multisig.state();
+        var (sender, receiver,) = state.multisig.state();
         receiver.transfer(_toReceiver);
         sender.transfer(_toSender);
         selfdestruct(state.multisig);
@@ -47,7 +47,7 @@ contract Bidirectional {
     function withdraw() public {
         require(!LibBidirectional.isSettling(state));
 
-        var (sender, receiver, _nonce) = state.multisig.state();
+        var (sender, receiver,) = state.multisig.state();
         receiver.transfer(state.toReceiver);
         sender.transfer(state.toSender);
         selfdestruct(state.multisig);

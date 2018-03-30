@@ -29,7 +29,6 @@ Multisig.link(LibMultisig)
 contract('Multisig', accounts => {
   let sender: string
   let receiver: string
-  let alien: string
 
   let counterFactory: InstantiationFactory
   let multisig: contracts.Multisig.Contract
@@ -40,7 +39,6 @@ contract('Multisig', accounts => {
   before(async () => {
     sender = accounts[0]
     receiver = accounts[1]
-    alien = accounts[2]
 
     await bytecodeManager.addLink(ECRecovery, 'ECRecovery')
     await bytecodeManager.addLink(LibCommon, 'LibCommon')

@@ -13,10 +13,6 @@ contract Multisig {
 
     function () payable external {}
 
-    function isUnanimous(bytes32 _hash, bytes _senderSig, bytes _receiverSig) public view returns(bool) {
-        return LibMultisig.isUnanimous(state, _hash, _senderSig, _receiverSig);
-    }
-
     function doCall(
         address destination,
         uint256 value,
@@ -53,5 +49,9 @@ contract Multisig {
             state
         );
         require(destination.delegatecall(data)); // solium-disable-line security/no-low-level-calls
+    }
+
+    function isUnanimous(bytes32 _hash, bytes _senderSig, bytes _receiverSig) public view returns(bool) {
+        return LibMultisig.isUnanimous(state, _hash, _senderSig, _receiverSig);
     }
 }
