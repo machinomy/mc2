@@ -49,13 +49,14 @@
     "David Wolever <david@wolever.net>"
   ],
   "devDependencies": {
-    "@machinomy/types-ethereumjs-units": "https://github.com/machinomy/types-ethereumjs-units",
-    "@machinomy/types-truffle": "https://github.com/machinomy/types-truffle",
-    "@machinomy/types-truffle-artifactor": "https://github.com/machinomy/types-truffle-artifactor",
-    "@machinomy/types-truffle-compile": "https://github.com/machinomy/types-truffle-compile",
-    "@machinomy/types-truffle-config": "https://github.com/machinomy/types-truffle-config",
-    "@machinomy/types-truffle-contract-sources": "https://github.com/machinomy/types-truffle-contract-sources",
-    "@machinomy/types-truffle-resolver": "https://github.com/machinomy/types-truffle-resolver",
+    "@machinomy/types-ethereumjs-units": "^0.0.2",
+    "@machinomy/types-truffle": "^0.0.2",
+    "@machinomy/types-truffle-artifactor": "^0.0.1",
+    "@machinomy/types-truffle-compile": "^0.0.2",
+    "@machinomy/types-truffle-config": "^0.0.2",
+    "@machinomy/types-truffle-contract-sources": "^0.0.1",
+    "@machinomy/types-truffle-resolver": "^0.0.1",
+    "@machinomy/types-web3": "^0.0.7",
     "@types/bignumber.js": "4.0.2",
     "@types/chai": "^4.0.5",
     "@types/chai-as-promised": "^7.1.0",
@@ -77,7 +78,7 @@
     "tslint": "^5.7.0",
     "tslint-config-standard": "^6.0.1",
     "types-ethereumjs-util": "https://github.com/machinomy/types-ethereumjs-util",
-    "typescript": "^2.5.3",
+    "typescript": "^2.8.3",
     "yargs": "^10.1.1",
     "zeppelin-solidity": "^1.6.0"
   },
@@ -89,5 +90,9 @@
     "truffle-contract": "^3.0.0",
     "utf8": "^3.0.0",
     "web3": "^0.20.1"
+  },
+  "resolutions": {
+    "upath": "^1.0.5",
+    "sha3": "^1.2.1"
   }
 }
