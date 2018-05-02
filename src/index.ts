@@ -1,4 +1,3 @@
-import Unidirectional from '../build/wrappers/Unidirectional'
 import PublicRegistry from '../build/wrappers/PublicRegistry'
 import Multisig from '../build/wrappers/Multisig'
 import Proxy from '../build/wrappers/Proxy'
@@ -6,7 +5,6 @@ import ECRecovery from '../build/wrappers/ECRecovery'
 import TransferToken from '../build/wrappers/TransferToken'
 import DistributeEth from '../build/wrappers/DistributeEth'
 import DistributeToken from '../build/wrappers/DistributeToken'
-import UnidirectionalCF from '../build/wrappers/UnidirectionalCF'
 import Lineup from '../build/wrappers/Lineup'
 import Conditional from '../build/wrappers/Conditional'
 import Bidirectional from '../build/wrappers/Bidirectional'
@@ -15,7 +13,6 @@ import TestToken from '../build/wrappers/TestToken'
 import * as ethUtil from 'ethereumjs-util'
 
 export {
-  Unidirectional,
   PublicRegistry,
   Multisig,
   Proxy,
@@ -23,7 +20,6 @@ export {
   TransferToken,
   DistributeEth,
   DistributeToken,
-  UnidirectionalCF,
   Conditional,
   Lineup,
   Bidirectional,
