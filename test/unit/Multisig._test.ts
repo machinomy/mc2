@@ -23,9 +23,7 @@ contract('Multisig', accounts => {
   let receiver: string
   let alien: string
 
-  let lineup: string
   let registryNonce: string
-  let settlementPeriod: number
 
   const ECRecovery = artifacts.require<contracts.ECRecovery.Contract>('ECRecovery.sol')
   const LibCommon = artifacts.require('LibCommon.sol')
@@ -45,7 +43,6 @@ contract('Multisig', accounts => {
 
   let bytecodeManager: BytecodeManager
   let counterFactory: InstantiationFactory
-  let lineupI: Instantiation
   let multisig: contracts.Multisig.Contract
   let proxy: contracts.Proxy.Contract
   let registry: contracts.PublicRegistry.Contract
@@ -59,8 +56,6 @@ contract('Multisig', accounts => {
     sender = accounts[0]
     receiver = accounts[1]
     alien = accounts[2]
-
-    settlementPeriod = 100
 
     Multisig.link(ECRecovery)
     Multisig.link(LibCommon)
@@ -120,23 +115,26 @@ contract('Multisig', accounts => {
 
       let transfer = await counterFactory.raw(FAKE_ADDRESS_A, amount, '0x', new BigNumber.BigNumber(0), 0)
       let execution = multisig.doCall(transfer.destination, transfer.value, transfer.callBytecode, transfer.senderSig, transfer.receiverSig)
-
+      // tslint:disable-next-line:await-promise
       await assert.isFulfilled(execution, 'transfer transaction')
       assert.equal(web3.eth.getBalance(FAKE_ADDRESS_A).toString(), amount.toString())
     })
 
     specify('not if wrong bytecode', async () => {
       let t = await counterFactory.raw(FAKE_ADDRESS_A, amount, '0xdead', new BigNumber.BigNumber(0), 0)
+      // tslint:disable-next-line:await-promise
       await assert.isRejected(multisig.doCall(t.destination, t.value, t.callBytecode, t.senderSig, t.receiverSig))
     })
 
     specify('not if wrong senderSig', async () => {
       let t = await counterFactory.raw(FAKE_ADDRESS_A, amount, '0x', new BigNumber.BigNumber(0), 0)
+      // tslint:disable-next-line:await-promise
       await assert.isRejected(multisig.doCall(t.destination, t.value, t.callBytecode, '0xdead', t.receiverSig))
     })
 
     specify('not if wrong receiverSig', async () => {
       let t = await counterFactory.raw(FAKE_ADDRESS_A, amount, '0x', new BigNumber.BigNumber(0), 0)
+      // tslint:disable-next-line:await-promise
       await assert.isRejected(multisig.doCall(t.destination, t.value, t.callBytecode, t.senderSig, t.receiverSig))
     })
   })
@@ -161,6 +159,7 @@ contract('Multisig', accounts => {
       let command = await counterFactory.delegatecall(transfer)
       let beforeA = web3.eth.getBalance(FAKE_ADDRESS_A)
       let beforeB = web3.eth.getBalance(FAKE_ADDRESS_B)
+      // tslint:disable-next-line:await-promise
       await assert.isFulfilled(multisig.doDelegate(command.destination, command.callBytecode, command.senderSig, command.receiverSig))
       let afterA = web3.eth.getBalance(FAKE_ADDRESS_A)
       let afterB = web3.eth.getBalance(FAKE_ADDRESS_B)
@@ -171,7 +170,7 @@ contract('Multisig', accounts => {
     specify('not if failed call', async () => {
       let call = testDelegatecall.execute.request(amountA, amountB)
       let command = await counterFactory.delegatecall(call)
-
+      // tslint:disable-next-line:await-promise
       await assert.isRejected(multisig.doDelegate(command.destination, command.callBytecode, command.senderSig, command.receiverSig))
     })
 
@@ -179,7 +178,7 @@ contract('Multisig', accounts => {
       let call = testDelegatecall.execute.request(amountA, amountB)
       call.params[0].data = '0xdead'
       let command = await counterFactory.delegatecall(call)
-
+      // tslint:disable-next-line:await-promise
       await assert.isRejected(multisig.doDelegate(command.destination, command.callBytecode, command.senderSig, command.receiverSig))
     })
 
@@ -187,7 +186,7 @@ contract('Multisig', accounts => {
       let call = testDelegatecall.execute.request(amountA, amountB)
       let command = await counterFactory.delegatecall(call)
       command.callBytecode = '0xdead'
-
+      // tslint:disable-next-line:await-promise
       await assert.isRejected(multisig.doDelegate(command.destination, command.callBytecode, command.senderSig, command.receiverSig))
     })
   })
