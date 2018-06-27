@@ -2,7 +2,7 @@
   "name": "@machinomy/contracts",
   "version": "4.0.8",
   "description": "Machinomy contracts managed by Truffle",
-  "license": "Apache-2.0",
+  "license": "AGPL-3.0-or-later",
   "homepage": "https://github.com/machinomy/machinomy-contracts#readme",
   "bugs": {
     "url": "https://github.com/machinomy/machinomy-contracts/issues"
